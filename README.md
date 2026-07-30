@@ -1,44 +1,65 @@
-# 🌍 Overseas Knowledge 出海知识库
+# Overseas Knowledge 出海知识库
 
 出海HR / Global HR / 跨境用工的知识与技能集合。
 
 ---
 
-## 📦 Skills 技能包
+## Skills 技能索引
 
-| # | Skill | 技能 | Description | 说明 |
-|---|-------|------|-------------|------|
-| 1 | `client-salary-band-report` | **客户招聘-岗位薪酬带宽报告** | Generate salary band analysis reports for overseas recruitment positions (Turkey etc.). Covers: desk research → multi-source cross-verification (ElemanBuldum/SalaryExpert) → GROSS/NET conversion → CNY reference → client-ready PDF via reportlab. | 为海外招聘岗位生成薪资带宽分析报告。覆盖：桌面调研 → 多源数据交叉验证（ElemanBuldum/SalaryExpert）→ 税前/税后换算 → 人民币参考 → reportlab 客户版PDF。 |
-| 2 | `xinfushe-overseas-hr` | **用友薪福社-出海HR分析** | Competitor & partner analysis knowledge base for Yonyou Xinfushe (Anchor Anxin) overseas HR services. Covers product matrix, client profile SOP, competitive barriers, industry solutions for China enterprises going global. | 用友薪福社（Anchor安薪）中企出海HR服务的竞品/合作分析知识库。覆盖产品矩阵、客户画像SOP、竞争壁垒、行业方案。 |
-| 3 | `canvas-design` | **可视化设计-海报生成** | Create visual art in .png and .pdf — posters, design artifacts, and visual communications using design philosophy. Bundled with 80+ curated fonts for professional typography. | 生成高质量视觉设计产物（海报/插图/艺术作品）。含80+精选字体，支持图文混排。 |
-
----
-
-## 🚀 How to Use
-
-1. **Download** the `.zip` of any skill you need
-2. **Install** in WorkBuddy via the skill management panel (拖入技能面板即可)
-3. **Trigger** the skill by describing your task in natural language
-
-> 下载所需技能包的 `.zip` 文件，拖入 WorkBuddy 技能管理面板即可安装。用自然语言描述任务即可自动触发。
+| # | Skill | 用途 | 详情 |
+|---|-------|------|------|
+| 1 | `client-salary-band-report` | 海外招聘岗位薪资带宽分析报告 | [SKILL.md](skills/client-salary-band-report/SKILL.md) |
+| 2 | `xinfushe-overseas-hr` | 用友薪福社出海HR竞品/合作分析 | [SKILL.md](skills/xinfushe-overseas-hr/SKILL.md) |
+| 3 | `canvas-design` | 高质量视觉设计（海报/插图） | [SKILL.md](skills/canvas-design/SKILL.md) |
 
 ---
 
-## 📂 Structure
+## Quick Start / 快速开始
+
+```bash
+git clone https://github.com/sunday7moon-hub/overseas-knowledge.git
+```
+
+或直接在线浏览：点击上方任意 `SKILL.md` 链接查看完整说明。
+
+安装：下载 `releases/` 目录下对应 `.zip`，拖入 WorkBuddy 技能面板。
+
+[完整使用指南 →](docs/getting-started.md)
+
+---
+
+## Structure / 目录结构
 
 ```
 overseas-knowledge/
-├── README.md                          ← 你在这里
-├── client-salary-band-report.zip      # 薪酬带宽报告技能
-├── xinfushe-overseas-hr.zip           # 薪福社出海HR技能
-└── canvas-design.zip                  # 海报设计技能
+├── README.md
+├── skills/                          # 技能源文件（可直接在线浏览）
+│   ├── client-salary-band-report/
+│   │   └── SKILL.md
+│   ├── xinfushe-overseas-hr/
+│   │   ├── SKILL.md
+│   │   └── references/              # 参考数据
+│   └── canvas-design/
+│       ├── SKILL.md
+│       └── canvas-fonts/            # 80+字体
+├── releases/                        # 下载包
+│   ├── client-salary-band-report.zip
+│   ├── xinfushe-overseas-hr.zip
+│   └── canvas-design.zip
+└── docs/                            # 开发文档
+    ├── getting-started.md
+    └── conventions.md
 ```
 
 ---
 
-## 🔗 Related
+## Adding a New Skill / 添加新技能
 
-- [Habas Salary Report (Sample Output)](Habas_伊斯坦布尔_组长岗位薪资分析报告_客户版.pdf) — 示例产出
+1. `skills/<skill-name>/` 下创建 SKILL.md
+2. 在 README 索引表中加一行
+3. 打包 .zip 放到 `releases/`
+
+详见 [编码规范 →](docs/conventions.md)
 
 ---
 

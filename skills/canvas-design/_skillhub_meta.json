@@ -1,0 +1,21 @@
+{
+  "name": "canvas-design（视觉设计）",
+  "installedAt": 1782461006544,
+  "source": "marketplace",
+  "version": "1.0.6",
+  "skillId": "skill_2053081626394972160",
+  "examples_zh": [
+    "设计一张赛博朋克风格的海报",
+    "制作一张活动宣传图（PNG格式）",
+    "设计一组社交媒体图片素材"
+  ],
+  "examples_en": [
+    "Design a cyberpunk-style poster",
+    "Create an event promotional image in PNG format",
+    "Design a set of social media images"
+  ],
+  "iconSource": "letter:auto",
+  "skillName": "canvas-design",
+  "description_zh": "基于设计哲学创作精美视觉艺术（PNG/PDF）",
+  "description_en": "Create beautiful visual art in PNG and PDF using design philosophy"
+}
