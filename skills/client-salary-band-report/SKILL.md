@@ -1,5 +1,6 @@
 ---
 name: client-salary-band-report
+display_name: 薪资带宽报告
 description: '[EN] Generate overseas salary band analysis reports. Covers job doc reading, macro research, multi-source verification, GROSS/NET conversion, forex, reportlab PDF. / [CN] 生成海外招聘岗位薪资带宽分析报告。覆盖读取文档、薪资研究、多源验证、GROSS/NET换算、reportlab PDF。'
 agent_created: true
 ---

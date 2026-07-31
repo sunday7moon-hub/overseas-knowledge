@@ -8,10 +8,10 @@
 
 | # | Skill | 用途 | 详情 |
 |---|-------|------|------|
-| 1 | `client-salary-band-report` | 海外招聘岗位薪资带宽分析报告 | [SKILL.md](skills/client-salary-band-report/SKILL.md) |
-| 2 | `xinfushe-overseas-hr` | 用友薪福社出海HR竞品/合作分析 | [SKILL.md](skills/xinfushe-overseas-hr/SKILL.md) |
-| 3 | `canvas-design` | 高质量视觉设计（海报/插图） | [SKILL.md](skills/canvas-design/SKILL.md) |
-| 4 | `company-info-lookup` | 企业信息查询（城市/省份/大区/行业） | [SKILL.md](skills/company-info-lookup/SKILL.md) |
+| 1 | `client-salary-band-report` | **薪资带宽报告**：海外招聘岗位薪资带宽分析报告 | [SKILL.md](skills/client-salary-band-report/SKILL.md) |
+| 2 | `xinfushe-overseas-hr` | **薪福社出海客户画像**：用友薪福社出海HR竞品/客户分析 | [SKILL.md](skills/xinfushe-overseas-hr/SKILL.md) |
+| 3 | `canvas-design` | **出海知识卡片设计**：高质量视觉设计（海报/插图） | [SKILL.md](skills/canvas-design/SKILL.md) |
+| 4 | `company-info-lookup` | **企业信息查询**：城市/省份/大区/行业 | [SKILL.md](skills/company-info-lookup/SKILL.md) |
 
 ---
 

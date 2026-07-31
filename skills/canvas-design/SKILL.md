@@ -3,7 +3,7 @@ name: canvas-design
 description: '[EN] Create visual art in .png and .pdf using design philosophy. Use when asked to create a poster, design, or visual. / [CN] 生成高质量视觉设计产物，含80+字体。'
 version: 1.0.6
 license: Complete terms in LICENSE.txt
-display_name: canvas-design（视觉设计）
+display_name: 出海知识卡片设计
 display_name_en: Canvas Design
 description_zh: 基于设计哲学创作精美视觉艺术（PNG/PDF）
 description_en: Create beautiful visual art in PNG and PDF using design philosophy
