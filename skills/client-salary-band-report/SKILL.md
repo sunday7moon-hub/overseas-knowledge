@@ -1,8 +1,11 @@
 ---
 name: client-salary-band-report
-display_name: 薪资带宽报告
-description: '[EN] Generate overseas salary band analysis reports. Covers job doc reading, macro research, multi-source verification, GROSS/NET conversion, forex, reportlab PDF. / [CN] 生成海外招聘岗位薪资带宽分析报告。覆盖读取文档、薪资研究、多源验证、GROSS/NET换算、reportlab PDF。'
+description: "[EN] Generate overseas salary band analysis reports. Covers job
+  doc reading, macro research, multi-source verification, GROSS/NET conversion,
+  forex, reportlab PDF. / [CN]
+  生成海外招聘岗位薪资带宽分析报告。覆盖读取文档、薪资研究、多源验证、GROSS/NET换算、reportlab PDF。"
 agent_created: true
+disable: true
 ---
 
 # 客户招聘-岗位薪酬带宽报告
@@ -53,26 +56,34 @@ agent_created: true
 
 ### Step 3: 英文岗位交叉验证薪资数据
 
-**核心原则：** 用英国岗位名称在目标国本地薪资平台检索。可信度排序：
+**核心原则：** 用英文岗位名称在目标国本地薪资平台检索。可信度排序：
 
 | 数据源 | 类型 | 币种 | 可信度 |
 |--------|------|------|:------:|
+| Paylab.com | 目标国员工自报薪资 | 按国别标注，**默认GROSS** | ⭐⭐⭐⭐⭐（非洲/新兴市场首选） |
 | ElemanBuldum.com | 土耳其员工自报薪资 | **NET税后**，需换算GROSS(×1.30) | ⭐⭐⭐⭐⭐ |
-| Wide and Wise | 咨询公司指南 | GROSS税前 | ⭐⭐⭐⭐ |
-| WorldSalaries.com | 跨国薪资聚合 | GROSS税前 | ⭐⭐⭐ |
-| SalaryExpert/ERI | 薪资研究机构 | GROSS税前 | ⭐⭐⭐ |
-| Invensis Learning | 引用三方数据 | GROSS税前 | ⭐⭐⭐ |
-| Kariyer.net | 雇主招聘信息 | GROSS税前 | ⭐⭐⭐ |
-| Paylab | 匿名调查 | GROSS税前 | ⭐⭐ |
-| Payscale/Glassdoor | 全球平台 | GROSS税前 | ⭐⭐（土耳其样本少） |
+| WorldSalaries.com | 跨国薪资聚合（岗位细分） | GROSS税前 | ⭐⭐⭐⭐ |
+| SalaryExpert/ERI | 薪资研究机构 | GROSS税前 | ⭐⭐⭐⭐ |
+| Payscale | 全球平台 | GROSS税前 | ⭐⭐⭐（新兴市场样本少） |
+| 本地招聘平台（Kariyer.net等） | 雇主招聘信息 | GROSS税前 | ⭐⭐⭐ |
+| Wide and Wise | 咨询公司指南 | GROSS税前 | ⭐⭐⭐ |
+| **AfricaCarrieres 及法语/泛非求职网站** | 行业档位表 | GROSS | ❌❌ **高危虚高源** |
+| 中文自媒体/贴吧文章 | 经验分享 | 不明 | ❌不稳定 |
 | 百度AI摘要 | AI聚合 | 不明 | ❌不稳定 |
+
+**⚠️ 高危数据源警告（真实教训）：**
+- **AfricaCarrieres 等法语/泛非求职网站的"行业档位表"严重虚高**（曾把博茨瓦纳工程师写成 Senior P45-80K/月，真实市场仅 P8.7K-11.5K/月，虚高约4倍）
+- 原因：这类网站把外资矿业巨头（Debswana、Anglo 等）的**顶薪**当成普遍水平，且数据陈旧
+- 中文自媒体文章（如"到XX国打工年薪百万"）同样严重虚高，只可作上限参考，不可作基准
+- **判断方法：** 若某来源的 Senior 档薪资超过该国平均工资的 6-8 倍以上，基本可判定虚高，须降级或弃用
 
 **关键动作：**
 - 按经验层级查找（0-2年 / 2-5年 / 5年+）
-- 城市系数调整（伊斯坦布尔+17%）
-- 行业系数调整（汽车行业 vs 全行业）
+- 城市系数调整（如伊斯坦布尔+17%、哈博罗内+20-40%）
+- 行业系数调整（矿业/金融 vs 全行业）
 - 跨源交叉验证，取交集区间
 - 明确标注所有数字是GROSS还是NET
+- **新兴市场（尤其非洲）优先用 Paylab 员工自报的 80% 区间**（P10-P90），最贴近真实
 
 ### Step 4: 数据校准
 
@@ -108,32 +119,65 @@ agent_created: true
 - "劣势 → 弥补方案" 改为 "维度 → 核心卖点"
 - 负面表述改为正面呈现
 
-### Step 7: PDF生成
+### Step 7: 发布前薪资数据自校验（强制 Gate，不可跳过）
 
-**macOS 上用 reportlab platypus + CID中文字体：**
-- 字体：`UnicodeCIDFont('STSong-Light')`（内置CID，无需外部字体文件）
-- 注意：**不要使用** `<b>` 标签（CID字体无bold变体，渲染会错位）
+> **核心规则：** 每次交付 PDF 前，必须对每条薪资建议做"合理性校验"。**合理则保留，不合理必须重新输出修正版**，不允许带着存疑数据发布。
+
+**校验清单（每岗逐项核对）：**
+
+| # | 校验项 | 判定标准 | 不通过时的动作 |
+|---|--------|---------|--------------|
+| 1 | **对比权威基准** | 建议薪资与 Paylab/WorldSalaries 同岗数据区间有重叠或合理上浮（≤60%） | 重查数据，重新校准 |
+| 2 | **锚点合理性** | 建议薪资 ÷ 该国社评平均工资 = **1.5-6倍**（新兴市场）| 若 >8倍 → 基本可判定数据虚高，重查 |
+| 3 | **国家间横向对比** | 同岗相邻国家薪资不应相差 3 倍以上（经济水平相近时） | 排查是否有虚高/虚低源 |
+| 4 | **与最低工资倍数** | 建议薪资 ÷ 法定最低工资月化 = 合理倍数（2-15倍视行业而定） | 极端值需复核 |
+| 5 | **数据源交叉** | 每条建议至少 2 个独立来源支撑（其中 1 个为员工自报类） | 补搜索 |
+| 6 | **汇率核对** | 汇率取当日央行中间价，CNY 换算无笔误（抽查 1-2 个计算） | 重算 |
+
+**必须重新输出的场景（硬性触发）：**
+- ❌ 任何来源标记为"高危虚高源"（AfricaCarrieres/中文自媒体）且未修正
+- ❌ 建议薪资超过该国平均工资 8 倍以上（无特殊溢价理由）
+- ❌ 相邻国家同岗薪资差异 >3 倍（无汇率/税制重大差异解释）
+- ❌ 用户或内部复核提出质疑 → **必须重新核查并输出修正版**
+
+**输出前最后动作：**
+1. 复核报告中是否残留已弃用的数据源引用（从数据源清单删除）
+2. 用 PyMuPDF 渲染 PDF 各页为图片，检查无错位/截断/乱码（渲染环境：`/Users/yoyo/.workbuddy/binaries/python/envs/default/bin/python3` + `fitz`）
+3. 汇报时向用户说明：数据源、校验结论（合理/修正）、修正内容
+
+### Step 8: PDF生成
+
+**macOS 上用 reportlab platypus + SimHei黑体（清晰度优先）：**
+- 字体：`TTFont('SimHei', '/tmp/simhei.ttf')`（下载自 https://github.com/StellarCN/scp_zh/raw/master/fonts/SimHei.ttf，保存在 /tmp）
+- 正文纯黑 #000000、字号 10-11pt，表格 9.5-10pt
 - 用 Paragraph 组件包装所有表格单元格，确保自动换行
 - 用 TableStyle 控制列宽、配色、行列背景
+- 标题不用 `<b>` 加粗（SimHei无bold变体），用大号字体替代
 
-**配置参数：**
+**币种符号兼容层（必须！核心经验）：**
+SimHei 和 Helvetica 都只覆盖部分货币符号，缺失时渲染为方块 □：
+- SimHei：仅 ASCII，**不含任何货币符号**
+- Helvetica(WinAnsi)：仅含 $ ¢ £ ¤ ¥ €，**不含 ₱ ₩ ₹ ₫ ฿ ₺ 等较新符号**
+
+处理策略（通用 fix_currency 函数，所有内容经它处理）：
 ```python
-pdfmetrics.registerFont(UnicodeCIDFont('STSong-Light'))
-ch = ParagraphStyle('ch', fontName='STSong-Light', fontSize=9.5, ...)
-cs = ParagraphStyle('cs', fontName='STSong-Light', fontSize=9.5, ...)
+# 1. 非WinAnsi币种符号 -> ISO 4217 代码（任何字体都能显示）
+CURRENCY_FALLBACK = {'₱':'PHP','₩':'KRW','₹':'INR','₫':'VND','฿':'THB','₺':'TRY',
+                     '₴':'UAH','₪':'ILS','₦':'NGN','₸':'KZT','₽':'RUB','₼':'AZN',
+                     '₾':'GEL','₲':'PYG','₡':'CRC','₨':'PKR','₮':'MNT','₣':'CHF','₿':'BTC'}
+# 2. WinAnsi安全符号 -> Helvetica font tag
+LATIN_SAFE = ['$','£','¥','€','¢']
+for sym in LATIN_SAFE:
+    text = text.replace(sym, f'<font face="Helvetica">{sym}</font>')
+# 3. 特殊标点（— – ·）同样切 Helvetica
 ```
 
-**配色方案（深蓝主色）：**
-- PRIMARY = #1a365d（标题）
-- ACCENT = #c53030（强调/红色）
-- TEXT_DARK = #000000（正文-纯黑，不用深灰）
-- TEXT_MUTED = #4a5568（次要）
-
 **水印添加：**
-- 用 PyPDF2 + reportlab canvas 在 PDF 上叠加水印层
+- 用 PyPDF2 + reportlab canvas 叠加水印层
+- **水印字体必须用 SimHei**（Helvetica 不含中文，会显示方块）
 - `c.setFillAlpha(0.12)` 控制透明度
 - 每页3处斜排（居中 + 左上 + 右下）
-- 独立保存为 `*_水印版.pdf`
+- 独立保存为 `*_水印版.pdf`，水印文字"品牌名 日期"
 
 ---
 
@@ -155,3 +199,5 @@ cs = ParagraphStyle('cs', fontName='STSong-Light', fontSize=9.5, ...)
 4. **表格列宽：** 4列表格用 [0.20, 0.35, 0.28, 0.17]，避免字叠字
 5. **标题不加粗：** CID字体不支持 `<b>`，直接用大号字体替代
 6. **封面布局：** 用 Spacer 管理间距，不依赖 spaceAfter
+7. **发布前必须过 Step 7 自校验 Gate：** 合理保留、不合理重出，绝不允许带疑数据交付
+8. **新兴市场数据源优先序：** Paylab（员工自报80%区间）> WorldSalaries > 本地招聘平台 > 咨询指南 > Payscale；**非洲国家严禁直接采信法语/泛非求职网站的行业档位表**
