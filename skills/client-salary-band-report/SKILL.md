@@ -5,7 +5,7 @@ description: "[EN] Generate overseas salary band analysis reports. Covers job
   forex, reportlab PDF. / [CN]
   生成海外招聘岗位薪资带宽分析报告。覆盖读取文档、薪资研究、多源验证、GROSS/NET换算、reportlab PDF。"
 agent_created: true
-disable: true
+disable-model-invocation: true
 ---
 
 # 客户招聘-岗位薪酬带宽报告
@@ -34,6 +34,8 @@ disable: true
 - 证书/技能关键词（如机器人品牌、质量体系）
 
 **关键动作：** 确认英文岗位名称（如 Team Leader / Production Team Leader / Shift Supervisor），后面搜索用英文名。
+
+**注意客户自报价：** 客户可能已给出期望薪资区间（如"月薪3.5-7万""年薪60-150万"）。**不要直接照搬**，需在报告中单独一节"客户自报价 vs 市场校准"对比验证——报价合理则确认，偏低/偏高则给出修正建议（华伽案例：客户报价下限 $88K 低于市场 P25 $130K，需上调）。
 
 ### Step 2: 研究宏观经济参数
 
@@ -100,12 +102,19 @@ disable: true
 
 标准框架（按需调整）：
 
+0. **客户自报价 vs 市场校准**（若客户给了报价）：对比表 + 修正建议（下限偏低上调/上限虚高下调）
 1. **宏观经济参数**（生活成本、最低工资、雇主成本）
-2. **分析维度框架**（岗位对标、技术溢价逻辑）
+2. **分析维度框架**（岗位对标、技术溢价逻辑、语言要求、驻地）
 3. **岗位薪资建议**（每岗GROSS/NET/CNY三列 + P定位）
-4. **竞品在招对比**（同区域竞品薪资vs Habas建议）
+4. **竞品在招对比**（同区域竞品薪资vs客户建议）
 5. **候选人预期分析**（薪资预期 + 非薪资关注点）
 6. **招聘策略建议**（差异化卖点 → 话术方向）
+
+**多国别/多岗位处理（赛迪案例）：**
+- 一国多岗：每岗独立小节（建议薪资+锚点），最后加"对比一览表"
+- 一岗多国：每国独立小节 + 横向对比表（注意锚点倍数按各国社评工资分别计算）
+- 分候选人来源定价：本地人/华裔/外派等分档（科脉案例：三语本地人 RM6-8.5K、华裔 RM6.5-9K、仅双语 RM5-6.5K、中国外派另议）
+- 语言要求是核心溢价项：三语（中英+当地语）> 双语 > 单语，报告要单列"语言要求"维度
 
 ### Step 6: 客户版敏感内容过滤
 
@@ -133,6 +142,7 @@ disable: true
 | 4 | **与最低工资倍数** | 建议薪资 ÷ 法定最低工资月化 = 合理倍数（2-15倍视行业而定） | 极端值需复核 |
 | 5 | **数据源交叉** | 每条建议至少 2 个独立来源支撑（其中 1 个为员工自报类） | 补搜索 |
 | 6 | **汇率核对** | 汇率取当日央行中间价，CNY 换算无笔误（抽查 1-2 个计算） | 重算 |
+| 7 | **客户自报价 vs 市场**（若适用） | 客户报价下限 ≥ 市场 P25，上限 ≤ 市场 P90；偏低则上调、偏高则下调 | 报告修正建议并说明依据 |
 
 **必须重新输出的场景（硬性触发）：**
 - ❌ 任何来源标记为"高危虚高源"（AfricaCarrieres/中文自媒体）且未修正
@@ -148,11 +158,32 @@ disable: true
 ### Step 8: PDF生成
 
 **macOS 上用 reportlab platypus + SimHei黑体（清晰度优先）：**
-- 字体：`TTFont('SimHei', '/tmp/simhei.ttf')`（下载自 https://github.com/StellarCN/scp_zh/raw/master/fonts/SimHei.ttf，保存在 /tmp）
+- 字体：`TTFont('SimHei', '.../fonts/SimHei.ttf')`（下载自 https://github.com/StellarCN/scp_zh/raw/master/fonts/SimHei.ttf）
+- **⚠️ 字体必须持久化到工作目录 `fonts/SimHei.ttf`，不要放 /tmp**（/tmp 被系统清理后脚本全部失效，2026-08 真实教训）
 - 正文纯黑 #000000、字号 10-11pt，表格 9.5-10pt
 - 用 Paragraph 组件包装所有表格单元格，确保自动换行
 - 用 TableStyle 控制列宽、配色、行列背景
 - 标题不用 `<b>` 加粗（SimHei无bold变体），用大号字体替代
+
+**表格排版四件套（必须全配齐，缺一风格不统一）：**
+```python
+('ALIGN',(0,0),(-1,0),'LEFT'),          # 表头左对齐
+('VALIGN',(0,0),(-1,-1),'TOP'),
+('TEXTCOLOR',(0,1),(-1,-1),TEXT_DARK),  # 正文纯黑
+('GRID',(0,0),(-1,-1),0.4,BORDER),      # 内网格
+('BOX',(0,0),(-1,-1),0.6,PRIMARY),      # 深蓝外框
+('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white, ALT_BG]),  # 斑马纹
+```
+
+**防排版事故三规则（2026-08 实战沉淀）：**
+1. **大表格必须 `KeepTogether(t)` 包裹**——否则跨页切断（PMC行被切到下一页的真实案例）
+2. **单元格内容过长用 `<br/>` 强制分3行**（薪资 + CNY + 定位标签各一行），避免单词被拆成"P6"+"5-P80"
+3. **T 函数加 `keep_together=False` 参数**，按需启用，不默认全部 KeepTogether
+
+**校验（Step 7 输出前必做）：**
+- 用 PyMuPDF 渲染每页为 PNG 检查（`/Users/yoyo/.workbuddy/binaries/python/envs/default/bin/python3` + `fitz`）
+- **新版 fitz 用 `page.get_text()`，不是 `extract_text()`**
+- 拼接网格图逐页检查：错位/截断/乱码/字叠字
 
 **币种符号兼容层（必须！核心经验）：**
 SimHei 和 Helvetica 都只覆盖部分货币符号，缺失时渲染为方块 □：
@@ -201,3 +232,14 @@ for sym in LATIN_SAFE:
 6. **封面布局：** 用 Spacer 管理间距，不依赖 spaceAfter
 7. **发布前必须过 Step 7 自校验 Gate：** 合理保留、不合理重出，绝不允许带疑数据交付
 8. **新兴市场数据源优先序：** Paylab（员工自报80%区间）> WorldSalaries > 本地招聘平台 > 咨询指南 > Payscale；**非洲国家严禁直接采信法语/泛非求职网站的行业档位表**
+9. **踩坑备忘（2026-08 实战沉淀）：**
+   - **reportlab ParagraphStyle 的 color 必须是 keyword（`color=...`），不能当第 4 个位置参数**——`style("sm", 8, 11, HexColor("#555"))` 会被解释成 `align=HexColor`，触发 `UnboundLocalError: dpl` 崩溃，定位极难。统一写 `style("sm", 8, 11, color=HexColor("#555"))`。
+   - **SimHei 字体下载：** GitHub raw (`StellarCN/scp_zh/raw/master/fonts/SimHei.ttf`) 易 RemoteDisconnected。备选 jsdelivr CDN：`https://cdn.jsdelivr.net/gh/StellarCN/scp_zh@master/fonts/SimHei.ttf`（正常 9.7MB；若只有 2MB 多半损坏，重新下）。
+   - **水印可走 fitz `page.show_pdf_page` 叠加**（先生成一份低透明 reportlab 水印页 PDF，再 fitz 打开底稿逐页 `show_pdf_page(page.rect, wm_doc, 0)`），比 PyPDF2 路径更稳，且保留矢量文字。
+   - **中文段落必须 `wordWrap='CJK'`**；表格数字列宽宁宽勿窄（"1,200,000 - 1,500,000" 约需 95pt+），数字被拆行很丑。
+   - **SimHei 缺 • ⚠ ★ → 等符号**：bullet 字符可加到 `LATIN_SAFE` 用 Helvetica 字体包裹渲染；⚠ 等图标直接替换为文字（如"[注意]"）。
+   - **汇率取数优先级**：PBOC 中间价 + 银行外汇牌价 + 即期收盘 + 30 日区间，四个数一起列出供客户校准，比单点取数更稳（v1 用 6.82、v2 校准为 6.74 即由此暴露）。
+   - **客户自报价必须校准（华伽案例）**：客户给"月薪3.5-7万、年薪60-150万"直接照搬会招不到人——市场 P25 是 $130K base，客户下限 $88K 偏低约 30%。**每次都要做"客户报价 vs 市场"对照表**。
+   - **多国别报告锚点分别算**：每个国家的"薪资÷社评工资"倍数按该国自己的社评工资算，不要混用（南非 R48K vs 博茨瓦纳 P12K 完全两个量级）。
+   - **新兴市场语言溢价定价**：三语能力（中文+英语+当地语）是稀缺溢价项，按语言能力分档定价并单列（科脉吉隆坡案例：三语本地人 RM6-8.5K vs 仅双语 RM5-6.5K）。
+   - **美欧岗位按"总包"报价**：美国电商负责人等岗位，市场习惯报 base + bonus + equity 总包（Director $130-185K base、VP $250K base + $39K bonus），不要只给月薪。
