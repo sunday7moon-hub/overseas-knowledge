@@ -165,6 +165,8 @@ disable-model-invocation: true
 - 用 TableStyle 控制列宽、配色、行列背景
 - 标题不用 `<b>` 加粗（SimHei无bold变体），用大号字体替代
 
+> 💡 **2026-08 抽离独立 skill `pdf-report-layout`**：上述排版规范 + 水印 + 校验已沉淀为可复用函数库（`scripts/report_starter.py`）。新报告直接 `from report_starter import setup_font, base_styles, table_style_factory, make_table, add_watermark, validate_pdf` 即可，不必从零写 boilerplate。
+
 **表格排版四件套（必须全配齐，缺一风格不统一）：**
 ```python
 ('ALIGN',(0,0),(-1,0),'LEFT'),          # 表头左对齐
