@@ -105,6 +105,15 @@ style = ParagraphStyle(
 - 汇率取**当日央行中间价**，在报告"汇率说明"小节列明：来源 + 中间价 + 银行牌价 + 即期收盘 + 30日区间（四个数一起列，比单点取数稳）。
 - 换算公式显式写出：`1 MYR = 1.669 CNY`、`1 USD = 6.7854 CNY`，抽查 1-2 个计算无笔误。
 
+**⚠️ 币种符号与字体覆盖（2026-08 真实教训）：**
+- SimHei **仅含 ASCII**（`$` 是 ASCII 0x24，可用；`¥` U+00A5 属 Latin-1，**缺失**，直接写会渲染为空/方块）
+- 所有 `¥` 必须包 `<font face="Helvetica">¥</font>` 渲染（Helvetica/WinAnsi 含 ¥）；用 `fix_currency()` 统一处理：
+  ```python
+  def fix_currency(text):
+      return text.replace("¥", '<font face="Helvetica">¥</font>')
+  ```
+- **切 Helvetica 的片段绝不能包含中文**：若把 `¥63.8万` 整段切 Helvetica，"万" 因缺字形会被替换成 `I`（真实事故）。正确写法：`<font face="Helvetica">¥</font>63.8万`——**只包符号，中文/数字留在 SimHei**。
+
 ### 规范 7：水印叠加（客户版 → 水印版）
 
 客户端 PDF 通常要出一版带"用友薪福社 + 日期"水印的版本。用 reportlab 画 overlay 再用 PyPDF2 合并：
@@ -160,6 +169,42 @@ grid.thumbnail((1700, 900)); grid.save("/tmp/check/all.png")
 ```
 
 校验要点：① 中文无乱码 ② 表格四件套都在（有框有网有黑字）③ 关键数字正确 ④ 无跨页切断 ⑤ 水印不挡正文。
+
+---
+
+## 品牌报告标准模板（华伽 HUAGIA 格式，2026-08 客户认可样式）
+
+> **重要：** 中企出海薪酬/调研报告请默认采用此模板，不要自行发明样式。华伽报告（generate_huajia_pdf.py）是客户认可的排版基准，263 报告已按此复刻。**完整可运行模板见 `references/brand_template_huajia.py`（华伽原版）与 `references/brand_template_263_example.py`（263 改造示例）。**
+
+### 8 要素清单（逐项核对，缺一不可）
+
+| # | 要素 | 规格 | 错误示例 |
+|---|------|------|---------|
+| 1 | 品牌主色 PRIMARY | `#1a365d` 深藏青（标题/封面大字/表头字/表格外框） | `#2E5AAC` ❌ |
+| 2 | 强调红 ACCENT | `#c53030`（封面装饰条实心填充） | 画线 `#B23A2E` ❌ |
+| 3 | 表头样式 | **浅蓝底 `#edf2f7` + 深蓝字 PRIMARY + `<b>`** + 10pt | 深蓝底白字 ❌ |
+| 4 | callout 框 | `Paragraph` + `backColor=#fff5f5` + `borderWidth=0`（**无边框**，浅红底） | 红边框 Table ❌ |
+| 5 | 页眉 | **居中** `drawCentredString(PW/2, PH-12mm)` 8pt `#8899aa` + 下方细线 0.3pt `#e2e8f0`（PH-15mm） | 左对齐 ❌ |
+| 6 | 页码 | 底部居中 **"第 X 页"**（`drawCentredString(PW/2, 10mm)` 8pt） | "X / N" ❌ |
+| 7 | 边距 | **LM=RM=16mm, TM=BM=22mm**（UW = PW-32mm） | 18/18/22/18 ❌ |
+| 8 | 封面结构 | 44pt PRIMARY 英文大写品牌 → 15pt 中文 → 10pt 英文小字 → **实心红条（Table BACKGROUND 2pt, UW×0.4, 居中）** → 24pt 地域大字 → 21pt 报告名 → 11pt 英文副 → 13pt 岗位英文 → 元数据表(2列) | 无红条/黑字 ❌ |
+
+### 其他格式规范（与华伽一致）
+
+- 章节标题 h1：17pt PRIMARY，小节 h2：14pt PRIMARY，正文 bd：11pt，脚注 dc：9pt `#4a5568`
+- 表格工厂 T()：表头 `<b>` + ch 样式，GRID 0.4 `#e2e8f0` + BOX 0.6 PRIMARY + 斑马纹（白/`#f7fafc`）
+- 表格列宽用 `UW` 比例（如 `[UW*0.30, UW*0.16, ...]`），`keep_together=True` 防跨页
+- **防空白页**：`KeepTogether` 大表会整表推页，若独占页太空，需**合并/补表**平衡页内容（263 案例：3.2 分候选人定价表独占 P4 只有 23 行 → 加 3.4 锚点校验表后 47 行，两页都饱满）
+- fix_currency：`¥ $ £ € ¢` + `— – ·` 全部切 `<font face="Helvetica">`，CJK 严禁进 Helvetica
+- 每页用 `onFirstPage/onLaterPages=page_deco` 统一画页眉页码
+
+### 用模板生成新报告的步骤
+
+1. `cp references/brand_template_huajia.py generate_xxx.py`
+2. 只改内容：封面品牌名/地域/岗位、章节标题、表格数据、免责数据源
+3. 保留全部样式代码（配色/T()/callout()/page_deco()/fix_currency()）
+4. 输出：临时基础版 → `add_watermark` → 水印版（唯一交付，删基础版）
+5. PyMuPDF 校验：页眉页码在、关键数字无乱码、无跨页切断、无独占空白页
 
 ---
 

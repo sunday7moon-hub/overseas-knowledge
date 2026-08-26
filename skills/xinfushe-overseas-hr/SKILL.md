@@ -1,6 +1,5 @@
 ---
 name: xinfushe-overseas-hr
-display_name: 薪福社出海客户画像
 description: '[EN] Competitor/partner analysis for Yonyou Xinfushe overseas HR / [CN] 用友薪福社出海HR服务竞品分析知识库。'
 agent_created: true
 ---

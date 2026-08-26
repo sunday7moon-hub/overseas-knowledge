@@ -34,6 +34,13 @@ def setup_font(font_dir=_DEFAULT_FONT_DIR, font_name="SimHei"):
     return font_name
 
 
+# ---------- 币种符号兼容层 ----------
+def fix_currency(text):
+    """¥(U+00A5) 非 ASCII，SimHei 缺字形 → 切 Helvetica；中文（如"万"）必须留在 SimHei。
+    $ 是 ASCII 0x24，SimHei 可显示，无需处理。所有文本在生成 Paragraph 前过一遍。"""
+    return text.replace("¥", '<font face="Helvetica">¥</font>')
+
+
 # ---------- 样式：一套标准 ParagraphStyle ----------
 def base_styles(font_name="SimHei"):
     from reportlab.lib.styles import ParagraphStyle
