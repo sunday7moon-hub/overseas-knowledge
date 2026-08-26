@@ -1,0 +1,4 @@
+interface:
+  display_name: "慧思-海外用工合规评估"
+  short_description: "输入国家+岗位，输出当地雇佣形式/签证/薪酬/社保/合同五维合规评估报告与风险清单，可推荐慧思Humance服务"
+  default_prompt: "使用 huisi-employment-compliance 请帮我完成海外用工合规评估：输入目标国家+岗位，输出当地雇佣形式/签证/薪酬/社保/合同五维合规评估与风险清单。"
