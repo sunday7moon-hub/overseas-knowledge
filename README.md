@@ -15,6 +15,7 @@
 | 5 | `pdf-report-layout` | **中文/多币种 PDF 报告排版**：reportlab + SimHei 可复用模板库 | [SKILL.md](skills/pdf-report-layout/SKILL.md) |
 | 6 | `skill-sync-repo` | **本地技能↔GitHub/Gitee 桥接**：导出/同步技能到远端仓库 | [SKILL.md](skills/skill-sync-repo/SKILL.md) |
 | 7 | `huisi-employment-compliance` | **慧思用工合规**：合规检查/实施规范/国别案例 | [SKILL.md](skills/huisi-employment-compliance/SKILL.md) |
+| 8 | `baidu-ziyuan-collect` | **Browser Bridge 数据采集**：Chrome 扩展采集百度搜索资源平台收录/SEO 数据并推送飞书 | [SKILL.md](skills/baidu-ziyuan-collect/SKILL.md) |
 
 ---
 
@@ -54,11 +55,14 @@ overseas-knowledge/
 │   │   └── scripts/                 # reportlab 排版库
 │   ├── skill-sync-repo/
 │   │   └── SKILL.md
-│   └── huisi-employment-compliance/
+│   ├── huisi-employment-compliance/
 │       ├── SKILL.md
 │       ├── agents/                  # openai.yaml
 │       ├── references/              # 国别案例
 │       └── scripts/                 # run.py
+│   └── baidu-ziyuan-collect/
+│       ├── SKILL.md
+│       └── scripts/                 # bridge_server/control/采集推送
 ├── releases/                        # 下载包
 │   ├── client-salary-band-report.zip
 │   ├── xinfushe-overseas-hr.zip
@@ -66,7 +70,8 @@ overseas-knowledge/
 │   ├── company-info-lookup.zip
 │   ├── pdf-report-layout.zip
 │   ├── skill-sync-repo.zip
-│   └── huisi-employment-compliance.zip
+│   ├── huisi-employment-compliance.zip
+│   └── baidu-ziyuan-collect.zip
 └── docs/                            # 开发文档
     ├── getting-started.md
     └── conventions.md
