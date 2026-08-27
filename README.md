@@ -66,7 +66,8 @@ overseas-knowledge/
 │       └── scripts/                 # bridge_server/control/采集推送
 │   └── compliance-guide-pptx/
 │       ├── SKILL.md
-│       └── scripts/                 # clone_pptx.py 克隆脚本（python-pptx 格式保留替换）
+│       ├── scripts/                 # clone_pptx.py 克隆脚本（python-pptx 格式保留替换）
+│       └── PUBLISH.md               # SkillHub 发布描述（表单填写参考）
 ├── releases/                        # 下载包
 │   ├── client-salary-band-report.zip
 │   ├── xinfushe-overseas-hr.zip
