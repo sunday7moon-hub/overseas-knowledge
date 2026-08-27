@@ -19,8 +19,16 @@
 """
 import copy
 import sys
-from pptx import Presentation
-from pptx.oxml.ns import qn
+
+try:
+    from pptx import Presentation
+    from pptx.oxml.ns import qn
+except ImportError:
+    sys.exit(
+        "缺少依赖 python-pptx。\n"
+        "请先运行：pip install python-pptx\n"
+        "（若使用 WorkBuddy 内置 Python，请在该环境的 pip 安装后再运行本脚本。）"
+    )
 
 
 # ======================================================================
