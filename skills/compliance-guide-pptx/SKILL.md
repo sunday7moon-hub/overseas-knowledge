@@ -1,9 +1,14 @@
 ---
 name: compliance-guide-pptx
 display_name: 合规指南PPT克隆器
-description: 基于已有某国雇佣/合规指南 PPTX 模板，克隆其版式（配色/字体/表格布局）并替换为目标国数据，生成 1:1 对齐的新国家合规指南。当用户说「按这个模板做XX国合规指南/雇佣合规指南」「把这个PPT改成XX国版本」「克隆PPT模板替换国家内容」时使用。用 python-pptx 做格式保留的文字/表格替换，并逐项核验关键合规数据来源。无需从零设计版式。
-agent_created: true
+displayName: 合规指南PPT克隆器
+slug: compliance-guide-pptx
 version: "1.0.0"
+summary: 基于已有 PPTX 合规指南模板，克隆版式并替换为目标国数据，生成 1:1 对齐的新国家合规指南
+description: 基于已有某国雇佣/合规指南 PPTX 模板，克隆其版式（配色/字体/表格布局）并替换为目标国数据，生成 1:1 对齐的新国家合规指南。当用户说「按这个模板做XX国合规指南/雇佣合规指南」「把这个PPT改成XX国版本」「克隆PPT模板替换国家内容」时使用。用 python-pptx 做格式保留的文字/表格替换，并逐项核验关键合规数据来源。无需从零设计版式。
+tags: [PPT, 合规指南, 出海HR, python-pptx, 办公效率]
+license: MIT
+agent_created: true
 ---
 
 # 合规指南 PPT 克隆器（Compliance Guide PPT Cloner）
