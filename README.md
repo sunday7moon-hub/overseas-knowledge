@@ -17,6 +17,7 @@
 | 7 | `huisi-employment-compliance` | **慧思用工合规**：合规检查/实施规范/国别案例 | [SKILL.md](skills/huisi-employment-compliance/SKILL.md) |
 | 8 | `baidu-ziyuan-collect` | **Browser Bridge 数据采集**：Chrome 扩展采集百度搜索资源平台收录/SEO 数据并推送飞书 | [SKILL.md](skills/baidu-ziyuan-collect/SKILL.md) |
 | 9 | `compliance-guide-pptx` | **合规指南PPT克隆器**：克隆某国合规指南PPTX模板版式（配色/字体/表格布局），用 python-pptx 替换为目标国数据并核验来源，输出 1:1 对齐的新国家指南 | [SKILL.md](skills/compliance-guide-pptx/SKILL.md) |
+| 10 | `agent-browser` | **浏览器自动化**：基于 vercel-labs/agent-browser 的真实 Chromium 操控，支持网页打开、截图、内容提取、元素交互与表单自动化（macOS/Linux/Windows） | [SKILL.md](skills/agent-browser/SKILL.md) |
 
 ---
 
@@ -64,10 +65,15 @@ overseas-knowledge/
 │   └── baidu-ziyuan-collect/
 │       ├── SKILL.md
 │       └── scripts/                 # bridge_server/control/采集推送
-│   └── compliance-guide-pptx/
+│   ├── compliance-guide-pptx/
+│   │   ├── SKILL.md
+│   │   ├── scripts/                 # clone_pptx.py 克隆脚本（python-pptx 格式保留替换）
+│   │   └── PUBLISH.md               # SkillHub 发布描述（表单填写参考）
+│   └── agent-browser/
 │       ├── SKILL.md
-│       ├── scripts/                 # clone_pptx.py 克隆脚本（python-pptx 格式保留替换）
-│       └── PUBLISH.md               # SkillHub 发布描述（表单填写参考）
+│       ├── references/              # 故障排查 / Windows 支持
+│       ├── scripts/                 # setup.sh 安装脚本
+│       └── templates/               # 安装模板（unix/windows）
 ├── releases/                        # 下载包
 │   ├── client-salary-band-report.zip
 │   ├── xinfushe-overseas-hr.zip
@@ -77,7 +83,8 @@ overseas-knowledge/
 │   ├── skill-sync-repo.zip
 │   ├── huisi-employment-compliance.zip
 │   ├── baidu-ziyuan-collect.zip
-│   └── compliance-guide-pptx.zip
+│   ├── compliance-guide-pptx.zip
+│   └── agent-browser.zip
 └── docs/                            # 开发文档
     ├── getting-started.md
     └── conventions.md

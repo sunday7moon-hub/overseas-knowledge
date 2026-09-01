@@ -81,15 +81,26 @@ cd "$REPO/skills"
 zip -r "$REPO/releases/$SKILL.zip" "$SKILL/" -x '*.DS_Store'
 ```
 
-### Step 4: 更新 README 索引（仅新增技能时）
+### Step 4: 更新 README 索引（每次同步必做，硬性前置）
 
-如果该技能不在 README.md 索引表中，添加一行：
+**关键规则：无论新增 / 更新 / 删除 / 批量同步，提交前都必须先核对并更新 README，保持索引与 `skills/` 实际目录完全一致。**
 
+1. 列出 `skills/` 实际目录，与 README「Skills 技能索引」表逐行比对：
+```bash
+REPO="/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/overseas-knowledge"
+ls -d "$REPO"/skills/*/ | xargs -n1 basename | sort
+```
+2. 三类差异处理：
+   - **缺失**（目录有、索引无）→ 新增一行，编号顺延；用途说明从 SKILL.md frontmatter `description` 提取，不要自己编
+   - **多余**（索引有、目录无）→ 删除该行
+   - **变更**（用途/链接变）→ 同步更新该行
+3. 同步更新 README「Structure 目录结构」树，补/删 `skills/<name>/` 与 `releases/<name>.zip` 条目
+4. 自检：README 索引行数 == `skills/` 目录数（含 `skill-sync-repo` 自身）
+
+格式：
 ```markdown
 | N | `<skill-name>` | 一句话用途说明 | [SKILL.md](skills/<skill-name>/SKILL.md) |
 ```
-
-**注意：** 读取 SKILL.md 的 frontmatter `description` 字段提取用途说明，不要自己编。
 
 ### Step 5: 提交并推送
 
@@ -150,3 +161,4 @@ git push origin main
 3. **网络重试**：GitHub push 遇到 502 时重试即可，commit 不会丢
 4. **Gitee 延迟**：自动镜像不是实时的，通常几分钟内完成，不要反复 push 测试
 5. **不要提交 .DS_Store**：仓库已有 .gitignore 排除，但 rsync/zip 时也加 `-x` 保险
+6. **README 与索引强一致（每次必做）**：每次 `git add` 前，README 的「Skills 技能索引」表、「Structure 目录结构」树、「releases」树必须与 `skills/` 实际目录一致。新增/更新/删除/批量同步任何场景都先核对索引，不可跳过。
