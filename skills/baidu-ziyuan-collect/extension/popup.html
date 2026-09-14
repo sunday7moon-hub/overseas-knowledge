@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Browser Bridge</title>
+<style>
+body { width: 280px; padding: 12px; font-family: -apple-system, sans-serif; font-size: 13px; }
+.status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.dot.on { background: #4CAF50; }
+.dot.off { background: #999; }
+.info { color: #666; font-size: 12px; }
+.footer { margin-top: 12px; color: #999; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="status">
+  <span class="dot" id="statusDot"></span>
+  <span id="statusText">连接中...</span>
+</div>
+<div class="info">端口: <span id="port">ws://localhost:9334</span></div>
+<div class="footer">通用浏览器自动化 Bridge v<span id="ver">—</span></div>
+<script src="popup.js"></script>
+</body>
+</html>

@@ -15,7 +15,7 @@
 | 5 | `pdf-report-layout` | **中文/多币种 PDF 报告排版**：reportlab + SimHei 可复用模板库 | [SKILL.md](skills/pdf-report-layout/SKILL.md) |
 | 6 | `skill-sync-repo` | **本地技能↔GitHub/Gitee 桥接**：导出/同步技能到远端仓库 | [SKILL.md](skills/skill-sync-repo/SKILL.md) |
 | 7 | `huisi-employment-compliance` | **慧思用工合规**：合规检查/实施规范/国别案例 | [SKILL.md](skills/huisi-employment-compliance/SKILL.md) |
-| 8 | `baidu-ziyuan-collect` | **Browser Bridge 数据采集**：Chrome 扩展采集百度搜索资源平台收录/SEO 数据并推送飞书 | [SKILL.md](skills/baidu-ziyuan-collect/SKILL.md) |
+| 8 | `baidu-ziyuan-collect` | **Browser Bridge 数据采集**（含 Chrome 扩展 v1.3.0）：通用扩展 + WebSocket 服务端 + Python 客户端，采集百度搜索资源平台收录/SEO 数据、拉取 Strapi 后台运营数据、生成周报 HTML 看板并推送飞书 | [SKILL.md](skills/baidu-ziyuan-collect/SKILL.md) |
 | 9 | `compliance-guide-pptx` | **合规指南PPT克隆器**：克隆某国合规指南PPTX模板版式（配色/字体/表格布局），用 python-pptx 替换为目标国数据并核验来源，输出 1:1 对齐的新国家指南 | [SKILL.md](skills/compliance-guide-pptx/SKILL.md) |
 | 10 | `agent-browser` | **浏览器自动化**：基于 vercel-labs/agent-browser 的真实 Chromium 操控，支持网页打开、截图、内容提取、元素交互与表单自动化（macOS/Linux/Windows） | [SKILL.md](skills/agent-browser/SKILL.md) |
 
@@ -30,6 +30,10 @@ git clone https://github.com/sunday7moon-hub/overseas-knowledge.git
 或直接在线浏览：点击上方任意 `SKILL.md` 链接查看完整说明。
 
 安装：下载 `releases/` 目录下对应 `.zip`，拖入 WorkBuddy 技能面板。
+
+> **Chrome 扩展**：`browser-bridge-extension-v1.3.0.zip` 是通用的 Browser Bridge 扩展，
+> 解压后到 `chrome://extensions` 开启开发者模式 →「加载已解压的扩展程序」选择
+> `extension/` 目录即可。它不绑定任何平台，可复用于其他 Web 自动化场景。
 
 [完整使用指南 →](docs/getting-started.md)
 
@@ -62,9 +66,10 @@ overseas-knowledge/
 │       ├── agents/                  # openai.yaml
 │       ├── references/              # 国别案例
 │       └── scripts/                 # run.py
-│   └── baidu-ziyuan-collect/
-│       ├── SKILL.md
-│       └── scripts/                 # bridge_server/control/采集推送
+│   ├── baidu-ziyuan-collect/
+│   │   ├── SKILL.md
+│   │   ├── scripts/                 # bridge_server / control / 自检 / 后台取数 / 看板生成
+│   │   └── extension/              # ⭐ Chrome 扩展源码（v1.3.0）：manifest/background/popup + README
 │   ├── compliance-guide-pptx/
 │   │   ├── SKILL.md
 │   │   ├── scripts/                 # clone_pptx.py 克隆脚本（python-pptx 格式保留替换）
@@ -83,6 +88,7 @@ overseas-knowledge/
 │   ├── skill-sync-repo.zip
 │   ├── huisi-employment-compliance.zip
 │   ├── baidu-ziyuan-collect.zip
+│   ├── browser-bridge-extension-v1.3.0.zip   # Chrome 扩展独立包（解压后「加载已解压的扩展程序」）
 │   ├── compliance-guide-pptx.zip
 │   └── agent-browser.zip
 └── docs/                            # 开发文档
