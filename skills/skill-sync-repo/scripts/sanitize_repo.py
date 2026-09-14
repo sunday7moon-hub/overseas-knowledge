@@ -1,61 +1,91 @@
 #!/usr/bin/env python3
-"""对外仓库脱敏：把内部标识替换为占位符（只处理仓库副本）。"""
+"""公开仓库脱敏：把内部标识替换为占位符（只处理仓库副本，本地技能保持真实值）。
+
+设计要点：**规则用正则，不写任何字面量 ID** ——
+否则「脱敏工具自己」就成了泄露源（曾把真实 openid 写进脚本并同步进公开仓库）。
+
+用法：
+    python3 sanitize_repo.py            # 默认处理 overseas-knowledge 仓库
+    python3 sanitize_repo.py <REPO>     # 指定仓库根目录
+"""
 import os
 import re
 import sys
 
-REPO = "/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/overseas-knowledge"
+REPO = sys.argv[1] if len(sys.argv) > 1 else \
+    "/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/overseas-knowledge"
 SKILLS = os.path.join(REPO, "skills")
 
+# (正则, 替换值, 规则名) —— 禁止写字面量 ID
 RULES = [
-    ("ou_7f361375714176385a1368cfd58e8f53", "ou_YOUR_OPENID"),
-    ("oc_e9daf25cd71382c02a66dfb27d50b1b5", "oc_YOUR_CHAT_ID"),
+    (re.compile(r"ou_[A-Za-z0-9]{20,}"), "ou_YOUR_OPENID", "飞书个人 openid"),
+    (re.compile(r"oc_[A-Za-z0-9]{20,}"), "oc_YOUR_CHAT_ID", "飞书群会话 ID"),
+    (re.compile(r"[A-Za-z0-9._%+-]+@(?:xinfushe|yonyou)\.com"),
+     "user@example.com", "内部邮箱域"),
 ]
-EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@(xinfushe|yonyou)\.com")
 
 TEXT_EXT = {".md", ".py", ".json", ".js", ".txt", ".html", ".htm",
             ".yaml", ".yml", ".csv", ".sh", ".ts"}
 
-hits = {}
-scanned = 0
-for root, dirs, files in os.walk(SKILLS):
-    dirs[:] = [d for d in dirs if d not in ("__pycache__", ".git")]
-    for fn in files:
-        if os.path.splitext(fn)[1].lower() not in TEXT_EXT:
-            continue
-        p = os.path.join(root, fn)
-        try:
-            src = open(p, encoding="utf-8").read()
-        except (UnicodeDecodeError, OSError):
-            continue
-        scanned += 1
-        new = src
-        for a, b in RULES:
-            new = new.replace(a, b)
-        new = EMAIL_RE.sub(lambda m: "user@example.com", new)
-        if new != src:
-            open(p, "w", encoding="utf-8").write(new)
-            rel = os.path.relpath(p, REPO)
-            hits[rel] = sum(src.count(a) for a, _ in RULES) + len(EMAIL_RE.findall(src))
+SELF = os.path.abspath(__file__)   # 自排除，避免改到本脚本
 
-print(f"扫描 {scanned} 个文本文件，脱敏 {len(hits)} 个：")
-for k, v in sorted(hits.items()):
-    print(f"  {v:>3} 处  {k}")
 
-# 复扫校验
-left = {"openid": 0, "chat": 0, "email": 0}
-for root, dirs, files in os.walk(SKILLS):
-    dirs[:] = [d for d in dirs if d not in ("__pycache__", ".git")]
-    for fn in files:
-        if os.path.splitext(fn)[1].lower() not in TEXT_EXT:
-            continue
-        p = os.path.join(root, fn)
-        try:
-            src = open(p, encoding="utf-8").read()
-        except (UnicodeDecodeError, OSError):
-            continue
-        left["openid"] += src.count(RULES[0][0])
-        left["chat"] += src.count(RULES[1][0])
-        left["email"] += len(EMAIL_RE.findall(src))
-print("复扫残留:", left, "→", "✅ 全清" if sum(left.values()) == 0 else "🔴 仍有残留")
-sys.exit(0 if sum(left.values()) == 0 else 1)
+def iter_text_files(root):
+    for dirpath, dirs, files in os.walk(root):
+        dirs[:] = [d for d in dirs if d not in ("__pycache__", ".git")]
+        for fn in files:
+            if os.path.splitext(fn)[1].lower() in TEXT_EXT:
+                yield os.path.join(dirpath, fn)
+
+
+def rule_hits(text):
+    out = {}
+    for rx, _, name in RULES:
+        c = len(rx.findall(text))
+        if c:
+            out[name] = c
+    return out
+
+
+def safe_read(p):
+    try:
+        return open(p, encoding="utf-8").read()
+    except (UnicodeDecodeError, OSError):
+        return None
+
+
+hits, scanned = {}, 0
+for p in iter_text_files(SKILLS):
+    if os.path.abspath(p) == SELF:
+        continue
+    src = safe_read(p)
+    if src is None:
+        continue
+    scanned += 1
+    new = src
+    for rx, rep, _ in RULES:
+        new = rx.sub(rep, new)
+    if new != src:
+        open(p, "w", encoding="utf-8").write(new)
+        hits[os.path.relpath(p, REPO)] = rule_hits(src)
+
+print(f"扫描 {scanned} 个文本文件，命中 {len(hits)} 个：")
+for k, v in sorted(hits.items(), key=lambda kv: -sum(kv[1].values())):
+    print(f"  {' / '.join(f'{n}×{c}' for n, c in v.items()):<28} {k}")
+if not hits:
+    print("  （无命中）")
+
+left = {}
+for p in iter_text_files(SKILLS):
+    if os.path.abspath(p) == SELF:
+        continue
+    src = safe_read(p)
+    if src is None:
+        continue
+    for name, c in rule_hits(src).items():
+        left[name] = left.get(name, 0) + c
+
+if left:
+    print("🔴 复扫仍有残留：", left)
+    sys.exit(1)
+print("✅ 复扫全清")
