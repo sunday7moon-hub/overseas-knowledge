@@ -4,3 +4,6 @@ __pycache__/
 .env
 .vscode/
 .idea/
+
+# Chrome 下载临时残留（随机 8 位文件名，曾多次混入 releases/）
+releases/zi??????

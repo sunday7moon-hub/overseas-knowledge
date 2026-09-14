@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>梦幻紫·小红书版</title>
+<style>
+  /* ===== 配色（按区域可在 :root 处替换） ===== */
+  :root {
+    --bg-1: #F0E6FA;   /* 浅薰衣草（左上） */
+    --bg-2: #C9A8E8;   /* 中紫 */
+    --bg-3: #9F7AD4;   /* 深紫（右下） */
+    --text-dark: #4A2D7A;
+    --pill-bg: rgba(255,255,255,0.96);
+    --pill-text: #4A2D7A;
+    --dark-pill-bg: #2D1A4D;
+    --gold: #FFD700;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #1a1a2e;
+    display:flex; justify-content:center;
+    font-family: "PingFang SC", "Helvetica Neue", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  }
+
+  /* ===== 画布 1080×1440 ===== */
+  .poster {
+    width: 1080px; height: 1440px;
+    background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+    position: relative; overflow: hidden;
+  }
+
+  /* 柔光圈 */
+  .glow { position: absolute; border-radius: 50%;
+          background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 70%);
+          pointer-events: none; }
+  .glow-1 { width: 520px; height: 520px; top: -120px; right: -120px; }
+  .glow-2 { width: 420px; height: 420px; bottom: 250px; left: -100px; }
+  .glow-3 { width: 320px; height: 320px; top: 650px; right: 60px; }
+
+  /* 星芒 */
+  .sparkle { position: absolute; color: rgba(255,255,255,0.75); pointer-events: none; }
+
+  /* 顶部胶囊徽章 */
+  .top-badge {
+    position: absolute; top: 60px; left: 60px;
+    background: var(--pill-bg);
+    padding: 16px 36px; border-radius: 50px;
+    box-shadow: 0 6px 24px rgba(74,45,122,0.18);
+    font-size: 30px; font-weight: 600; color: var(--pill-text);
+  }
+
+  /* 主标题区：立体描边大字 + 副标题胶囊 */
+  .hero { position: absolute; top: 260px; left: 0; right: 0; text-align: center; }
+  .hero-title {
+    display: inline-block;
+    font-size: 260px; font-weight: 900;
+    color: var(--text-dark);
+    -webkit-text-stroke: 7px #fff;
+    line-height: 1; letter-spacing: 8px;
+    text-shadow:
+      6px 6px 0 rgba(45,13,89,0.35),
+      12px 12px 0 rgba(45,13,89,0.18);
+  }
+  .sub-pill {
+    position: absolute; top: 660px; left: 50%; transform: translateX(-50%);
+    background: var(--pill-bg);
+    padding: 22px 56px; border-radius: 50px;
+    box-shadow: 0 6px 24px rgba(74,45,122,0.18);
+    font-size: 50px; font-weight: 800; color: var(--pill-text);
+    white-space: nowrap;
+  }
+
+  /* 数据胶囊 */
+  .stat {
+    position: absolute; top: 920px; left: 50%; transform: translateX(-50%);
+    background: var(--pill-bg);
+    padding: 26px 56px; border-radius: 50px;
+    box-shadow: 0 6px 24px rgba(74,45,122,0.2);
+    font-size: 42px; font-weight: 700; color: var(--pill-text);
+    display: flex; align-items: center; gap: 14px; white-space: nowrap;
+  }
+
+  /* 底部椭圆轨道 */
+  .orbit {
+    position: absolute; top: 1020px; left: 50%; transform: translateX(-50%);
+    width: 920px; height: 280px;
+    border: 1.5px solid rgba(255,255,255,0.45);
+    border-radius: 50%; pointer-events: none;
+  }
+
+  /* 底部双胶囊 */
+  .bottom-pills {
+    position: absolute; bottom: 110px; left: 60px; right: 60px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .pill-dark {
+    background: var(--dark-pill-bg); color: #fff;
+    padding: 18px 32px; border-radius: 50px;
+    font-size: 32px; font-weight: 700;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 6px 24px rgba(45,13,89,0.3);
+  }
+  .pill-dark .star { color: var(--gold); font-size: 32px; }
+  .pill-light {
+    background: var(--pill-bg); color: var(--pill-text);
+    padding: 18px 32px; border-radius: 50px;
+    font-size: 28px; font-weight: 600;
+    box-shadow: 0 6px 20px rgba(74,45,122,0.18);
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+  <!-- 背景：柔光圈 + 星芒 -->
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="glow glow-3"></div>
+  <div class="sparkle" style="top:180px;right:130px;font-size:36px;">✦</div>
+  <div class="sparkle" style="top:320px;left:90px;font-size:28px;color:rgba(255,255,255,0.5);">✧</div>
+  <div class="sparkle" style="top:560px;right:80px;font-size:24px;color:rgba(255,255,255,0.6);">✦</div>
+  <div class="sparkle" style="top:800px;left:120px;font-size:32px;">✧</div>
+  <div class="sparkle" style="top:1180px;right:160px;font-size:28px;color:rgba(255,255,255,0.5);">✦</div>
+  <div class="sparkle" style="top:1300px;left:180px;font-size:24px;">✧</div>
+
+  <!-- ============ 替换区 ============ -->
+  <div class="top-badge">🇦🇪 阿曼 · 出海HR必看</div>
+
+  <div class="hero">
+    <div class="hero-title">阿曼</div>
+  </div>
+
+  <div class="sub-pill">外籍用工严查</div>
+
+  <div class="stat">🚨 上半年6707次检查 · 2944人被驱逐</div>
+  <!-- ================================= -->
+
+  <div class="orbit"></div>
+
+  <div class="bottom-pills">
+    <div class="pill-dark"><span class="star">⭐</span>建议收藏</div>
+    <div class="pill-light">自查许可 · 配额 · 劳工文件</div>
+  </div>
+</div>
+</body>
+</html>

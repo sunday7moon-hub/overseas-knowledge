@@ -10,7 +10,6 @@ display_name_en: Canvas Design
 description_zh: 基于设计哲学创作精美视觉艺术（PNG/PDF）
 description_en: Create beautiful visual art in PNG and PDF using design philosophy
 visibility: public
-disable-model-invocation: true
 ---
 
 These are instructions for creating design philosophies - aesthetic movements that are then EXPRESSED VISUALLY. Output only .md files, .pdf files, and .png files.

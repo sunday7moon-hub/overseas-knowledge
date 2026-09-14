@@ -1,0 +1,19 @@
+# 奥地利模板残留词库（base = 奥地利_雇佣合规指南_2026.pptx）
+# 用法：qc_verify.py --leak-file 指向本文件。换成其他底版时另建一份对应国专有名词。
+# 原则：只放「不会在他国指南合法出现」的专有名词，避免误报（故不包含 14薪/€ 等通用词）。
+ABGB
+AngG
+AZG
+ASVG
+ASchG
+ArbVG
+ÖGK
+RWR
+红白红卡
+维也纳
+Urlaubsgeld
+Urlaubs
+Weihnachts
+Dienstzettel
+Kollektivvertrag
+Österreich

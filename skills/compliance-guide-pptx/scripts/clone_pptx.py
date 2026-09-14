@@ -96,6 +96,11 @@ def _add_table_row(table):
     last = trs[-1]
     new = copy.deepcopy(last)
     tbl.append(new)
+    # 强制 python-pptx 重新读取行集合（其内部分页缓存可能导致 rows[-1] 越界）
+    try:
+        table._rows = None
+    except Exception:
+        pass
     new_row = table.rows[-1]
     for cell in new_row.cells:
         for p in cell.text_frame.paragraphs:

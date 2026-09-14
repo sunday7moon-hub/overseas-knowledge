@@ -5,40 +5,73 @@ pdf-report-layout · 可复用排版函数库
 """
 import os
 
-# ---------- 字体：持久化到工作目录，禁止 /tmp ----------
-_DEFAULT_FONT_DIR = "/Users/yoyo/WorkBuddy/2026-07-29-13-50-49/fonts"
+# ---------- 字体：持久化，禁止 /tmp；不写死工作区路径 ----------
 _SIMHEI_URL = "https://github.com/StellarCN/scp_zh/raw/master/fonts/SimHei.ttf"
-_FALLBACK_FONT = "/Library/Fonts/Arial Unicode.ttf"
+_FALLBACK_FONTS = ["/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
+                   "/Library/Fonts/Arial Unicode.ttf"]
+_DOWNLOAD_DIR = os.path.expanduser("~/.workbuddy/fonts")
 
 
-def setup_font(font_dir=_DEFAULT_FONT_DIR, font_name="SimHei"):
-    """下载并注册 SimHei 字体，返回已注册的字体名。失败回退 Arial Unicode。"""
+def resolve_font_path():
+    """按优先级定位中文字体：$SALARY_REPORT_FONT → ~/WorkBuddy/*/fonts/ → 系统回退 → None。"""
+    import glob
+    env = os.environ.get("SALARY_REPORT_FONT")
+    if env and os.path.exists(env):
+        return env
+    hits = sorted(glob.glob(os.path.expanduser("~/WorkBuddy/*/fonts/SimHei.ttf")), reverse=True)
+    if hits:
+        return hits[0]
+    for cand in _FALLBACK_FONTS:
+        if os.path.exists(cand):
+            return cand
+    return None
+
+
+def setup_font(font_dir=None, font_name="SimHei"):
+    """注册中文字体，返回实际使用的字体名。
+
+    font_dir 显式传入时按旧行为在該目录找/下载 SimHei.ttf（向后兼容）；
+    不传则走 resolve_font_path() 自动探测。
+    """
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
 
-    os.makedirs(font_dir, exist_ok=True)
-    font_path = os.path.join(font_dir, "SimHei.ttf")
+    font_path = None
+    if font_dir:
+        os.makedirs(font_dir, exist_ok=True)
+        cand = os.path.join(font_dir, "SimHei.ttf")
+        font_path = cand if os.path.exists(cand) else None
 
-    if not os.path.exists(font_path):
-        try:
+    if font_path is None:
+        font_path = resolve_font_path()
+
+    if font_path is None:
+        os.makedirs(_DOWNLOAD_DIR, exist_ok=True)
+        font_path = os.path.join(_DOWNLOAD_DIR, "SimHei.ttf")
+        if not os.path.exists(font_path):
             import urllib.request
             urllib.request.urlretrieve(_SIMHEI_URL, font_path)
-        except Exception:
-            if os.path.exists(_FALLBACK_FONT):
-                font_path = _FALLBACK_FONT
-                font_name = "ArialUnicode"
-            else:
-                raise
 
+    if "Arial Unicode" in font_path:
+        font_name = "ArialUnicode"
     pdfmetrics.registerFont(TTFont(font_name, font_path))
     return font_name
 
 
 # ---------- 币种符号兼容层 ----------
+# SimHei 缺字形、但 Helvetica 有的符号：¥ £ ¢ € $ – — ·
+# ⚠️ 反例（不要包）：→ ★ ① 在 Helvetica 里也没有字形；小币种符号 ₩₺₽₹฿₫ 两边都没有，
+#    只能写 ISO 代码。判据用 fitz.Font(SimHei).has_glyph() 实测，勿凭印象。
+_HELV_WRAP = ["¥", "€", "£", "¢", "$", "–", "—", "·"]
+
+
 def fix_currency(text):
-    """¥(U+00A5) 非 ASCII，SimHei 缺字形 → 切 Helvetica；中文（如"万"）必须留在 SimHei。
-    $ 是 ASCII 0x24，SimHei 可显示，无需处理。所有文本在生成 Paragraph 前过一遍。"""
-    return text.replace("¥", '<font face="Helvetica">¥</font>')
+    """把 SimHei 缺字形的符号路由到 Helvetica；中文（如"万"）留在 SimHei。
+    所有文本在生成 Paragraph 前过一遍。"""
+    text = str(text)
+    for sym in _HELV_WRAP:
+        text = text.replace(sym, '<font face="Helvetica">%s</font>' % sym)
+    return text
 
 
 # ---------- 样式：一套标准 ParagraphStyle ----------
@@ -47,43 +80,50 @@ def base_styles(font_name="SimHei"):
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_CENTER, TA_LEFT
 
+    # ⚠️ 字色关键字必须是 textColor；写成 color= 不会报错但静默失效（颜色不生效）。
+    # ⚠️ 主色为 S2 #1f4f8f（2026-09-14 起为品牌现行色）。旧的 #2E5AAC / #1F3D7A 已弃用。
     return {
         "title": ParagraphStyle("title", fontName=font_name, fontSize=20, leading=26,
-                                alignment=TA_CENTER, textColor=colors.HexColor("#1A1A1A")),
+                                alignment=TA_CENTER, textColor=colors.HexColor("#0F0F0F")),
         "subtitle": ParagraphStyle("subtitle", fontName=font_name, fontSize=12, leading=18,
-                                   alignment=TA_CENTER, textColor=colors.HexColor("#555555")),
+                                   alignment=TA_CENTER, textColor=colors.HexColor("#4a5568")),
         "h2": ParagraphStyle("h2", fontName=font_name, fontSize=14, leading=20,
-                             textColor=colors.HexColor("#2E5AAC"), spaceBefore=10, spaceAfter=4),
+                             textColor=colors.HexColor("#1f4f8f"), spaceBefore=10, spaceAfter=4),
         "h3": ParagraphStyle("h3", fontName=font_name, fontSize=11.5, leading=16,
-                             textColor=colors.HexColor("#1F3D7A"), spaceBefore=6, spaceAfter=3),
+                             textColor=colors.HexColor("#1f4f8f"), spaceBefore=6, spaceAfter=3),
         "body": ParagraphStyle("body", fontName=font_name, fontSize=10, leading=15,
-                               color=colors.black),
+                               textColor=colors.black),
         "small": ParagraphStyle("small", fontName=font_name, fontSize=8.5, leading=12,
-                                color=colors.HexColor("#666666")),
+                                textColor=colors.HexColor("#4a5568")),
         "cell": ParagraphStyle("cell", fontName=font_name, fontSize=9.5, leading=13,
-                               color=colors.black),
+                               textColor=colors.black),
         "cell_head": ParagraphStyle("cell_head", fontName=font_name, fontSize=9.5, leading=13,
-                                    textColor=colors.white),
+                                    textColor=colors.HexColor("#eef2f8")),
         "callout": ParagraphStyle("callout", fontName=font_name, fontSize=11, leading=16,
-                                  alignment=TA_CENTER, textColor=colors.HexColor("#B23A2E")),
+                                  alignment=TA_CENTER, textColor=colors.HexColor("#c53030")),
     }
 
 
 # ---------- 表格排版四件套（规范 2） ----------
-def table_style_factory(header_bg="#2E5AAC", body_align="LEFT", header_align="CENTER"):
+def table_style_factory(header_bg="#1f4f8f", body_align="LEFT", header_align="CENTER"):
+    """数据表样式。header_bg 默认 S2 #1f4f8f（品牌现行色）。
+
+    ⚠️ 仅适用于「首行是真列名」的数据表。键值表（标签—值 结构）不要染深色表头，
+       改用浅底标签列（参见 salary_report_kit.KV）。
+    """
     from reportlab.lib import colors
     return [
         ("ALIGN",    (0,0), (-1,-1), body_align),
         ("ALIGN",    (0,0), (-1,0),  header_align),
-        ("BOX",      (0,0), (-1,-1), 0.6, colors.HexColor("#999999")),
-        ("GRID",     (0,0), (-1,-1), 0.4, colors.HexColor("#CCCCCC")),
+        ("BOX",      (0,0), (-1,-1), 0.6, colors.HexColor(header_bg)),
+        ("GRID",     (0,0), (-1,-1), 0.4, colors.HexColor("#e2e8f0")),
         ("TEXTCOLOR",(0,0), (-1,-1), colors.black),
         ("FONTSIZE", (0,0), (-1,-1), 9.5),
         ("VALIGN",   (0,0), (-1,-1), "MIDDLE"),
         ("LEADING",  (0,0), (-1,-1), 12),
-        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#F5F7FA")]),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f7fafc")]),
         ("BACKGROUND", (0,0), (-1,0), colors.HexColor(header_bg)),
-        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.HexColor("#eef2f8")),
         ("TOPPADDING",    (0,0), (-1,-1), 4),
         ("BOTTOMPADDING", (0,0), (-1,-1), 4),
         ("LEFTPADDING",   (0,0), (-1,-1), 6),
@@ -91,7 +131,7 @@ def table_style_factory(header_bg="#2E5AAC", body_align="LEFT", header_align="CE
     ]
 
 
-def make_table(data, col_widths, style=None, keep_together=True, header_bg="#2E5AAC"):
+def make_table(data, col_widths, style=None, keep_together=True, header_bg="#1f4f8f"):
     """data: list[list]，首行为表头。单元格建议用 Paragraph 包装以支持换行。"""
     from reportlab.platypus import Table, KeepTogether
     from reportlab.lib import colors
@@ -104,7 +144,13 @@ def make_table(data, col_widths, style=None, keep_together=True, header_bg="#2E5
 
 
 # ---------- 水印（规范 7） ----------
-def add_watermark(src, dst, text="用友薪福社  2026.08.19", font_name="SimHei"):
+def add_watermark(src, dst, text="用友薪福社  2026.08.19", font_name="SimHei", title=None):
+    """叠加斜向水印。
+
+    ⚠️ PyPDF2 逐页重建会丢掉源 PDF 的元数据（Info 字典）→ 阅读器标签页退化成**文件名**。
+       交付客户时这会暴露 `xxx_客户版.pdf` 这类内部后缀。因此 title 建议必传（正式报告名）。
+       回写用 PyMuPDF：PyPDF2 3.x 的 add_metadata() 对键格式挑剔，会抛 NameObject 警告且写入无效。
+    """
     from PyPDF2 import PdfReader, PdfWriter
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4
@@ -132,6 +178,20 @@ def add_watermark(src, dst, text="用友薪福社  2026.08.19", font_name="SimHe
         writer.add_page(reader.pages[i])
     with open(dst, "wb") as f:
         writer.write(f)
+
+    if title:
+        try:
+            import fitz
+            d = fitz.open(dst)
+            md = d.metadata or {}
+            md.update({"title": title, "author": "用友薪福社",
+                       "creator": "用友薪福社", "producer": "用友薪福社"})
+            d.set_metadata(md)
+            d.save(dst + ".md.pdf")
+            d.close()
+            os.replace(dst + ".md.pdf", dst)
+        except Exception as e:
+            print("  [warn] 元数据回写失败（不影响正文）:", e)
     return dst
 
 

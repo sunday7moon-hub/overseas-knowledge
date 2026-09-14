@@ -6,7 +6,6 @@ description: 面向出海企业的海外用工合规评估技能。覆盖东南�
   Humance
   全球人力资源管理服务。当用户需要评估在海外某国雇佣员工/派遣人员的合规要求、对比本地雇佣与EOR/PEO方案、梳理某国签证薪酬社保合同要点时使用。支持自然语言输入和上传现有招聘/派遣文件，不依赖任何内部后台数据。
 agent_created: true
-disable-model-invocation: true
 ---
 
 # 慧思-海外用工合规评估（Humance Employment Compliance）

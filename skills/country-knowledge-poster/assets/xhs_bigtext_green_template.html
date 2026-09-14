@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>出海清单·绿版</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { display:flex; justify-content:center; padding:0;
+         font-family:"PingFang SC","Helvetica Neue","Microsoft YaHei","Noto Sans SC",sans-serif; }
+  .poster { width:1080px; height:1440px; position:relative; overflow:hidden; display:flex; flex-direction:column; }
+
+  body { background:#fff; }
+  .poster { background:linear-gradient(170deg,#E9F7F0 0%,#FFFFFF 42%,#F3FBF7 100%); }
+  .dot { position:absolute; border-radius:50%; pointer-events:none; }
+  .d1 { width:320px; height:320px; top:-130px; right:-110px; background:rgba(0,153,77,0.09); }
+  .d2 { width:230px; height:230px; bottom:150px; left:-95px; background:rgba(0,153,77,0.07); }
+  .header { padding:44px 60px 0; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:2; }
+  .brand-name { font-size:34px; font-weight:800; color:#0B3B24; }
+  .badge { background:#006633; color:#fff; font-size:26px; font-weight:700; padding:12px 30px; border-radius:40px; }
+  .main { flex:1; display:flex; flex-direction:column; padding:52px 60px 0; position:relative; z-index:2; }
+  .tag { align-self:flex-start; background:rgba(0,153,77,0.13); color:#006633; font-size:30px; font-weight:700;
+         padding:12px 30px; border-radius:16px; margin-bottom:36px; }
+  .title { font-size:74px; font-weight:900; color:#0B3B24; line-height:1.2; letter-spacing:1px; }
+  .title em { font-style:normal; color:#00994D; }
+  .bar { width:130px; height:10px; background:#00994D; border-radius:5px; margin:34px 0 42px; }
+  .list { display:flex; flex-direction:column; gap:20px; }
+  .item { display:flex; align-items:flex-start; gap:24px; background:#fff; border-radius:22px; padding:26px 30px;
+          box-shadow:0 6px 20px rgba(11,59,36,0.07); border-left:10px solid #00994D; }
+  .idx { flex-shrink:0; width:58px; height:58px; border-radius:50%; background:#00994D; color:#fff;
+         font-size:32px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  .txt { font-size:33px; font-weight:600; color:#123A2A; line-height:1.42; padding-top:5px; }
+  .tip { margin-top:auto; margin-bottom:32px; background:linear-gradient(120deg,#006633,#00994D); border-radius:24px;
+         padding:30px 34px; display:flex; gap:20px; align-items:flex-start; }
+  .tip-ico { font-size:40px; line-height:1; }
+  .tip-txt { font-size:31px; font-weight:700; color:#fff; line-height:1.45; }
+  .tip-txt b { color:#FFD700; }
+  .footer { flex-shrink:0; padding:26px 60px 32px; display:flex; align-items:center;
+            border-top:3px solid rgba(0,153,77,0.15); position:relative; z-index:2; }
+  .footer-name { font-size:30px; font-weight:800; color:#0B3B24; }
+  .footer-desc { font-size:22px; color:#6B8C7B; margin-top:6px; }
+</style>
+</head>
+<body>
+<div class="poster">
+  <div class="dot d1"></div><div class="dot d2"></div>
+  <div class="header">
+    <div class="brand-name">📌 出海速览</div>
+    <div class="badge">{{BADGE}}</div>
+  </div>
+  <div class="main">
+    <div class="tag">{{TAG}}</div>
+    <div class="title">{{TITLE}}</div>
+    <div class="bar"></div>
+    <div class="list">
+{{ITEMS}}
+    </div>
+    <div class="tip">
+      <div class="tip-ico">💡</div>
+      <div class="tip-txt">{{TIP}}</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div>
+      <div class="footer-name">📌 下一期见 👋</div>
+      <div class="footer-desc">数据来源：各国官方公告及权威媒体</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

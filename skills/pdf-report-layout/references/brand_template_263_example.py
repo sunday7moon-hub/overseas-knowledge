@@ -13,7 +13,7 @@ FONT_PATH = '/Users/yoyo/WorkBuddy/2026-07-29-13-50-49/fonts/SimHei.ttf'
 pdfmetrics.registerFont(TTFont('SimHei', FONT_PATH))
 
 # ===== 与华伽一致：配色 =====
-PRIMARY = colors.HexColor('#1a365d')
+PRIMARY = colors.HexColor('#1f4f8f')
 ACCENT = colors.HexColor('#c53030')
 LIGHT_BG = colors.HexColor('#edf2f7')
 ALT_BG = colors.HexColor('#f7fafc')

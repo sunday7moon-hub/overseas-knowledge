@@ -397,7 +397,7 @@ lark-cli auth status        # user identity: missing / needs_refresh / ready
   手工 `mv` 成 `.enc` 即可，`auth status` 立刻变 `ready`：
   ```bash
   D="$HOME/Library/Application Support/lark-cli"
-  B="cli_aa9c1f8540f9dbe9_ou_7f361375714176385a1368cfd58e8f53.enc"
+  B="cli_<APP_ID>_ou_<OPEN_ID>.enc"        # 实际文件名请以目录内 ls 为准
   mv "$D/$B.f66b8ea5-....tmp" "$D/$B"      # 用实际 uuid 替换
   ```
   同理：**如果 `.enc` 主文件缺失、只剩 `.tmp`/`.bak`**（异常退出会造成这种状态），把最新的一个改名回 `.enc` 就能恢复身份。

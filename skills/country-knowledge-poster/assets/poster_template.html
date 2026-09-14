@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>慧思知识海报</title>
+<style>
+  :root {
+    --header-start: #1E3A5F;
+    --header-end: #2B5797;
+    --header-dark: #142946;
+    --accent: #2B5797;
+    --accent-light: #E8F0FA;
+    --accent-border: #BBDEFB;
+    --accent-text: #1565C0;
+    --gold: #FFD700;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    font-family: "PingFang SC", "Helvetica Neue", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  }
+  .poster {
+    width: 420px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 头部 */
+  .header {
+    background: linear-gradient(135deg, var(--header-start) 0%, var(--header-end) 100%);
+    padding: 14px 18px 12px;
+    flex-shrink: 0;
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .brand { display: flex; align-items: center; gap: 6px; }
+  .brand img {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    background: #fff;
+    object-fit: contain;
+  }
+  .brand-name { font-size: 13px; font-weight: 700; color: #fff; }
+  .brand-sub { font-size: 10px; color: rgba(255,255,255,0.7); }
+  .badge {
+    background: rgba(255,255,255,0.15);
+    padding: 3px 10px;
+    border-radius: 14px;
+    color: #FFD700;
+    font-size: 11px; font-weight: 700;
+  }
+  .title-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 6px;
+  }
+  .title-main {
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.15;
+    margin-top: 4px;
+  }
+
+  /* 数据条（5项等高对齐） */
+  .highlight-bar {
+    display: flex;
+    background: var(--header-dark);
+    padding: 9px 0;
+    flex-shrink: 0;
+  }
+  .highlight-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    min-height: 44px;
+  }
+  .highlight-item:last-child { border-right: none; }
+  .highlight-num { font-size: 14px; font-weight: 800; color: var(--gold); line-height: 1.2; }
+  .highlight-label {
+    font-size: 8px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.3;
+    padding: 0 2px;
+    margin-top: 2px;
+    min-height: 21px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* 正文 */
+  .content {
+    padding: 14px 18px 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .qa-head {
+    background: var(--accent-light);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    flex-shrink: 0;
+  }
+  .q-icon {
+    font-size: 15px; font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    min-width: 22px;
+  }
+  .q-text {
+    font-size: 13px; font-weight: 600;
+    color: #1a1a2e;
+    line-height: 1.4;
+  }
+
+  .section-title {
+    font-size: 12px; font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+
+  /* 步骤 - 纵向3行 */
+  .steps-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+  .step-card {
+    display: flex;
+    gap: 8px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    padding: 7px 10px;
+    border-left: 3px solid var(--accent);
+    align-items: flex-start;
+  }
+  .step-circle {
+    width: 20px; height: 20px;
+    min-width: 20px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px; font-weight: 800;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .step-card-body { flex: 1; }
+  .step-card-title {
+    font-size: 12px; font-weight: 700;
+    color: #1a1a2e;
+  }
+  .step-card-desc {
+    font-size: 10px;
+    color: #4a5568;
+    line-height: 1.45;
+    margin-top: 1px;
+  }
+
+  /* 数据网格 - 2×2 */
+  .fact-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+  .fact-card {
+    width: calc(50% - 3px);
+    background: #F0F7FF;
+    border-radius: 6px;
+    padding: 8px 10px;
+    border: 1px solid var(--accent-border);
+  }
+  .fact-title {
+    font-size: 11px; font-weight: 700;
+    color: var(--accent-text);
+    margin-bottom: 2px;
+  }
+  .fact-desc {
+    font-size: 9px;
+    color: #4a5568;
+    line-height: 1.4;
+  }
+
+  /* 底部双栏 */
+  .bottom-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+  .cost-block, .alt-block {
+    flex: 1;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .cost-block {
+    background: #E8F5E9;
+    border: 1px solid #A5D6A7;
+  }
+  .cost-label { font-size: 10px; font-weight: 700; color: #2E7D32; }
+  .cost-big { font-size: 16px; font-weight: 800; color: #C62828; margin: 2px 0; }
+  .cost-desc { font-size: 9px; color: #4a5568; line-height: 1.4; }
+  .alt-block {
+    background: #FFF8F0;
+    border: 1px solid #FFE0B2;
+  }
+  .alt-label { font-size: 10px; font-weight: 700; color: #E65100; }
+  .alt-desc { font-size: 9px; color: #2d3748; line-height: 1.45; margin-top: 2px; }
+
+  /* 风险提示 */
+  .risk-tip {
+    background: #FFF8E1;
+    border-radius: 6px;
+    padding: 8px 10px;
+    border: 1px solid #FFE082;
+    font-size: 9px;
+    color: #4a5568;
+    line-height: 1.5;
+    flex-shrink: 0;
+    margin-bottom: 14px;
+  }
+  .risk-tip strong { color: #F57F17; }
+
+  /* 底部 */
+  .footer {
+    background: #1a1a2e;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .footer-name { font-size: 13px; font-weight: 700; color: #fff; }
+  .footer-desc { font-size: 9px; color: rgba(255,255,255,0.45); margin-top: 1px; }
+  .footer-r { display: flex; align-items: center; gap: 10px; }
+  .qr { width: 52px; height: 52px; border-radius: 4px; object-fit: contain; background: #fff; }
+  .cta-main { font-size: 11px; font-weight: 700; color: #FFD700; text-align: right; }
+  .cta-sub { font-size: 9px; color: rgba(255,255,255,0.6); text-align: right; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <img src="logo.png" alt="Humance">
+        <div>
+          <div class="brand-name">humancehr.com</div>
+          <div class="brand-sub">慧思全球人力资源</div>
+        </div>
+      </div>
+      <div class="badge">知识卡片</div>
+    </div>
+    <div class="title-tag">🇪🇺 欧盟AI合规</div>
+    <div class="title-main">主标题行1<br>主标题行2·关键词</div>
+  </div>
+
+  <div class="highlight-bar">
+    <div class="highlight-item"><div class="highlight-num">数据1</div><div class="highlight-label">标签1</div></div>
+    <div class="highlight-item"><div class="highlight-num">数据2</div><div class="highlight-label">标签2</div></div>
+    <div class="highlight-item"><div class="highlight-num">数据3</div><div class="highlight-label">标签3</div></div>
+    <div class="highlight-item"><div class="highlight-num">数据4</div><div class="highlight-label">标签4</div></div>
+    <div class="highlight-item"><div class="highlight-num">数据5</div><div class="highlight-label">标签5</div></div>
+  </div>
+
+  <div class="content">
+    <div class="qa-head">
+      <div class="q-icon">Q</div>
+      <div class="q-text">核心问题（从企业决策者视角提问）</div>
+    </div>
+
+    <div class="section-title">✓ 三大关键要点</div>
+    <div class="steps-col">
+      <div class="step-card">
+        <div class="step-circle">1</div>
+        <div class="step-card-body">
+          <div class="step-card-title">要点一</div>
+          <div class="step-card-desc">详细描述内容，控制在35字以内，确保信息完整可读。</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-circle">2</div>
+        <div class="step-card-body">
+          <div class="step-card-title">要点二</div>
+          <div class="step-card-desc">详细描述内容，控制在35字以内，确保信息完整可读。</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-circle">3</div>
+        <div class="step-card-body">
+          <div class="step-card-title">要点三</div>
+          <div class="step-card-desc">详细描述内容，控制在35字以内，确保信息完整可读。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">📊 核心数据</div>
+    <div class="fact-grid">
+      <div class="fact-card">
+        <div class="fact-title">数据项1</div>
+        <div class="fact-desc">描述内容</div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-title">数据项2</div>
+        <div class="fact-desc">描述内容</div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-title">数据项3</div>
+        <div class="fact-desc">描述内容</div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-title">数据项4</div>
+        <div class="fact-desc">描述内容</div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="cost-block">
+        <div class="cost-label">💡 合规底线</div>
+        <div class="cost-big">关键词</div>
+        <div class="cost-desc">核心描述，控制在40字以内。</div>
+      </div>
+      <div class="alt-block">
+        <div class="alt-label">⚠️ 合规风险</div>
+        <div class="alt-desc">风险描述，控制在40字以内。<strong>强调内容加粗</strong>。</div>
+      </div>
+    </div>
+
+    <div class="risk-tip">
+      <strong>📌 企业行动清单：</strong>①行动项1；②行动项2；③行动项3；④行动项4；⑤行动项5。
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>
+      <div class="footer-name">慧思 · HumanceHR</div>
+      <div class="footer-desc">全球出海人力资源服务中心</div>
+    </div>
+    <div class="footer-r">
+      <img class="qr" src="qr_code.jpg" alt="公众号二维码">
+      <div>
+        <div class="cta-main">完整资料·专属定制</div>
+        <div class="cta-sub">联系群主或扫码获取</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

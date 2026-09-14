@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>出海大字报·小红书版</title>
+<style>
+  :root {
+    --header-start: #1E3A5F;
+    --header-end: #2B5797;
+    --header-dark: #142946;
+    --accent: #2B5797;
+    --accent-light: #E8F0FA;
+    --accent-border: #BBDEFB;
+    --accent-text: #1565C0;
+    --gold: #FFD700;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    font-family: "PingFang SC", "Helvetica Neue", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  }
+  .poster {
+    width: 1080px;
+    height: 1440px;
+    background: linear-gradient(160deg, var(--header-start) 0%, var(--header-end) 60%, var(--header-dark) 100%);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 顶部品牌条 */
+  .header {
+    padding: 44px 54px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .brand img {
+    width: 72px; height: 72px;
+    border-radius: 16px;
+    background: #fff;
+    object-fit: contain;
+  }
+  .brand-name { font-size: 32px; font-weight: 700; color: #fff; }
+  .brand-sub { font-size: 24px; color: rgba(255,255,255,0.7); }
+  .badge {
+    background: rgba(255,255,255,0.15);
+    padding: 10px 30px;
+    border-radius: 40px;
+    color: #FFD700;
+    font-size: 28px; font-weight: 700;
+  }
+
+  /* 中部主体 */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 54px;
+  }
+  .title-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    font-size: 30px;
+    font-weight: 600;
+    padding: 8px 28px;
+    border-radius: 16px;
+    align-self: flex-start;
+    margin-bottom: 36px;
+  }
+  .big-title {
+    font-size: 76px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.22;
+    letter-spacing: 2px;
+  }
+  .divider {
+    width: 120px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 4px;
+    margin: 44px 0;
+  }
+
+  /* 核心数字 */
+  .numbers {
+    display: flex;
+    gap: 40px;
+  }
+  .num-item {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 24px;
+    padding: 34px 12px 26px;
+    text-align: center;
+  }
+  .num {
+    font-size: 118px;
+    font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .num-label {
+    font-size: 28px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 16px;
+    line-height: 1.3;
+  }
+
+  /* 一句话结论 */
+  .conclusion {
+    margin-top: 56px;
+    font-size: 34px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.92);
+    line-height: 1.5;
+  }
+  .conclusion strong { color: var(--gold); }
+
+  /* 底部 */
+  .footer {
+    flex-shrink: 0;
+    background: rgba(0,0,0,0.25);
+    padding: 34px 54px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-name { font-size: 32px; font-weight: 700; color: #fff; }
+  .footer-desc { font-size: 23px; color: rgba(255,255,255,0.55); margin-top: 4px; }
+  .footer-r { display: flex; align-items: center; gap: 24px; }
+  .qr { width: 116px; height: 116px; border-radius: 10px; object-fit: contain; background: #fff; }
+  .cta-main { font-size: 28px; font-weight: 700; color: #FFD700; text-align: right; }
+  .cta-sub { font-size: 22px; color: rgba(255,255,255,0.65); text-align: right; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-name">📌 出海速览</div>
+    </div>
+    <div class="badge">出海合规</div>
+  </div>
+
+  <div class="main">
+    <div class="title-tag">🇪🇺 欧盟政策</div>
+    <div class="big-title">主标题第一行<br>主标题第二行</div>
+    <div class="divider"></div>
+    <div class="numbers">
+      <div class="num-item">
+        <div class="num">99</div>
+        <div class="num-label">标签一</div>
+      </div>
+      <div class="num-item">
+        <div class="num">99%</div>
+        <div class="num-label">标签二</div>
+      </div>
+      <div class="num-item">
+        <div class="num">99</div>
+        <div class="num-label">标签三</div>
+      </div>
+    </div>
+    <div class="conclusion">一句话结论，突出<strong>核心关键词</strong>，简洁有力。</div>
+  </div>
+
+  <div class="footer">
+    <div>
+      <div class="footer-name">📌 下一期见 👋</div>
+      <div class="footer-desc">数据来源：各国官方公告及权威媒体</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
