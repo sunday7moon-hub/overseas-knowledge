@@ -43,11 +43,14 @@ echo "待推提交："; git log --oneline "$REMOTE/$BRANCH..HEAD" 2>/dev/null | 
 # 3) 重试推送（代理抖动）
 #    ⚠️ 必须设 low-speed 阈值：代理有时不是「快速 502」而是「挂死不返回」，
 #    没有阈值时 git 会无限期等待（实测挂 >5 分钟）。这里 20 秒低于 1KB/s 即判失败并重试。
+#    ⚠️ 必须 `-c credential.helper=` 关掉 osxkeychain：否则 git 收尾时会尝试把凭据写进
+#    login.keychain，沙箱里该写入被拒 → 命令整体退出码非 0 → **脚本误报失败**（实际已推成功）。
 export GIT_HTTP_LOW_SPEED_LIMIT=1000
 export GIT_HTTP_LOW_SPEED_TIME=20
+GIT_NO_HELPER=(-c credential.helper=)
 ok=0
 for i in 1 2 3 4 5 6; do
-  out=$(GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 git push "$REMOTE" "$BRANCH" 2>&1)
+  out=$(GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 git "${GIT_NO_HELPER[@]}" push "$REMOTE" "$BRANCH" 2>&1)
   rc=$?
   echo "--- try $i (rc=$rc) ---"; echo "$out" | tail -3
   if [ $rc -eq 0 ]; then ok=1; break; fi
@@ -57,7 +60,9 @@ done
 # 4) 校验远端 HEAD == 本地 HEAD
 [ $ok -eq 1 ] || { echo "🔴 push 失败（6 次）。若是恒定 502，见 SKILL.md 注意事项 10 的降级通道。"; exit 1; }
 local_sha=$(git rev-parse HEAD)
-remote_sha=$(GIT_TERMINAL_PROMPT=0 git ls-remote "$REMOTE" -h "refs/heads/$BRANCH" 2>/dev/null | awk '{print $1}')
+# ⚠️ 私有仓的 ls-remote 也需要认证（公开仓匿名可读）→ 必须同样带 GIT_ASKPASS，
+#    否则私有仓会返回空，误报「远端 sha 与本地不一致」。
+remote_sha=$(GIT_ASKPASS="$ASKPASS" GIT_TERMINAL_PROMPT=0 git "${GIT_NO_HELPER[@]}" ls-remote "$REMOTE" -h "refs/heads/$BRANCH" 2>/dev/null | awk '{print $1}')
 echo "本地 HEAD：$local_sha"
 echo "远端 HEAD：${remote_sha:-<取不到>}"
-if [ "$local_sha" = "$remote_sha" ]; then echo "✅ 已同步"; else echo "⚠️ 远端 sha 与本地不一致，请复查"; exit 1; fi
+if [ "$local_sha" = "$remote_sha" ]; then echo "✅ 已同步"; else echo "⚠️ 远端 sha 与本地不一致（私有仓取不到时先查 GIT_ASKPASS 是否生效），请复查"; exit 1; fi

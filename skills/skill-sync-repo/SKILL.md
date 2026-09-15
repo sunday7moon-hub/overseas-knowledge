@@ -318,6 +318,12 @@ bash    $S/gh_push.sh <repo-dir>          # 推任意仓（含编排层私有仓
 
    > 用完提醒用户轮换/撤销。**绝不**把 token 写进 URL、`.git/config`、技能文件或提交信息。
 
+   **两个会让脚本「假失败」的细节**（2026-09-15 实测踩到，已写进 `gh_push.sh`）：
+   - 🔴 git 收尾时会尝试把凭据**写进 login.keychain**，沙箱里该写入被拒 → 命令整体退出码非 0 →
+     **明明推成功了却报失败**。解法：命令加 `-c credential.helper=` 关掉 keychain helper。
+   - 🔴 **私有仓的 `ls-remote` 也要认证**（公开仓匿名可读，所以只有私有仓会暴露这个问题）→
+     校验远端 sha 时必须同样带 `GIT_ASKPASS`，否则返回空、误报「远端与本地不一致」。
+
 10. ⚠️ **`github.com:443` 是"代理抖动"而非恒定被拒（2026-09-14 复测，先重试再换通道）**：
     现象：`git push/ls-remote` 报 `CONNECT tunnel failed, response 502`；`curl https://github.com/` 直连得
     `000`、走代理间歇得 `200`；`info/refs` 三次探测 `200 / 000 / 200`。
