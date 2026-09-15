@@ -2,7 +2,7 @@
 
 出海HR / Global HR / 跨境用工的知识与技能集合。
 
-> 共 **24 个技能**，分两层：**出海 HR 业务技能**（干什么）→ **工具与基建**（用什么干）。
+> 共 **25 个技能**，分两层：**出海 HR 业务技能**（干什么）→ **工具与基建**（用什么干）。
 > 全部技能可直接在线浏览 `SKILL.md`，也可下载 `releases/*.zip` 拖入 WorkBuddy 技能面板。
 >
 > 🔗 **姊妹仓（私有）**：`sunday7moon-hub/agent-employees` 存放 **Agent 编排层**——底层编排复用逻辑
@@ -37,7 +37,7 @@
 
 ---
 
-## B. 工具与基建（6）
+## B. 工具与基建（7）
 
 | # | Skill | 用途 | 详情 |
 |---|-------|------|------|
@@ -47,6 +47,7 @@
 | 22 | `lark-cli-troubleshooting` | **lark-cli 排障手册**：token 写法、令牌找回、Base 取数、设备码坑、mail API 边界 | [SKILL.md](skills/lark-cli-troubleshooting/SKILL.md) |
 | 23 | `feishu-bitable-news-daily` | **飞书多维表搭建**：建 Base、设计字段、写入资讯数据 | [SKILL.md](skills/feishu-bitable-news-daily/SKILL.md) |
 | 24 | `skill-sync-repo` | **本地技能 ↔ GitHub/Gitee 桥接（双仓）**：业务仓 public + 编排层仓 private；脱敏导出、索引一致性校验、批量同步、非交互推送 | [SKILL.md](skills/skill-sync-repo/SKILL.md) |
+| 25 | `feishu-doc-archive` | **飞书文档归档**：仅收录「多维表格」，定时增量同步到归档库 + 手动归档单个链接（A7 运维巡检官的归档依赖） | [SKILL.md](skills/feishu-doc-archive/SKILL.md) |
 
 ---
 
@@ -124,9 +125,10 @@ overseas-knowledge/
 │   ├── agent-browser/               # B 浏览器自动化
 │   ├── lark-cli-troubleshooting/    # B 排障手册
 │   ├── feishu-bitable-news-daily/   # B 多维表搭建
+│   ├── feishu-doc-archive/          # B 飞书文档归档（仅多维表格，含 archive_sync.py）
 │   └── skill-sync-repo/             # B 同步桥接（scripts/ 脱敏 + 重打包）
 ├── releases/                        # 下载包（与 skills/ 一一对应）
-│   ├── <skill-name>.zip             # × 24（每个技能一个）
+│   ├── <skill-name>.zip             # × 25（每个技能一个）
 │   └── browser-bridge-extension-v1.3.0.zip   # Chrome 扩展独立包
 └── docs/                            # 开发文档
     ├── getting-started.md
@@ -140,7 +142,9 @@ overseas-knowledge/
 1. `skills/<skill-name>/` 下创建 `SKILL.md`（frontmatter 必填 `name` / `description`）
 2. 在 README 索引表中加一行（归入 A 业务 / B 工具）
 3. 打包 `.zip` 放到 `releases/`
-4. **推送前脱敏**：跑 `skill-sync-repo/scripts/sanitize_repo.py`，
+4. **同步时排除运行时目录**：`--exclude='.workbuddy/'`（技能目录可能夹带
+   `.workbuddy/automations/<id>/memory.md` 这类内部记忆，推上公开仓 = 泄露内部状态）
+5. **推送前脱敏**：跑 `skill-sync-repo/scripts/sanitize_repo.py`，
    扫描 openid / 群 ID / 内部邮箱 / token，命中即替换为占位符
 
 详见 [编码规范 →](docs/conventions.md)
