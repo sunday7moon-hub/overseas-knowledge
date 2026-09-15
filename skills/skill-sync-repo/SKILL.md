@@ -1,8 +1,13 @@
 ---
 name: skill-sync-repo
-description: "[EN] Sync local WorkBuddy skills to GitHub repo + Gitee mirror.
-  Extract, zip, update index, commit, push. / [CN] 将本地 WorkBuddy 技能同步到 GitHub
-  仓库（Gitee 自动镜像）。抽取、打包、更新索引、提交推送一步到位。"
+description: "[EN] Sync local WorkBuddy skills to GitHub repos (public business repo
+  overseas-knowledge + private orchestration repo agent-employees) + Gitee mirror.
+  Sanitize, zip, update index, commit, push non-interactively.
+  / [CN] 将本地 WorkBuddy 技能同步到 GitHub 仓库——业务仓 overseas-knowledge（公开）
+  / 编排层仓 agent-employees（私有，放 Agent 编排逻辑与员工档案）；Gitee 自动镜像。
+  脱敏、打包、更新索引、非交互推送一步到位。
+  触发词：同步技能、上传技能到 git、推到 github、同步 gitee、更新仓库索引、建仓、
+  推到编排层仓、编排层、agent-employees、agent 员工、脱敏导出、批量同步所有技能。"
 agent_created: true
 ---
 
@@ -10,7 +15,9 @@ agent_created: true
 
 ## Overview
 
-将 `~/.workbuddy/skills/` 中的技能同步到 GitHub 仓库 `overseas-knowledge`，Gitee 通过自动镜像同步无需手动操作。
+将 `~/.workbuddy/skills/` 中的技能同步到 GitHub 仓库，Gitee 通过自动镜像同步无需手动操作。
+**两个仓、两层**（2026-09-15 起）：业务仓 `overseas-knowledge`（public，放技能实体）+
+编排层仓 `agent-employees`（private，放 Agent 编排逻辑与员工档案）。先按「多仓分层规则」判断该进哪个仓。
 
 ### 典型触发场景
 
@@ -19,6 +26,9 @@ agent_created: true
 - "把 xx 技能推到 github"
 - "更新仓库里的技能"
 - "同步 gitee"
+- "推到编排层仓 / 更新 agent-employees"
+- "建个仓放 Agent 编排层"
+- "同步所有技能"
 
 ---
 

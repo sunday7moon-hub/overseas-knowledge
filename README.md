@@ -4,6 +4,11 @@
 
 > 共 **24 个技能**，分两层：**出海 HR 业务技能**（干什么）→ **工具与基建**（用什么干）。
 > 全部技能可直接在线浏览 `SKILL.md`，也可下载 `releases/*.zip` 拖入 WorkBuddy 技能面板。
+>
+> 🔗 **姊妹仓（私有）**：`sunday7moon-hub/agent-employees` 存放 **Agent 编排层**——底层编排复用逻辑
+> （六步编排流程 / 路由规则 / Registry 机制 / QC 三层框架 / 日志与 lint 脚本）＋ 业务层员工档案
+> （一页纸岗位说明书、员工 × 技能 × 门禁契约表）。**本仓只放技能实体，编排层不在这里**：
+> 本仓回答「这个技能怎么做」，编排层仓回答「谁干什么活、按什么门禁验收」。
 
 ---
 
@@ -41,7 +46,7 @@
 | 21 | `agent-browser` | **浏览器自动化**：基于 vercel-labs/agent-browser 的真实 Chromium 操控（打开 / 截图 / 提取 / 交互 / 表单） | [SKILL.md](skills/agent-browser/SKILL.md) |
 | 22 | `lark-cli-troubleshooting` | **lark-cli 排障手册**：token 写法、令牌找回、Base 取数、设备码坑、mail API 边界 | [SKILL.md](skills/lark-cli-troubleshooting/SKILL.md) |
 | 23 | `feishu-bitable-news-daily` | **飞书多维表搭建**：建 Base、设计字段、写入资讯数据 | [SKILL.md](skills/feishu-bitable-news-daily/SKILL.md) |
-| 24 | `skill-sync-repo` | **本地技能 ↔ GitHub/Gitee 桥接**：脱敏导出、索引一致性校验、批量同步 | [SKILL.md](skills/skill-sync-repo/SKILL.md) |
+| 24 | `skill-sync-repo` | **本地技能 ↔ GitHub/Gitee 桥接（双仓）**：业务仓 public + 编排层仓 private；脱敏导出、索引一致性校验、批量同步、非交互推送 | [SKILL.md](skills/skill-sync-repo/SKILL.md) |
 
 ---
 
@@ -77,6 +82,10 @@ git clone https://github.com/sunday7moon-hub/overseas-knowledge.git
 
 **不入仓**：任何 token / secret / 密码、真实客户名单与联系方式、内部聊天记录、生产环境凭据。
 所有凭据一律走环境变量或本地密钥文件（如 `~/.workbuddy/secrets/`）。
+
+> **编排层另在私有仓**：Agent 花名册、越界禁令表、内部业务口径、飞书 base/table 标识等
+> 属内部资产，统一放 **private** 仓 `agent-employees`，**不进本公开仓**。
+> 该仓若需转公开，先跑 `orchestration/scripts/sanitize_repo.py` 脱敏并复扫为空。
 
 ---
 
