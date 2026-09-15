@@ -2,7 +2,7 @@
 
 出海HR / Global HR / 跨境用工的知识与技能集合。
 
-> 共 **25 个技能**，分两层：**出海 HR 业务技能**（干什么）→ **工具与基建**（用什么干）。
+> 共 **27 个技能**，分两层：**出海 HR 业务技能**（干什么）→ **工具与基建**（用什么干）。
 > 全部技能可直接在线浏览 `SKILL.md`，也可下载 `releases/*.zip` 拖入 WorkBuddy 技能面板。
 >
 > 🔗 **姊妹仓（私有）**：`sunday7moon-hub/agent-employees` 存放 **Agent 编排层**——底层编排复用逻辑
@@ -37,7 +37,7 @@
 
 ---
 
-## B. 工具与基建（7）
+## B. 工具与基建（9）
 
 | # | Skill | 用途 | 详情 |
 |---|-------|------|------|
@@ -48,6 +48,8 @@
 | 23 | `feishu-bitable-news-daily` | **飞书多维表搭建**：建 Base、设计字段、写入资讯数据 | [SKILL.md](skills/feishu-bitable-news-daily/SKILL.md) |
 | 24 | `skill-sync-repo` | **本地技能 ↔ GitHub/Gitee 桥接（双仓）**：业务仓 public + 编排层仓 private；脱敏导出、索引一致性校验、批量同步、非交互推送 | [SKILL.md](skills/skill-sync-repo/SKILL.md) |
 | 25 | `feishu-doc-archive` | **飞书文档归档**：仅收录「多维表格」，定时增量同步到归档库 + 手动归档单个链接（A7 运维巡检官的归档依赖） | [SKILL.md](skills/feishu-doc-archive/SKILL.md) |
+| 26 | `baidu-tongji-analytics` | **百度统计取数与口径**：PV / 访客人次 / DAU / WAU / MAU、来源与地域、TOP 页、周报底座；**口径铁律与流量基准的真相源**；含统一凭据层与入仓前泄露门禁 | [SKILL.md](skills/baidu-tongji-analytics/SKILL.md) |
+| 27 | `ui-revamp-prototype` | **UI 改造原型交付**：输入「线上页面截图/链接 + 改造诉求」，产出单文件 HTML 原型（现状诊断批注 + 改造后各屏 + 状态全览）＋ 研发交接单；内置**结构性矛盾检查表**与原型静态校验器 | [SKILL.md](skills/ui-revamp-prototype/SKILL.md) |
 
 ---
 
@@ -126,9 +128,11 @@ overseas-knowledge/
 │   ├── lark-cli-troubleshooting/    # B 排障手册
 │   ├── feishu-bitable-news-daily/   # B 多维表搭建
 │   ├── feishu-doc-archive/          # B 飞书文档归档（仅多维表格，含 archive_sync.py）
+│   ├── baidu-tongji-analytics/      # B 百度统计取数（scripts/ 统一凭据层 + 取数脚本 + check_env.py 门禁）
+│   ├── ui-revamp-prototype/         # B UI 改造原型（SKILL.md 工作流 + verify_prototype.py 静态校验）
 │   └── skill-sync-repo/             # B 同步桥接（scripts/ 脱敏 + 重打包）
 ├── releases/                        # 下载包（与 skills/ 一一对应）
-│   ├── <skill-name>.zip             # × 25（每个技能一个）
+│   ├── <skill-name>.zip             # × 27（每个技能一个）
 │   └── browser-bridge-extension-v1.3.0.zip   # Chrome 扩展独立包
 └── docs/                            # 开发文档
     ├── getting-started.md
@@ -144,7 +148,17 @@ overseas-knowledge/
 3. 打包 `.zip` 放到 `releases/`
 4. **同步时排除运行时目录**：`--exclude='.workbuddy/'`（技能目录可能夹带
    `.workbuddy/automations/<id>/memory.md` 这类内部记忆，推上公开仓 = 泄露内部状态）
-5. **推送前脱敏**：跑 `skill-sync-repo/scripts/sanitize_repo.py`，
+5. 🔴 **推送前跑凭据门禁**（2026-09-15 新增，血泪教训）：
+   ```bash
+   grep -rInE '12[0-9]\.[A-Za-z0-9_-]{25,}|client_secret\s*=\s*"|api[_-]?key\s*=\s*"' skills/
+   ```
+   **必须 0 命中**。此前差点把带 `client_secret` + refresh_token 的脚本推上公开仓
+   > 💡 技能若自带校验脚本（如 `baidu-tongji-analytics/scripts/check_env.py`、
+   > `ui-revamp-prototype/scripts/verify_prototype.py`），**优先跑它**——
+   > 比裸 grep 更准，且能顺带查结构、样式与占位符问题。
+   （等于公开全站数据访问权）。含凭据的脚本改走 `~/.workbuddy/secrets/`（见
+   `baidu-tongji-analytics/scripts/_baidu_auth.py` 的写法）。
+6. **推送前脱敏**：跑 `skill-sync-repo/scripts/sanitize_repo.py`，
    扫描 openid / 群 ID / 内部邮箱 / token，命中即替换为占位符
 
 详见 [编码规范 →](docs/conventions.md)

@@ -152,14 +152,20 @@ SKILL="<skill-name>"
 # 创建目标目录（如不存在）
 mkdir -p "$REPO/skills/$SKILL"
 
-# 用 rsync 同步，排除 .DS_Store
-rsync -av --delete --exclude='.DS_Store' ~/.workbuddy/skills/$SKILL/ "$REPO/skills/$SKILL/"
+# 用 rsync 同步（std 排除集：见下方「rsync 标准排除集」）
+EX=(--exclude='.DS_Store' --exclude='__pycache__/' --exclude='*.pyc' --exclude='.workbuddy/')
+rsync -av --delete "${EX[@]}" ~/.workbuddy/skills/$SKILL/ "$REPO/skills/$SKILL/"
 ```
 
 **关键点：**
 - `--delete` 确保仓库里的技能文件与本地完全一致（删除已移除的文件）
-- 排除 `.DS_Store` 等系统文件
 - 保持扁平结构：`skills/<skill-name>/SKILL.md`，不要 `skills/<skill-name>/<skill-name>/SKILL.md`
+- 🔴 **rsync 标准排除集（每次都带上，别只用 `.DS_Store`）**：
+  `.DS_Store`、`__pycache__/`、`*.pyc`、**`.workbuddy/`**、`_backup*`、`*.zip`
+  —— **`.workbuddy/` 必须排除**：技能目录里可能夹带运行时内存
+  （实测 `feishu-doc-archive/` 里有 `.workbuddy/automations/<id>/memory.md` 与
+  `.workbuddy/memory/automations/<id>/memory.md`），里面是自动化的内部记忆与运行状态，
+  **推上公开仓库 = 泄露内部状态**。2026-09-15 实测发现并拦下。
 
 ### Step 3: 打包 .zip 到 releases/（与 skills/ 严格一一对应）
 
@@ -240,8 +246,9 @@ for skill_dir in ~/.workbuddy/skills/*/; do
   [ -f "$skill_dir/SKILL.md" ] || continue
   
   mkdir -p "$REPO/skills/$SKILL"
-  rsync -av --delete --exclude='.DS_Store' "$skill_dir" "$REPO/skills/$SKILL/"
-  cd "$REPO/skills" && zip -r "$REPO/releases/$SKILL.zip" "$SKILL/" -x '*.DS_Store'
+  rsync -av --delete --exclude='.DS_Store' --exclude='__pycache__/' --exclude='*.pyc' --exclude='.workbuddy/' \
+        "$skill_dir" "$REPO/skills/$SKILL/"
+  cd "$REPO/skills" && zip -rq "$REPO/releases/$SKILL.zip" "$SKILL/" -x '*.DS_Store' -x '*__pycache__*' -x '*.workbuddy/*'
 done
 
 cd "$REPO"

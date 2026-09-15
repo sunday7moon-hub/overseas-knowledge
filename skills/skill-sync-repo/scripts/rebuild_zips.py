@@ -18,7 +18,8 @@ for n in names:
     if os.path.exists(out):
         os.remove(out)
     cmd = ["zip", "-rq", out, n,
-           "-x", "*.DS_Store", "-x", "*__pycache__*", "-x", "*.pyc"]
+           "-x", "*.DS_Store", "-x", "*__pycache__*", "-x", "*.pyc",
+           "-x", "*.workbuddy/*", "-x", "*/.workbuddy/*"]
     r = subprocess.run(cmd, cwd=SKILLS, capture_output=True, text=True)
     if r.returncode != 0:
         print(f"🔴 {n} 打包失败：{r.stderr.strip()[:200]}")
