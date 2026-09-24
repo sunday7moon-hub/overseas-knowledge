@@ -2,14 +2,15 @@
 
 出海HR / Global HR / 跨境用工的知识与技能集合。
 
-> 共 **75 个技能**，分四区：**出海 HR 业务技能**（干什么）→ **工具与基建**（用什么干）
-> → **Agent 编排层**（谁调度谁）→ **个人与第三方技能**（开箱即用的外部能力）。
+> 共 **72 个技能**，分三区：**出海 HR 业务技能**（干什么）→ **工具与基建**（用什么干）
+> → **个人与第三方技能**（开箱即用的外部能力）。
 > 全部技能可直接在线浏览 `SKILL.md`，也可下载 `releases/*.zip` 拖入 WorkBuddy 技能面板。
 >
-> 🔗 **姊妹仓（私有）**：`sunday7moon-hub/agent-employees` —— 存放 **Agent 员工档案与内部资产**
-> （一页纸岗位说明书、员工 × 技能 × 门禁契约表、业务口径、飞书 base/table 标识、专家包）。
+> 🔗 **姊妹仓（私有）**：`sunday7moon-hub/agent-employees` —— 存放 **Agent 编排层、员工契约与内部资产**
+> （3 个编排技能实体、一页纸岗位说明书、员工 × 技能 × 门禁契约表、业务口径、飞书 base/table 标识、9 个专家包）。
 > 本仓回答「**这个技能怎么做**」，私有仓回答「**谁干什么活、按什么门禁验收**」。
-> 编排层**方法**（编排流程 / 路由规则 / QC 三层框架）在本仓 C 区可读，**员工档案与内部口径只在私有仓**。
+> 🔴 **编排层（`yoyo-*`）只在私有仓**：它们内含飞书 base/table 标识、Agent 花名册、越界禁令表与内部业务口径，
+> 不适合公开；本仓自 2026-09-24 起不再保留其副本。
 
 ---
 
@@ -69,54 +70,42 @@
 
 ---
 
-## C. Agent 编排层（3）
-
-> 编排层**方法**在此可读；**员工档案、越界禁令表、业务口径**在私有仓 `agent-employees`。
-
-| # | Skill | 用途 | 详情 |
-|---|-------|------|------|
-| 43 | `yoyo-agent-swarm` | **Agent 总管（Orchestrator）**：意图分析 → 子任务拆分 → 路由派发给工作 Agent → 回收汇总 | [SKILL.md](skills/yoyo-agent-swarm/SKILL.md) |
-| 44 | `yoyo-qc-auditor` | **质量校验 Agent（QC Auditor）**：目标/过程/结果三层校验，P0/P1/P2 分级 + 问题台账 | [SKILL.md](skills/yoyo-qc-auditor/SKILL.md) |
-| 45 | `yoyo-skill-router` | **技能总索引与路由**：12 个业务域全景索引 + 相邻技能消歧 | [SKILL.md](skills/yoyo-skill-router/SKILL.md) |
-
----
-
-## D. 个人与第三方技能（30）
+## C. 个人与第三方技能（30）
 
 > 直接复用外部 / 个人向能力。第三方技能版权归原作者，`__skillhub` 后缀表示来自 SkillHub 市场。
 
 | # | Skill | 用途 | 详情 |
 |---|-------|------|------|
-| 46 | `agent-browser` | **浏览器自动化**（第三方）：真实 Chromium 操控（打开/截图/提取/交互/表单） | [SKILL.md](skills/agent-browser/SKILL.md) |
-| 47 | `lark-unified` | **Lark/飞书 CLI 套件**（第三方）：消息/文档/表格/多维表/日历/审批 | [SKILL.md](skills/lark-unified/SKILL.md) |
-| 48 | `lexiang-knowledge-base` | **乐享知识库 MCP**（第三方）：搜索/写入/编辑/文件/配置/评论/草稿 | [SKILL.md](skills/lexiang-knowledge-base/SKILL.md) |
-| 49 | `markitdown-skill` | **文档转 Markdown**（第三方）：微软 MarkItDown CLI | [SKILL.md](skills/markitdown-skill/SKILL.md) |
-| 50 | `impeccable` | **高质量前端界面**（第三方）：网页/落地页/仪表盘/React 组件 | [SKILL.md](skills/impeccable/SKILL.md) |
-| 51 | `brand-guidelines` | **Anthropic 品牌规范**（第三方）：官方配色与字体 | [SKILL.md](skills/brand-guidelines/SKILL.md) |
-| 52 | `darwin-skill` | **技能自优化器**（第三方）：达尔文式技能迭代优化 | [SKILL.md](skills/darwin-skill/SKILL.md) |
-| 53 | `self-improving-agent` | **经验自沉淀**（第三方）：捕捉学习/错误/纠正形成持续改进 | [SKILL.md](skills/self-improving-agent/SKILL.md) |
-| 54 | `blossom-hire` | **Blossom 雇佣发布**（第三方）：发布岗位/任务/付费班次找本地帮手 | [SKILL.md](skills/blossom-hire/SKILL.md) |
-| 55 | `nano-banana-pro` | **图像生成/编辑**（第三方）：Nano Banana Pro（Gemini 3 Pro Image） | [SKILL.md](skills/nano-banana-pro/SKILL.md) |
-| 56 | `seedream-image-gen` | **图像生成**（第三方）：火山方舟 Seedream，文生图/图生图/多图融合/组图 | [SKILL.md](skills/seedream-image-gen/SKILL.md) |
-| 57 | `mp-draft-push` | **公众号草稿发布**：文章推送到微信公众号草稿箱 | [SKILL.md](skills/mp-draft-push/SKILL.md) |
-| 58 | `xiaohongshu-publisher` | **小红书发布**（第三方）：图文笔记自动发布到创作平台 | [SKILL.md](skills/xiaohongshu-publisher/SKILL.md) |
-| 59 | `xhs-automation-suite` | **小红书自动化套件**（第三方）：认证/发布/发现/互动/复合运营 | [SKILL.md](skills/xhs-automation-suite/SKILL.md) |
-| 60 | `xhs-one-click-publish` | **小红书一键创作发布**（第三方）：端到端内容生产链路 | [SKILL.md](skills/xhs-one-click-publish/SKILL.md) |
-| 61 | `xhs-research` | **小红书数据分析**（第三方）：选题/竞品/内容/趋势/博主/评论六视角 | [SKILL.md](skills/xhs-research/SKILL.md) |
-| 62 | `xhs-daily-breaking` | **小红书当日爆款**（第三方）：按品类查当日热度最高笔记 | [SKILL.md](skills/xhs-daily-breaking/SKILL.md) |
-| 63 | `xhs-trending-cards` | **小红书热点卡片**（第三方）：生成热点话题卡片 | [SKILL.md](skills/xhs-trending-cards/SKILL.md) |
-| 64 | `xhs-video-summary` | **小红书视频总结**（第三方）：提取文案 + 语音转录 + 内容总结 | [SKILL.md](skills/xhs-video-summary/SKILL.md) |
-| 65 | `content-analyzer` | **小红书/抖音内容解析**（第三方）：笔记与视频分析 | [SKILL.md](skills/content-analyzer/SKILL.md) |
-| 66 | `slfcys-xhs-expert` | **小红书文案专家**（第三方）：种草文案 / 生活分享 / 爆款改写 | [SKILL.md](skills/slfcys-xhs-expert/SKILL.md) |
-| 67 | `xhs-rewriter-skill` | **小红书爆款改写**（第三方）：粗糙文本 → 网感图文笔记 | [SKILL.md](skills/xhs-rewriter-skill/SKILL.md) |
-| 68 | `caidazi-stock-screener` | **股票/ETF 筛选**（财搭子）：自然语言条件 → 候选标的 | [SKILL.md](skills/caidazi-stock-screener/SKILL.md) |
-| 69 | `caidazi-asset-research` | **标的快速/深度研究**（财搭子）：股票/ETF/基金/指数 | [SKILL.md](skills/caidazi-asset-research/SKILL.md) |
-| 70 | `caidazi-fund-etf-research` | **基金/ETF 研究**（财搭子）：筛选/诊断/对比/配置候选 | [SKILL.md](skills/caidazi-fund-etf-research/SKILL.md) |
-| 71 | `caidazi-market-pulse` | **市场脉搏**（财搭子）：热点/大盘/板块/盘前盘中盘后 | [SKILL.md](skills/caidazi-market-pulse/SKILL.md) |
-| 72 | `caidazi-macro-research` | **宏观研究**（财搭子）：宏观数据/政策/利率/通胀/汇率 | [SKILL.md](skills/caidazi-macro-research/SKILL.md) |
-| 73 | `caidazi-finance-search` | **财经信息搜索**（财搭子）：新闻/公告/研报/政策/事件 | [SKILL.md](skills/caidazi-finance-search/SKILL.md) |
-| 74 | `caidazi-portfolio-review` | **组合复盘**（财搭子）：自选/持仓摘要、风险暴露、变动检查 | [SKILL.md](skills/caidazi-portfolio-review/SKILL.md) |
-| 75 | `caidazi-user-assets` | **个人资产上下文**（财搭子）：自选/持仓/监控任务/账户关联资产 | [SKILL.md](skills/caidazi-user-assets/SKILL.md) |
+| 43 | `agent-browser` | **浏览器自动化**（第三方）：真实 Chromium 操控（打开/截图/提取/交互/表单） | [SKILL.md](skills/agent-browser/SKILL.md) |
+| 44 | `lark-unified` | **Lark/飞书 CLI 套件**（第三方）：消息/文档/表格/多维表/日历/审批 | [SKILL.md](skills/lark-unified/SKILL.md) |
+| 45 | `lexiang-knowledge-base` | **乐享知识库 MCP**（第三方）：搜索/写入/编辑/文件/配置/评论/草稿 | [SKILL.md](skills/lexiang-knowledge-base/SKILL.md) |
+| 46 | `markitdown-skill` | **文档转 Markdown**（第三方）：微软 MarkItDown CLI | [SKILL.md](skills/markitdown-skill/SKILL.md) |
+| 47 | `impeccable` | **高质量前端界面**（第三方）：网页/落地页/仪表盘/React 组件 | [SKILL.md](skills/impeccable/SKILL.md) |
+| 48 | `brand-guidelines` | **Anthropic 品牌规范**（第三方）：官方配色与字体 | [SKILL.md](skills/brand-guidelines/SKILL.md) |
+| 49 | `darwin-skill` | **技能自优化器**（第三方）：达尔文式技能迭代优化 | [SKILL.md](skills/darwin-skill/SKILL.md) |
+| 50 | `self-improving-agent` | **经验自沉淀**（第三方）：捕捉学习/错误/纠正形成持续改进 | [SKILL.md](skills/self-improving-agent/SKILL.md) |
+| 51 | `blossom-hire` | **Blossom 雇佣发布**（第三方）：发布岗位/任务/付费班次找本地帮手 | [SKILL.md](skills/blossom-hire/SKILL.md) |
+| 52 | `nano-banana-pro` | **图像生成/编辑**（第三方）：Nano Banana Pro（Gemini 3 Pro Image） | [SKILL.md](skills/nano-banana-pro/SKILL.md) |
+| 53 | `seedream-image-gen` | **图像生成**（第三方）：火山方舟 Seedream，文生图/图生图/多图融合/组图 | [SKILL.md](skills/seedream-image-gen/SKILL.md) |
+| 54 | `mp-draft-push` | **公众号草稿发布**：文章推送到微信公众号草稿箱 | [SKILL.md](skills/mp-draft-push/SKILL.md) |
+| 55 | `xiaohongshu-publisher` | **小红书发布**（第三方）：图文笔记自动发布到创作平台 | [SKILL.md](skills/xiaohongshu-publisher/SKILL.md) |
+| 56 | `xhs-automation-suite` | **小红书自动化套件**（第三方）：认证/发布/发现/互动/复合运营 | [SKILL.md](skills/xhs-automation-suite/SKILL.md) |
+| 57 | `xhs-one-click-publish` | **小红书一键创作发布**（第三方）：端到端内容生产链路 | [SKILL.md](skills/xhs-one-click-publish/SKILL.md) |
+| 58 | `xhs-research` | **小红书数据分析**（第三方）：选题/竞品/内容/趋势/博主/评论六视角 | [SKILL.md](skills/xhs-research/SKILL.md) |
+| 59 | `xhs-daily-breaking` | **小红书当日爆款**（第三方）：按品类查当日热度最高笔记 | [SKILL.md](skills/xhs-daily-breaking/SKILL.md) |
+| 60 | `xhs-trending-cards` | **小红书热点卡片**（第三方）：生成热点话题卡片 | [SKILL.md](skills/xhs-trending-cards/SKILL.md) |
+| 61 | `xhs-video-summary` | **小红书视频总结**（第三方）：提取文案 + 语音转录 + 内容总结 | [SKILL.md](skills/xhs-video-summary/SKILL.md) |
+| 62 | `content-analyzer` | **小红书/抖音内容解析**（第三方）：笔记与视频分析 | [SKILL.md](skills/content-analyzer/SKILL.md) |
+| 63 | `slfcys-xhs-expert` | **小红书文案专家**（第三方）：种草文案 / 生活分享 / 爆款改写 | [SKILL.md](skills/slfcys-xhs-expert/SKILL.md) |
+| 64 | `xhs-rewriter-skill` | **小红书爆款改写**（第三方）：粗糙文本 → 网感图文笔记 | [SKILL.md](skills/xhs-rewriter-skill/SKILL.md) |
+| 65 | `caidazi-stock-screener` | **股票/ETF 筛选**（财搭子）：自然语言条件 → 候选标的 | [SKILL.md](skills/caidazi-stock-screener/SKILL.md) |
+| 66 | `caidazi-asset-research` | **标的快速/深度研究**（财搭子）：股票/ETF/基金/指数 | [SKILL.md](skills/caidazi-asset-research/SKILL.md) |
+| 67 | `caidazi-fund-etf-research` | **基金/ETF 研究**（财搭子）：筛选/诊断/对比/配置候选 | [SKILL.md](skills/caidazi-fund-etf-research/SKILL.md) |
+| 68 | `caidazi-market-pulse` | **市场脉搏**（财搭子）：热点/大盘/板块/盘前盘中盘后 | [SKILL.md](skills/caidazi-market-pulse/SKILL.md) |
+| 69 | `caidazi-macro-research` | **宏观研究**（财搭子）：宏观数据/政策/利率/通胀/汇率 | [SKILL.md](skills/caidazi-macro-research/SKILL.md) |
+| 70 | `caidazi-finance-search` | **财经信息搜索**（财搭子）：新闻/公告/研报/政策/事件 | [SKILL.md](skills/caidazi-finance-search/SKILL.md) |
+| 71 | `caidazi-portfolio-review` | **组合复盘**（财搭子）：自选/持仓摘要、风险暴露、变动检查 | [SKILL.md](skills/caidazi-portfolio-review/SKILL.md) |
+| 72 | `caidazi-user-assets` | **个人资产上下文**（财搭子）：自选/持仓/监控任务/账户关联资产 | [SKILL.md](skills/caidazi-user-assets/SKILL.md) |
 
 ---
 
@@ -159,10 +148,11 @@ git clone https://github.com/sunday7moon-hub/overseas-knowledge.git
 | 运行时目录 | `.rule-ref/` `.workbuddy/` `_backup*/`（含内部自动化 ID 与内部记忆） |
 | 备份/缓存 | `*.bak*` `*.orig` `__pycache__/` `.DS_Store` |
 | 业务敏感 | 真实客户名单与联系方式、内部聊天记录、生产环境凭据 |
+| **编排层** | `yoyo-agent-swarm` / `yoyo-qc-auditor` / `yoyo-skill-router` —— 含飞书 base/table 标识、Agent 花名册、越界禁令表与内部业务口径，**只存私有仓 `agent-employees/skills/`，本仓不留副本** |
 
-> **私有仓**：Agent 员工档案、越界禁令表、内部业务口径、飞书 base/table 标识、专家包
-> 统一放 **private** 仓 `agent-employees`。该仓若需转公开，先跑
-> `orchestration/scripts/sanitize_repo.py` 脱敏并复扫为空。
+> **私有仓**：**编排层技能实体**、Agent 员工档案、越界禁令表、内部业务口径、飞书 base/table 标识、专家包
+> 统一放 **private** 仓 `agent-employees`。该仓若需转公开，先跑本仓自带工具
+> `skills/skill-sync-repo/scripts/sanitize_repo.py` 脱敏并复扫为空。
 
 ---
 
@@ -172,15 +162,16 @@ git clone https://github.com/sunday7moon-hub/overseas-knowledge.git
 overseas-knowledge/
 ├── README.md
 ├── .gitignore                       # 凭据 / 运行环境 / 运行时目录隔离
-├── skills/                          # 技能源文件（75 个，可直接在线浏览）
+├── skills/                          # 技能源文件（72 个，可直接在线浏览）
 │   ├── <skill-name>/
 │   │   ├── SKILL.md                 # 唯一入口（frontmatter: name + description）
 │   │   ├── references/              # 参考资料 / 数据 / 模板
 │   │   ├── scripts/                 # 可执行脚本（含门禁与校验器）
 │   │   └── assets/                  # 静态资源
-│   └── ...                          # A 业务 24 / B 工具 18 / C 编排 3 / D 个人·第三方 30
+│   └── ...                          # A 业务 24 / B 工具 18 / C 个人·第三方 30
 ├── releases/                        # 下载包（与 skills/ 一一对应）
-│   ├── <skill-name>.zip             # × 75（每个技能一个）
+│                                    #   ⚠️ 编排层 yoyo-* 不在此仓，见姊妹仓
+│   ├── <skill-name>.zip             # × 72（每个技能一个）
 │   └── browser-bridge-extension-v1.3.0.zip   # Chrome 扩展独立包
 └── docs/                            # 开发文档
     ├── getting-started.md
@@ -191,8 +182,11 @@ overseas-knowledge/
 
 ## Adding a New Skill / 添加新技能
 
+🔴 **编排层技能（`yoyo-agent-swarm` / `yoyo-qc-auditor` / `yoyo-skill-router`）不进本仓**，
+   只镜像到私有仓 `agent-employees/skills/`——它们含飞书 base/table 标识与内部业务口径。
+
 1. `skills/<skill-name>/` 下创建 `SKILL.md`（frontmatter 必填 `name` / `description`）
-2. 在 README 索引表中加一行（归入 A 业务 / B 工具 / C 编排 / D 个人·第三方）
+2. 在 README 索引表中加一行（归入 A 业务 / B 工具 / C 个人·第三方）
 3. 打包 `.zip` 放到 `releases/`
 4. **同步时排除运行环境与运行时目录**（这几项都曾造成过泄露或体积事故）：
    ```bash

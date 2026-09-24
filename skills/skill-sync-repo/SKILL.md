@@ -4,7 +4,7 @@ description: "[EN] Sync local WorkBuddy skills to GitHub repos (public business 
   overseas-knowledge + private orchestration repo agent-employees) + Gitee mirror.
   Sanitize, zip, update index, commit, push non-interactively.
   / [CN] 将本地 WorkBuddy 技能同步到 GitHub 仓库——业务仓 overseas-knowledge（公开）
-  / 编排层仓 agent-employees（私有，放 Agent 编排逻辑与员工档案）；Gitee 自动镜像。
+  / 私有仓 agent-employees（编排层实体 skills/ + 员工契约 agents/ + 专家包 experts/）；Gitee 自动镜像。
   脱敏、打包、更新索引、非交互推送一步到位。
   触发词：同步技能、上传技能到 git、推到 github、同步 gitee、更新仓库索引、建仓、
   推到编排层仓、编排层、agent-employees、agent 员工、脱敏导出、批量同步所有技能。"
@@ -39,7 +39,7 @@ agent_created: true
 | 仓 | 可见性 | 放什么 | 本地路径 |
 |---|:--:|---|---|
 | `overseas-knowledge` | **public** | 业务技能实体（SKILL.md + scripts） | `/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/overseas-knowledge` |
-| `agent-employees` | **private** | **Agent 编排层**：底层编排复用逻辑 + 员工档案 | `/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/agent-employees` |
+| `agent-employees` | **private** | **编排层实体 + 员工契约 + 专家包**：`skills/`（yoyo-* 整包）/ `agents/` / `experts/` / `orchestration/`（复用指南） | `/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/agent-employees` |
 
 | 项目 | 值 |
 |------|-----|
@@ -55,33 +55,59 @@ agent_created: true
 ## 多仓分层规则（先判断该进哪个仓）
 
 **判定口诀**：**换个公司/换个行业还能用吗？**
-- **能** → `agent-employees/orchestration/`（底层编排复用逻辑，private）
+- **能** → `agent-employees/skills/`（**Agent 编排层实体**，private）
 - **不能但同行能** → `overseas-knowledge/skills/`（业务技能，public）
 - **绑死本公司私有数据** → 仍进 `overseas-knowledge/skills/`，但**先脱敏**
+
+🔴 **编排层（`yoyo-agent-swarm` / `yoyo-qc-auditor` / `yoyo-skill-router`）只进 private 仓**——
+它们内含飞书 base/table 标识、Agent 花名册、越界禁令表 §0.1 与内部业务口径。
+**公开仓自 2026-09-24 起不再保留其副本**（此前误推全量，已撤出并删除对应 `releases/*.zip`）。
+跑公开仓批量同步时**必须显式排除这三个**。
 
 ### agent-employees 的固定结构（不要随意改）
 
 ```
 agent-employees/
-├── orchestration/   【底层编排复用逻辑】workflow/ registry/ qc/ scripts/ docs/
-├── agents/          【业务层】job-descriptions.md（岗位说明书）+ skill-bindings.md（技能绑定契约）
-└── experts/         【专家层】9 个对话式自定义专家包 + README.md（一览 / 协作链 / 三处登记）
+├── skills/          【编排层实体】3 个完整技能包（整包镜像 —— 勿只 cp SKILL.md，参考文件会漏）
+│                    yoyo-agent-swarm / yoyo-qc-auditor / yoyo-skill-router
+├── agents/          【员工契约层】skill-bindings.md（绑定契约）+ job-description-template.md（JD 模板）
+├── experts/         【专家层】9 个对话式自定义专家包 + README.md（一览 / 协作链 / 三处登记）
+└── orchestration/   【复用指南 ≠ 实体】README.md（怎么搬）+ scripts/audit_automations.py
+                     + docs/automation-map.md  ⚠️ 只放指南与本仓独有工具，不再镜像技能文件内容
 ```
 
-**同步映射表**（本地技能 → 编排层仓，运行时真相仍是本地路径）：
+**同步映射表**（本地技能 → 编排层仓；运行时真相仍是本地路径）：
 
-| 本地 | 仓内 |
-|---|---|
-| `yoyo-agent-swarm/SKILL.md` | `orchestration/workflow/orchestrator.md` |
-| `yoyo-agent-swarm/references/routing-rules.md` | `orchestration/workflow/routing-rules.md` |
-| `yoyo-agent-swarm/references/agent-registry.md` | `orchestration/registry/agent-registry.md` |
-| `yoyo-agent-swarm/references/job-descriptions.md` | `agents/job-descriptions.md` |
-| `yoyo-agent-swarm/references/job-description-template.md` | `orchestration/registry/job-description-template.md` |
-| `yoyo-qc-auditor/SKILL.md` | `orchestration/qc/qc-auditor.md` |
-| `yoyo-qc-auditor/references/*.md` | `orchestration/qc/` |
-| `yoyo-agent-swarm/scripts/` + `yoyo-qc-auditor/scripts/` + 本技能 `scripts/` | `orchestration/scripts/` |
-| `yoyo-agent-swarm/references/*benchmark*.md`、`*borrowing*.md` | `orchestration/docs/` |
-| `~/.workbuddy/plugins/marketplaces/my-experts/plugins/<name>/` | `experts/<name>/` |
+> ⚠️ **2026-09-24 起改为整包镜像**。旧做法「单文件 cp 到 `orchestration/workflow|qc|registry`」
+> 会让同一份规则在仓里出现两遍（live 一份、镜像一份）——必然漂移。
+> 判据：**「我要改这个值，需要动几个文件？」答案 >1 就是设计错了。**
+> 旧镜像已全部删除。
+
+| 本地（intact 技能包） | 仓内 | 方式 |
+|---|---|---|
+| `yoyo-agent-swarm/`（SKILL + references + scripts） | `skills/yoyo-agent-swarm/` | `rsync -a --delete` |
+| `yoyo-qc-auditor/`（整包） | `skills/yoyo-qc-auditor/` | `rsync -a --delete` |
+| `yoyo-skill-router/`（整包） | `skills/yoyo-skill-router/` | `rsync -a --delete` |
+| `~/.workbuddy/plugins/marketplaces/my-experts/plugins/<name>/` | `experts/<name>/` | `rsync -a --delete` |
+
+**只镜像不产出**（仓内独有，同步命令**不要**覆盖或删除）：
+`README.md`、`agents/`、`orchestration/README.md`、`orchestration/scripts/audit_automations.py`、`orchestration/docs/automation-map.md`。
+
+```bash
+# 编排层：整包镜像（勿只 cp SKILL.md）
+SK="$HOME/.workbuddy/skills"
+NEW="$HOME/WorkBuddy/2026-07-30-09-39-41/agent-employees"
+EX=(--exclude='.DS_Store' --exclude='__pycache__/' --exclude='*.pyc' \
+    --exclude='venv/' --exclude='.venv/' --exclude='node_modules/' \
+    --exclude='*.bak*' --exclude='*.orig' --exclude='.rule-ref/' --exclude='.workbuddy/')
+for s in yoyo-agent-swarm yoyo-qc-auditor yoyo-skill-router; do
+  rsync -a --delete "${EX[@]}" "$SK/$s/" "$NEW/skills/$s/"
+done
+```
+
+> 📌 **已作废的旧映射**：`yoyo-agent-swarm/references/job-description-template.md`
+> → `orchestration/registry/job-description-template.md`。该模板 live 侧无对应文件，
+> 现由私有仓自有（`agents/job-description-template.md`）。
 
 ### 专家包同步（2026-09-24 新增的第三个仓面向量）
 
@@ -300,6 +326,7 @@ Gitee 已配置自动镜像，GitHub push 成功后 Gitee 会自动同步。
 
 ```bash
 REPO="/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/overseas-knowledge"
+NEW="/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/agent-employees"
 LIVE="$HOME/.workbuddy/skills"
 EX=(--exclude='.DS_Store' --exclude='__pycache__/' --exclude='*.pyc'
     --exclude='.workbuddy/' --exclude='.rule-ref/' --exclude='_backup*'
@@ -482,3 +509,21 @@ bash    $S/gh_push.sh <repo-dir>          # 推任意仓（含编排层私有仓
     第 ③ 项与公开仓 README「编排层不进本仓」的既有声明**直接冲突**，
     且会把个人向（理财）、第三方（skillhub）技能一并公开 —— 动手前必须显式确认范围，
     并在提交信息/汇报里把「照做了什么、与哪条既有声明冲突」写清楚，便于撤回。
+
+18. 🔴 **编排层三个技能只进私有仓，公开仓必须排除**（2026-09-24 定案，见「多仓分层规则」）：
+    `yoyo-agent-swarm` / `yoyo-qc-auditor` / `yoyo-skill-router` 内含飞书 base/table 标识、
+    Agent 花名册、越界禁令表 §0.1 与内部业务口径。它们在私有仓是**整包实体**
+    （`agent-employees/skills/<name>/`），**公开仓不留任何副本**。
+    批量同步循环里用 `case` 显式 skip（代码见「批量同步」）。
+    已误公开的撤回：`git rm -r skills/<name>` ＋ `git rm releases/<name>.zip`（git 历史保留、可回滚），
+    随后按「提交前四件必查」重跑 README 索引 / 编号连续性 / 打包。
+
+19. 🔴 **私有仓的镜像要用「整包 rsync」，不要用「单文件 cp」**（2026-09-24 结构修正）：
+    旧做法把 live 的若干文件 cp 成 `orchestration/workflow/orchestrator.md`、`orchestration/qc/*.md`、
+    `orchestration/registry/agent-registry.md`，后果是 **同一份规则在仓里存两遍**（live 一份、镜像一份），
+    且**参考文件漏镜像**（实测漏了 `inbound-request-loop.md`、`regulation-effective-alert.md`
+    与整个 `yoyo-skill-router` 包）。
+    正解：`skills/` 下**整包** `rsync -a --delete`；`orchestration/` 只留**指南**（README）
+    与本仓独有资产（`scripts/audit_automations.py`、`docs/automation-map.md`）。
+    判据：**「我要改这个值，需要动几个文件？」答案 >1 就是设计错了。**
+
