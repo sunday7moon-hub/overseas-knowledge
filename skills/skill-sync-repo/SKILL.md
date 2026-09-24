@@ -150,6 +150,31 @@ comm -3 /tmp/a /tmp/b; comm -3 /tmp/a /tmp/c     # 均应无输出
 > ① 仓内文件里的脚本调用路径**保持本地绝对路径**（运行时真相），不要改成仓内相对路径，否则本地跑不通；
 > ② **业务技能实体永不进编排层仓**，只放引用与绑定关系，避免两份维护。
 
+> 🔴 **提交专家包前必跑「头像可解析性门禁」**（2026-09-24 实测抓到一处静默缺陷）：
+> `plugin.json` 里的 `"avatar"` 是**声明式**的——声明了但文件不存在，**不报错**，
+> 只在专家中心显示**空白头像**（是最典型的"静默失败"：没人会主动去点开每个专家看头像）。
+> 实测 `dev-engineer` 声明了 `avatars/expert.png` 却只有 `.gitkeep`，直到逐个核对才发现。
+> 门禁（对 `experts/` 下每个包跑，缺失数必须为 0）：
+> ```bash
+> python3 - <<'PY'
+> import json, os
+> base = "<agent-employees>/experts"
+> bad = 0
+> for n in sorted(os.listdir(base)):
+>     pj = os.path.join(base, n, ".codebuddy-plugin", "plugin.json")
+>     if not os.path.isfile(pj): continue
+>     av = json.load(open(pj)).get("avatar")
+>     ok = av and os.path.exists(os.path.join(base, n, av))
+>     print(f"{'✅' if ok else '🔴'} {n:32s} {av or '未声明'}")
+>     bad += 0 if ok else 1
+> print("缺失数：", bad)
+> PY
+> ```
+> 头像规格与现有 8 张保持一致：**PNG 512×512**、~230–400 KB、
+> 暖橙渐变背景 + 扁平插画 + 领域元素浮层 + 右下角同款水印（该水印会被裁成 `WORKBUDD>.`，**是正常的**，
+> 参照图也一样——别以为是生成失败去修图）。生成后**同时**落到 `experts/<包>/avatars/` 与
+> live 的 `~/.workbuddy/plugins/marketplaces/my-experts/plugins/<包>/avatars/`，两处 `diff -rq` 必须为空。
+
 > 🔴 **编排层仓是 private，但含内部标识**（飞书 base_token / table_id / owner openid、越界禁令、内部口径）。
 > **转公开前必须先跑** Step 0 的 `sanitize_repo.py` 并复扫为空。
 
