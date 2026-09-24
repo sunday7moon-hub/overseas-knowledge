@@ -4,12 +4,23 @@ description: >
   Given a humancehr.com article URL or topic, fetch the article content,
   generate an editable poster (.html) + screenshot (.jpg) + share copy text.
   Triggered when user asks to create/share a poster/knowledge-card/image from an
-  HR/policy article.
+  HR/policy article. 输入是**已得的分析结论**（非文章）请用 `one-page-insight-poster`。
 agent_created: true
 disable-model-invocation: true
 ---
 
 # Country Knowledge Poster Skill
+
+## 定位与边界
+
+| 输入是什么 | 该用哪个技能 |
+|---|---|
+| **humancehr.com 文章 URL 或选题**（输出 HTML + 截图 + 分享文案） | **本技能** ← |
+| 一段**已得的分析结论**（根因 / 数据 / 建议） | `one-page-insight-poster` |
+| 榜单 / 趋势数据（输出 PNG 卡片） | `xhs-trending-cards` |
+
+---
+
 
 Generate a social-media-ready knowledge card poster for HR/policy country articles.
 Outputs an editable `.html` file, a rendered `.jpg` image, and a share copy text.
@@ -128,10 +139,19 @@ cp /Users/yoyo/.workbuddy/skills/country-knowledge-poster/assets/qr_code.jpg ./p
 ```bash
 cd poster && \
 NODE_PATH=/Users/yoyo/.workbuddy/binaries/node/workspace/node_modules \
-/Users/yoyo/.workbuddy/binaries/node/versions/22.22.2/bin/node \
+node \
 /Users/yoyo/.workbuddy/skills/country-knowledge-poster/scripts/screenshot_poster.js \
 {topic_keyword}.html {topic_keyword}.jpg
 ```
+
+> ⚠️ node 版本路径会随更新变化（旧的 `versions/22.22.2/bin/node` 已不存在，实际为 `22.22.2-3`），**直接用 PATH 里的 `node` 即可**，不要写死版本号。
+> 若 `node_modules` 里 playwright 解析失败，回退方案（2026-09-24 实测可用）：
+> ```bash
+> cd /Users/yoyo/WorkBuddy/Claw/poster && \
+> NODE_PATH=/Users/yoyo/WorkBuddy/2026-05-18-task-1/xhs-publisher/node_modules \
+> node screenshot_multi.js {dir}/{topic}.html {dir}/{topic}.jpg
+> ```
+> （`screenshot_multi.js` 取 `.poster`/`.card` 元素截图，2x 渲染 JPEG 98）
 
 The script uses 2× viewport scaling with JPEG quality 98.
 

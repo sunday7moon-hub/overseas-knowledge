@@ -1,0 +1,11 @@
+{
+  "name": "darwin-skill",
+  "installedAt": 1779775899399,
+  "source": "marketplace",
+  "iconSource": "darwin-skill",
+  "version": "1.0.0",
+  "skillId": "skill_2053081519859650560",
+  "skillName": "darwin-skill",
+  "description_zh": "自主优化 Agent Skill（8维评分、棘轮机制、自动改进）",
+  "description_en": "Autonomous skill optimizer with 8-dim rubric and ratchet mechanism"
+}

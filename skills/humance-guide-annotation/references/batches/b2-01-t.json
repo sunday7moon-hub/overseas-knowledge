@@ -1,0 +1,435 @@
+{
+ "batch": "B2-01-T",
+ "title": "慧思国别指南更新标注 · B2-01 试行批（内容类·本地测试）",
+ "review_date": "2026-09-07",
+ "mode": "local-test",
+ "scope": "变更类型∈{条文类,新增项,表述修正} 且 需确认=否 且 来源层级≠存疑",
+ "note": "本批为试行：只做非数值类内容变更，且仅本地构建，不写 Strapi 生产。",
+ "countries": {
+  "germany-country-guide": {
+   "name": "德国",
+   "documentId": "utg4onw5nb0j8edlbkuvd434",
+   "page_date": "2026-03-05",
+   "guide_url": "https://www.humancehr.com/country-guide/germany-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-006",
+     "field": "雇主对第三国国民告知义务",
+     "kind": "新增项",
+     "tier": "四大·律所",
+     "source": "Rödl & Partner",
+     "url": "https://www.roedl.com/en/insights/edition-january-2026-new-year-changes",
+     "effective": "2026-01-01",
+     "status": "pending",
+     "title": "雇主对第三国国民告知义务",
+     "old": "无成文法定义务",
+     "new": "须书面告知：居留/工作许可条件、免费 Fair Integration 咨询、续签截止与逾期后果、雇主合规义务",
+     "extra": "2023 技术移民法分阶段落地；违规构成 Ordnungswidrigkeit｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">法律文件与行政手续清单（2026年有效）</h3>"
+    }
+   ]
+  },
+  "united-kingdom-country-guide": {
+   "name": "英国",
+   "documentId": "z7l44zaceldjl07q806lgmuy",
+   "page_date": "2026-03-25",
+   "guide_url": "https://www.humancehr.com/country-guide/united-kingdom-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-013",
+     "field": "个人所得税起征点与税率档",
+     "kind": "条文类",
+     "tier": "政府",
+     "source": "GOV.UK",
+     "url": "https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027",
+     "effective": "2026-04-06",
+     "status": "keep",
+     "title": "个人所得税起征点与税率档",
+     "old": "2025/26: 免税额 £12,570",
+     "new": "2026/27 维持不变：免税额 £12,570；20% 至 £37,700；40% 至 £125,140；45% 以上",
+     "extra": "已立法冻结至 2031-04-05；苏格兰另设六档｜置信度:高",
+     "anchor": "<h3 class=\"subsection-title\">个人所得税税率表 (2025/26 纳税年度)</h3>"
+    },
+    {
+     "rid": "PR-20260907-014",
+     "field": "年假记录保存义务",
+     "kind": "新增项",
+     "tier": "四大·律所",
+     "source": "Kingsley Napley",
+     "url": "https://www.kingsleynapley.co.uk/our-insights/press-releases/employment-law-changes-tech-businesses-need-to-know-about/",
+     "effective": "2026-04-06",
+     "status": "pending",
+     "title": "年假记录保存义务",
+     "old": "—",
+     "new": "2026-04-06 起雇主须保存年假权利、年假薪酬及离职未休年假折算款记录，保存 6 年",
+     "extra": "年假天数 5.6 周本身未变｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">分类休假权益速查表</h3>"
+    }
+   ]
+  },
+  "france-country-guide": {
+   "name": "法国",
+   "documentId": "dxn9cf7fn0j1r9r6pm78662q",
+   "page_date": "2026-04-10",
+   "guide_url": "https://www.humancehr.com/country-guide/france-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-026",
+     "field": "CDD de reconversion / Pro-A",
+     "kind": "条文类",
+     "tier": "政府",
+     "source": "法国劳动与团结部",
+     "url": "https://travail-emploi.gouv.fr/ce-qui-change-pour-le-travail-et-lemploi-au-1er-janvier-2026",
+     "effective": "2026-01-01",
+     "status": "pending",
+     "title": "CDD de reconversion / Pro-A",
+     "old": "存在 Pro-A 机制",
+     "new": "新增「职业转型期定期合同」CDD de reconversion，同时废除 Pro-A；学徒补贴限 250 人以下企业第一年 5,000 欧",
+     "extra": "学徒补贴残障者 6,000 欧｜置信度:高",
+     "anchor": "<h3 class=\"subsection-title\">常见劳动合同类型对比（2026 年实务）</h3>"
+    }
+   ]
+  },
+  "saudi-arabia-country-guide": {
+   "name": "沙特阿拉伯",
+   "documentId": "lyebs61lhlqbpcuif5m0ww0c",
+   "page_date": "2026-03-11",
+   "guide_url": "https://www.humancehr.com/country-guide/saudi-arabia-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-040",
+     "field": "Nitaqat 新阶段",
+     "kind": "条文类",
+     "tier": "四大·律所",
+     "source": "Vialto Partners",
+     "url": "https://vialtopartners.com/regional-alerts/saudi-arabia-immigration-next-phase-of-developed-nitaqat-programme",
+     "effective": "2026-04-26",
+     "status": "pending",
+     "title": "Nitaqat 新阶段",
+     "old": "—",
+     "new": "2026-04-26 起「Developed Nitaqat」：阈值上调；取消黄档直接降红档；行业分类 37→41 类；考核改实体口径；沙特籍合同未在 Qiwa 电子认证不计入沙化比例",
+     "extra": "红档无法申请新外籍签证、无法续签工作许可｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">外籍员工配额速查表（截至2026年有效）</h3>"
+    },
+    {
+     "rid": "PR-20260907-042",
+     "field": "个人所得税",
+     "kind": "条文类",
+     "tier": "企业公告",
+     "source": "SailGlobal",
+     "url": "https://www.sailglobal.com/blog/saudi-arabia-payroll-guide-2026-en",
+     "effective": "—",
+     "status": "keep",
+     "title": "个人所得税",
+     "old": "0%",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "雇佣工薪所得 0%，不分国籍｜置信度:高",
+     "anchor": "<h3 class=\"subsection-title\">个人所得税法律框架</h3>"
+    },
+    {
+     "rid": "PR-20260907-043",
+     "field": "年休假/产假/陪产假",
+     "kind": "条文类",
+     "tier": "权威媒体",
+     "source": "Gulf Times Now",
+     "url": "https://gulftimesnow.com/saudi-labour-law-end-of-service-2026/",
+     "effective": "—",
+     "status": "keep",
+     "title": "年休假/产假/陪产假",
+     "old": "年休21天（满5年30天）",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "⚠️产假12周等属 2025-02-19 生效修订，勿标为 2026 新规｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">分类休假权益速查表 (2026年基准)</h3>"
+    },
+    {
+     "rid": "PR-20260907-044",
+     "field": "试用期上限/通知期",
+     "kind": "条文类",
+     "tier": "企业公告",
+     "source": "Ratiby（逐条引注）",
+     "url": "https://ratiby.com/en/labor-law",
+     "effective": "—",
+     "status": "keep",
+     "title": "试用期上限/通知期",
+     "old": "试用期180天；通知期雇主60/雇员30天",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "⚠️源自 2025-02-19 生效修订；多家二手站误标为「2026新规」｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">试用期新规</h3>"
+    },
+    {
+     "rid": "PR-20260907-045",
+     "field": "EOSB 离职酬金",
+     "kind": "条文类",
+     "tier": "权威媒体",
+     "source": "Gulf Times Now",
+     "url": "https://gulftimesnow.com/saudi-labour-law-end-of-service-2026/",
+     "effective": "—",
+     "status": "keep",
+     "title": "EOSB 离职酬金",
+     "old": "前5年每年半月工资；超5年每年1个月",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "主动辞职按工龄递减：不满2年无、2–5年1/3、5–10年2/3｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">服务终了酬金 (EOSB)</h3>"
+    }
+   ]
+  },
+  "united-arab-emirates-country-guide": {
+   "name": "阿联酋",
+   "documentId": "bv45ccot2vdpi5nmvue8rni9",
+   "page_date": "2026-05-29",
+   "guide_url": "https://www.humancehr.com/country-guide/united-arab-emirates-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-047",
+     "field": "WPS 工资保护新规",
+     "kind": "新增项",
+     "tier": "四大·律所",
+     "source": "Morgan Lewis",
+     "url": "https://www.morganlewis.com/pubs/2026/05/uae-introduces-new-wage-protection-system-resolution-effective-1-june-2026",
+     "effective": "2026-06-01",
+     "status": "pending",
+     "title": "WPS 工资保护新规",
+     "old": "Ministerial Resolution 598/2022：15天宽限期、合规门槛80%",
+     "new": "Ministerial Resolution 340/2026 于 2026-06-01 生效、废除 598/2022：次月1日前须到账（取消宽限期）；合规门槛 80%→85%；新员工首月豁免取消；阶梯执法 2/5/11/16/21 天",
+     "extra": "适用于所有 MOHRE 持牌私营机构；建筑/运输/保安/清洁为重点监控｜置信度:高",
+     "anchor": "<h3 class=\"subsection-title\">支付时效与违规风险</h3>"
+    },
+    {
+     "rid": "PR-20260907-050",
+     "field": "EOSB 离职酬金",
+     "kind": "条文类",
+     "tier": "企业公告",
+     "source": "Teamed（引 Decree-Law 33/2021 第51条）",
+     "url": "https://www.teamed.global/country-hiring-guides/united-arab-emirates/benefits",
+     "effective": "—",
+     "status": "keep",
+     "title": "EOSB 离职酬金",
+     "old": "前5年每年21天基本工资；第6年起30天；上限24个月",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "阿联酋籍适用 GPSSA 不享 EOSB；最终款项 14 天内结清｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">福利概述</h3>"
+    },
+    {
+     "rid": "PR-20260907-051",
+     "field": "个人所得税",
+     "kind": "条文类",
+     "tier": "企业公告",
+     "source": "Teamed（引 PwC）",
+     "url": "https://www.teamed.global/country-hiring-guides/united-arab-emirates/tax-and-payroll",
+     "effective": "—",
+     "status": "keep",
+     "title": "个人所得税",
+     "old": "0%",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "9% 企业所得税仅针对企业利润｜置信度:高",
+     "anchor": "<h3 class=\"subsection-title\">个人所得税概述</h3>"
+    }
+   ]
+  },
+  "turkey-country-guide": {
+   "name": "土耳其",
+   "documentId": "ols85i3ux8iynln7p60ytpwu",
+   "page_date": "2026-06-01",
+   "guide_url": "https://www.humancehr.com/country-guide/turkey-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-056",
+     "field": "年休假/公共假日",
+     "kind": "条文类",
+     "tier": "企业公告",
+     "source": "Employsome",
+     "url": "https://employsome.com/hire/turkey",
+     "effective": "—",
+     "status": "keep",
+     "title": "年休假/公共假日",
+     "old": "年休14/20/26天；假日约15.5天",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "仅 EOR 服务商汇总，建议以第4857号法原文复核｜置信度:低",
+     "anchor": "<h3 class=\"subsection-title\">分类休假权益速查表</h3>"
+    },
+    {
+     "rid": "PR-20260907-057",
+     "field": "试用期上限/通知期",
+     "kind": "条文类",
+     "tier": "企业公告",
+     "source": "Employsome",
+     "url": "https://employsome.com/hire/turkey",
+     "effective": "—",
+     "status": "keep",
+     "title": "试用期上限/通知期",
+     "old": "试用期最长2个月；通知期2–8周",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "固定期限合同无客观理由自动转无限期｜置信度:低",
+     "anchor": "<h3 class=\"subsection-title\">劳动合同核心要素清单</h3>"
+    }
+   ]
+  },
+  "qatar-country-guide": {
+   "name": "卡塔尔",
+   "documentId": "fs4nik3q5650ymtjhgrvhkbt",
+   "page_date": "2026-05-13",
+   "guide_url": "https://www.humancehr.com/country-guide/qatar-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-058",
+     "field": "劳动法修订 Law No. 9/2026",
+     "kind": "条文类",
+     "tier": "四大·律所",
+     "source": "K&L Gates / Al Tamimi",
+     "url": "https://www.mondaq.com/employee-rights-labour-relations/1837578/qatar-introduces-significant-amendments-to-the-labour-law",
+     "effective": "2026-07-25",
+     "status": "pending",
+     "title": "劳动法修订 Law No. 9/2026",
+     "old": "Law No. 14/2004（经 18/2020 修订）",
+     "new": "2026-06-25 刊登官报、2026-07-25 生效：竞业限制上限 1→2 年且须劳工部批准；100人及以上须设劳资联合委员会；非全日制与自由职业者排除适用；罢工规则细化；NOC 正式废止",
+     "extra": "含外籍员工，不含家政工（另法）｜置信度:高",
+     "anchor": "<h3 class=\"subsection-title\">核心劳动法律颁布时序与要点表（截至 2026 年有效）</h3>"
+    },
+    {
+     "rid": "PR-20260907-059",
+     "field": "最低工资",
+     "kind": "条文类",
+     "tier": "四大·律所",
+     "source": "K&L Gates",
+     "url": "https://www.mondaq.com/employee-rights-labour-relations/1837578/qatar-introduces-significant-amendments-to-the-labour-law",
+     "effective": "2026-07-25",
+     "status": "pending",
+     "title": "最低工资",
+     "old": "基本 QAR 1,000 + 住房 500 + 伙食 300",
+     "new": "金额未变，但 Law 9/2026 强化雇主证明与记录义务（须保留可审计记录）",
+     "extra": "🔴卡塔尔最低工资不分国籍统一适用（与沙特/阿联酋不同）｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">法定最低工资标准（截至 2026 年有效）</h3>"
+    },
+    {
+     "rid": "PR-20260907-062",
+     "field": "EOSB 离职酬金",
+     "kind": "条文类",
+     "tier": "企业公告",
+     "source": "Brite Consult（引第54条）",
+     "url": "https://briteconsult.com/qatar-labour-law/",
+     "effective": "—",
+     "status": "keep",
+     "title": "EOSB 离职酬金",
+     "old": "满1年起每年至少3周基本工资",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "满5年后按4周计算属合同约定可上浮，非法定下限｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">福利概述</h3>"
+    }
+   ]
+  },
+  "thailand-country-guide": {
+   "name": "泰国",
+   "documentId": "cbqf78l2nofqjinvpnwmlqsh",
+   "page_date": "2026-03-13",
+   "guide_url": "https://www.humancehr.com/country-guide/thailand-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-066",
+     "field": "产假/陪产假/育儿假",
+     "kind": "条文类",
+     "tier": "政府",
+     "source": "泰国劳工部",
+     "url": "https://www.mol.go.th/en/news/120-day-maternity-leave-law-now-in-force-labour-minister-instructs-department-of-labour-protection-and-welfare-to-urgently-brief-employers-adjust-maternity-leave-entitlements-in-line-with-new-law",
+     "effective": "2025-12-07",
+     "status": "pending",
+     "title": "产假/陪产假/育儿假",
+     "old": "产假 98 天",
+     "new": "产假 120 天/胎（雇主支付 45→60 天）；新增配偶陪产假 15 天全薪；新增育儿假 15 天（50%工资）",
+     "extra": "⚠️月经假属另一未通过法案，切勿写入（Alliant 已勘误）｜置信度:高",
+     "anchor": "<h3 class=\"subsection-title\">分类休假权益速查表 (2026)</h3>"
+    },
+    {
+     "rid": "PR-20260907-069",
+     "field": "个人所得税税率档",
+     "kind": "条文类",
+     "tier": "四大·律所",
+     "source": "Attori Law",
+     "url": "https://attorilaw.com/personal-income-tax-2026/",
+     "effective": "—",
+     "status": "keep",
+     "title": "个人所得税税率档",
+     "old": "—",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "最顶档阈值不同来源为 400万/500万 泰铢，存在分歧｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">个人所得税税率表（截止到2026年有效）</h3>"
+    },
+    {
+     "rid": "PR-20260907-070",
+     "field": "解雇补偿阶梯",
+     "kind": "条文类",
+     "tier": "四大·律所",
+     "source": "Narai Partners",
+     "url": "https://www.naraipartners.com/legal-insights/employment-law-in-thailand",
+     "effective": "—",
+     "status": "keep",
+     "title": "解雇补偿阶梯",
+     "old": "—",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "源自 2019 年修订，非 2026 新增｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">解雇程序合规对照表（优化版）</h3>"
+    }
+   ]
+  },
+  "india-country-guide": {
+   "name": "印度",
+   "documentId": "vb605fgcu2we5mdhn9twhf0h",
+   "page_date": "2026-03-16",
+   "guide_url": "https://www.humancehr.com/country-guide/india-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-071",
+     "field": "四部劳动法典落地",
+     "kind": "条文类",
+     "tier": "四大·律所",
+     "source": "Aran Law / Wisemonk",
+     "url": "https://aranlaw.in/labour-laws/new-labour-codes-for-startups-and-msmes-employer-friendly-provisions/",
+     "effective": "2026-05-08",
+     "status": "pending",
+     "title": "四部劳动法典落地",
+     "old": "29 部中央旧法",
+     "new": "四部法典 2025-11-21 同时生效；中央细则 2026-05-08 完成公告；截至 2026-07 约 11 个邦已发终版邦细则",
+     "extra": "🔴重大变化；马哈拉施特拉等主要用工邦仍处草案阶段｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">核心劳动法律颁布时序与要点表</h3>"
+    },
+    {
+     "rid": "PR-20260907-078",
+     "field": "个人所得税税率档",
+     "kind": "条文类",
+     "tier": "权威媒体",
+     "source": "Economic Times（引 EY India）",
+     "url": "http://economictimes.indiatimes.com/wealth/tax/budget-2022-income-tax-slabs-for-fy-2022-23-in-india/articleshow/89268489.cms",
+     "effective": "2026-04-01",
+     "status": "keep",
+     "title": "个人所得税税率档",
+     "old": "—",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "2026 实际变化是《2025年所得税法》4月1日取代1961年旧法，税率不变｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">个人所得税税率表</h3>"
+    }
+   ]
+  },
+  "malaysia-country-guide": {
+   "name": "马来西亚",
+   "documentId": "pa2mblvgj58rse7zai7kllgb",
+   "page_date": "2026-03-18",
+   "guide_url": "https://www.humancehr.com/country-guide/malaysia-country-guide/国家概况",
+   "notes": [
+    {
+     "rid": "PR-20260907-091",
+     "field": "解雇补偿（裁员）",
+     "kind": "条文类",
+     "tier": "四大·律所",
+     "source": "Dentons",
+     "url": "https://www.dentons.com/fr/global-solutions/rules-regulations-and-laws-trackers/global-collective-redundancy-guide/malaysia",
+     "effective": "—",
+     "status": "keep",
+     "title": "解雇补偿（裁员）",
+     "old": "—",
+     "new": "未检索到 2026 变更，现行值维持不变",
+     "extra": "⚠️月薪4,000令吉以下享法定最低补偿，以上取决于合同约定｜置信度:中",
+     "anchor": "<h3 class=\"subsection-title\">解雇程序合规对照表</h3>"
+    }
+   ]
+  }
+ }
+}

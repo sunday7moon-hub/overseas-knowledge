@@ -325,11 +325,22 @@ bash    $S/gh_push.sh <repo-dir>          # 推任意仓（含编排层私有仓
 
    > 用完提醒用户轮换/撤销。**绝不**把 token 写进 URL、`.git/config`、技能文件或提交信息。
 
-   **两个会让脚本「假失败」的细节**（2026-09-15 实测踩到，已写进 `gh_push.sh`）：
+   **三个会让脚本「假失败」的细节**（2026-09-15 实测踩到，已写进 `gh_push.sh`）：
    - 🔴 git 收尾时会尝试把凭据**写进 login.keychain**，沙箱里该写入被拒 → 命令整体退出码非 0 →
      **明明推成功了却报失败**。解法：命令加 `-c credential.helper=` 关掉 keychain helper。
    - 🔴 **私有仓的 `ls-remote` 也要认证**（公开仓匿名可读，所以只有私有仓会暴露这个问题）→
      校验远端 sha 时必须同样带 `GIT_ASKPASS`，否则返回空、误报「远端与本地不一致」。
+   - 🆕 🔴 **沙箱拦 `.git/refs/remotes/origin/*` 写入 → 报 `update_ref failed` 也是「假失败」**（当日二次踩到）：
+     命令输出 `To https://github.com/...` + `bf10a4d..0e8845c  HEAD -> main` 之后跟一行
+     `error: update_ref failed for ref 'refs/remotes/origin/main'`（`warning: unable to unlink '.../main.lock'`），
+     退出码非 0 —— **但对象传输与远端 ref 更新都已完成，远端确实是新的**。
+     ⭐ **判据：只看 `To …` 那一行（它只在远端确认后才打印），不要把退出码当结论**；
+     补本地引用 `git update-ref refs/remotes/origin/main <sha>` → `git status -sb` 恢复 `## main...origin/main` 即闭环。
+     **切忌据退出码重复狂推**（会把「假失败」升级成真麻烦）。
+   - 🆕 ⚠️ **反直觉：网络类 git 操作要在沙箱内跑，别急着 `dangerouslyDisableSandbox`**。实测沙箱内可连
+     `github.com:443`（经代理偶发 502、直连只是慢），而放开沙箱后反而 `Failed to connect to github.com port 443
+     after 21220 ms`。与「写 `.git`/keychain 需要放开沙箱」正好相反 → **策略：先在沙箱内推，只有本地 ref 或锁
+     写入失败时才单点放开（且放开后就不能再指望网络）**。
 
 10. ⚠️ **`github.com:443` 是"代理抖动"而非恒定被拒（2026-09-14 复测，先重试再换通道）**：
     现象：`git push/ls-remote` 报 `CONNECT tunnel failed, response 502`；`curl https://github.com/` 直连得
@@ -352,3 +363,14 @@ bash    $S/gh_push.sh <repo-dir>          # 推任意仓（含编排层私有仓
 
 12. ⚠️ **`find | xargs sed -i` 会被权限校验拦下**（"Could not identify command root"）。
     批量改文件改用**一个 Python 脚本**跑（同时也是脱敏复扫的天然落点）。
+
+14. 🔴 **`gh_push.sh` 要用「后台任务」跑，别放前台**（2026-09-24 实测）：
+    前台直接跑脚本会**被 SIGTERM（退出码 137）打断**——代理偶发「挂死不返回」时命令迟迟不退出，
+    撞上前台超时即被杀，且捕获不到任何输出（看起来像脚本坏了，实际是本机代理 + 前台超时）。
+    **正解**：把 `bash gh_push.sh <repo>` 丢进**后台任务**执行（实测 7~58s 内正常完成并打印
+    `To https://github.com/... <old>..<new> main -> main`），完成后再读输出。
+    同样地，**别在前台命令里做重 IO 探测**（如 `wc -c`/`${#$(cat …)}` 去点 token 文件）——本机实测也会被判 137，
+    判断 token 是否存在用 `ls -la` / `stat -f "%z bytes"` 即可。
+
+    > 复现要点：`ls-remote` 单跑 3s 就返回（设了 `GIT_HTTP_LOW_SPEED_LIMIT=1000 / TIME=20` 更好），
+    > 说明网络没断；前台被杀纯粹是「单条命令超过前台超时 + 无低速阈值」的组合。

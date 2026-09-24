@@ -1,6 +1,6 @@
 ---
 name: humance-content-baseline
-description: 慧思 humancehr.com 内容库基线快照与质量体检。抓取全站 sitemap + 后台搜索 API，统计五大板块基数、字段完整率、更新空窗、脏数据，按地区优先级输出国家清单与体检报告。当用户说「跑基线」「内容体检」「校对前先摸底」「看看内容库现状」「哪些内容该更新了」时使用。只读，不做任何写操作。
+description: 慧思 humancehr.com 内容库基线快照与质量体检。抓取全站 sitemap + 后台搜索 API，统计五大板块基数、字段完整率、更新空窗、脏数据，按地区优先级输出国家清单与体检报告。当用户说「跑基线」「内容体检」「校对前先摸底」「看看内容库现状」「哪些内容该更新了」「国别指南更新标注怎么写」时使用。盘点全程只读，不做任何写操作（更新落地规范见 references/update-annotation-spec.md）。
 agent_created: true
 ---
 
@@ -121,5 +121,7 @@ cd ~/.workbuddy/skills/humance-content-baseline/scripts
 
 - 上游：无
 - 下游：内容校对工作流（A15 内容校对官）
+- **下游执行侧技能**：`humance-guide-annotation` —— 校对出差异后**怎么落标、落哪个章节、怎么渲染**全在那（含 `references/update-annotation-spec.md` 唯一真相源）。
+  > 本技能 `references/update-annotation-spec.md` 已于 2026-09-22 迁出到该技能，此处仅留指针，**不再保留正文副本**。
 - 同域：A9 薪酬带宽报告官（用 remuneration 板块数据）、A13 素材生成官
 - 依赖技能：`company-info-lookup`（国别归属查询）、`overseas-legal-compliance`（法规核查）

@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小红书单日爆发榜 - 化妆美容</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .page-wrap {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 12px 12px 24px;
+        }
+
+        .export-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 8px 0 10px;
+        }
+        .btn-export-pdf, .btn-export-img {
+            background: #fff;
+            color: #ff2442;
+            border: 1.5px solid #ff2442;
+            border-radius: 20px;
+            padding: 6px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-export-pdf:hover, .btn-export-img:hover { background: #fff5f6; }
+
+        .pdf-content { background: transparent; }
+
+        .header-wrap {
+            background: linear-gradient(135deg, #ff2442 0%, #ff6b81 100%);
+            border-radius: 12px;
+            padding: 20px 16px;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .header-wrap h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .header-meta {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .category-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            border-radius: 10px;
+            padding: 2px 10px;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-num {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        .note-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .note-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #f0f0f0;
+        }
+        .note-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .note-card.top1 { border-left: 3px solid #ff2442; }
+        .note-card.top2 { border-left: 3px solid #ff6b81; }
+        .note-card.top3 { border-left: 3px solid #ffb3c1; }
+
+        .note-row1 {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .rank-num {
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: #999;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .note-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .note-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .note-title a {
+            color: #333;
+            text-decoration: none;
+        }
+        .note-title a:hover {
+            color: #ff2442;
+        }
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #999;
+        }
+        .author-avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .author-name {
+            color: #666;
+        }
+        .fans-count {
+            color: #999;
+        }
+
+        .note-row2 {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding-left: 48px;
+            /* 48px = rank-num宽度36px + margin-right 12px，与头像边界对齐 */
+        }
+        .data-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+        }
+        .data-label {
+            color: #999;
+        }
+        .data-value {
+            color: #333;
+            font-weight: 600;
+        }
+        .data-add {
+            color: #ff2442;
+            font-size: 12px;
+            margin-left: 4px;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: #bbb;
+            margin-top: 16px;
+            padding: 10px 0;
+        }
+
+        @media (max-width: 600px) {
+            .page-wrap { padding: 8px 8px 20px; }
+            .header-wrap { padding: 16px 12px; }
+            .header-wrap h1 { font-size: 20px; }
+            .note-card { padding: 12px; }
+            .note-title { font-size: 15px; }
+            .rank-num { min-width: 32px; height: 32px; font-size: 16px; }
+            .note-row2 { gap: 10px; padding-left: 44px; margin-top: 8px; }
+            .data-item { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrap">
+    <div class="export-bar">
+        <button class="btn-export-img" onclick="exportImage()">导出图片</button>
+        <button class="btn-export-pdf" onclick="exportPdf()">导出 PDF</button>
+    </div>
+
+    <div class="pdf-content" id="pdfContent">
+        <div class="header-wrap">
+            <h1>📱 小红书单日爆发榜<span class="category-badge">化妆美容</span></h1>
+            <div class="header-meta">更新时间：2026-04-27 19:00</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.75);margin-top:4px;">*单日爆发榜指笔记发后第3天比第2天涨的数据由高到低Top50*</div>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-num" id="totalCount">--</div>
+                    <div class="stat-label">笔记总数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" id="maxInteractive">--</div>
+                    <div class="stat-label">最高互动</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-num" id="avgInteractive">--</div>
+                    <div class="stat-label">平均互动</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-list" id="noteList"></div>
+
+        <div class="footer-note">数据来源：小红书平台 · 化妆美容 · 当日热门笔记排行</div>
+    </div>
+</div>
+
+<script>
+(function() {
+    function bindCardClick() {
+        var cards = document.querySelectorAll('.note-card[data-href]');
+        cards.forEach(function(card) {
+            card.addEventListener('click', function(e) {
+                if (e.target.closest('a, button')) return;
+                var url = this.getAttribute('data-href');
+                if (url && url !== '#') window.open(url, '_blank');
+            });
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindCardClick);
+    } else {
+        bindCardClick();
+    }
+})();
+
+(function() {
+    var RAW = [
+  {
+    "index": 1,
+    "userName": "于是佳",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31q8lll9qno6g5n2pedl6kavgmia780g?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5c59736a000000001a022bf0",
+    "fans": "205",
+    "title": "淘三岁家的刷子沧海遗珠来的吧",
+    "desc": "每一把都质量很好呀#刷子#修容刷#粉底刷之前刷小红书刷到的直接被种草捏",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g00831ve281362i605n2pedl6kavgd99mvo8?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69edf40c000000001a0354e4",
+    "publicTime": "2026-04-26 19:16:28",
+    "interactiveCount": "8w+",
+    "addInteractiveount": "3w+",
+    "collectedCount": "3w+",
+    "addCollectedCunt": "1w+",
+    "useLikeCount": "5w+",
+    "addLikeCount": "2w+",
+    "useCommentCount": "150",
+    "addCommentCount": "72",
+    "useShareCount": "1429",
+    "addShareCount": "688"
+  },
+  {
+    "index": 2,
+    "userName": "炸宝",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31tmetiqbns005noh7nfgbr67i7vndo8?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5f113ddf000000000101ecc7",
+    "fans": "2w+",
+    "title": "日记｜像花一样往春天赶",
+    "desc": "#氛围感",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g00831vdnfvau2s005noh7nfgbr675ji63vo?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ed9be20000000035026239",
+    "publicTime": "2026-04-26 13:00:18",
+    "interactiveCount": "3w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "3194",
+    "addCollectedCunt": "1406",
+    "useLikeCount": "3w+",
+    "addLikeCount": "1w+",
+    "useCommentCount": "77",
+    "addCommentCount": "29",
+    "useShareCount": "340",
+    "addShareCount": "158"
+  },
+  {
+    "index": 3,
+    "userName": "娱小桃",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31kijbe8bj0kg5q4a4hvq1qerujva9eo?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/688a247f000000002800e9db",
+    "fans": "3w+",
+    "title": "非油炸我被你骗的好惨",
+    "desc": "",
+    "coverUrl": "https://sns-i10.rednotecdn.com/110/0/01e9ee15c813ca940010000000019dca05209b_0.jpg?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ee15c90000000037034780",
+    "publicTime": "2026-04-26 21:40:25",
+    "interactiveCount": "4w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "8368",
+    "addCollectedCunt": "3488",
+    "useLikeCount": "3w+",
+    "addLikeCount": "1w+",
+    "useCommentCount": "510",
+    "addCommentCount": "229",
+    "useShareCount": "6209",
+    "addShareCount": "3001"
+  },
+  {
+    "index": 4,
+    "userName": "小里凉介",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31gpfqm7qjo6g5o2febcg90lh3fb7888?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/604f72d900000000010082b1",
+    "fans": "24w+",
+    "title": "感觉你是那种很快学会修鼻的那种人",
+    "desc": "#cos妆#化妆技巧#cos妆教程#修容#新手化妆教程",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g2sg31vdvefas3q6g5o2febcg90lhq093ttg?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69eddcf80000000038022a0c",
+    "publicTime": "2026-04-26 17:38:00",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "7929",
+    "addCollectedCunt": "4135",
+    "useLikeCount": "1w+",
+    "addLikeCount": "6139",
+    "useCommentCount": "43",
+    "addCommentCount": "8",
+    "useShareCount": "425",
+    "addShareCount": "244"
+  },
+  {
+    "index": 5,
+    "userName": "樱桃肉肉丸",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31h4r1foa3o005p7oisu14l30k27haq0?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/64f8973c0000000004025460",
+    "fans": "1w+",
+    "title": "原来下次卧蚕这样画就不像黑眼圈了！",
+    "desc": "#没事儿也化妆#眼妆教程#原来精美的眼妆这么简单#新手画眼线#新手化妆技巧#眼线教程#眼睑下至怎么画#卧蚕画法",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g2sg31vdve87o2ge05p7oisu14l306nft1p8?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69eddd020000000020038838",
+    "publicTime": "2026-04-26 17:38:10",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "1w+",
+    "collectedCount": "1w+",
+    "addCollectedCunt": "5068",
+    "useLikeCount": "1w+",
+    "addLikeCount": "4958",
+    "useCommentCount": "78",
+    "addCommentCount": "24",
+    "useShareCount": "572",
+    "addShareCount": "206"
+  },
+  {
+    "index": 6,
+    "userName": "条条全明星",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/663478974882603705aa144a.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/660e1fe5000000000b00e429",
+    "fans": "3w+",
+    "title": "逛一圈全身心都被腌入味了好治愈",
+    "desc": "#京东全球香皂博物馆#香皂博物馆#洗护仪式感",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g00831vdn1sf03m005pge3viipp19tu6htf0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ed9830000000003502e7da",
+    "publicTime": "2026-04-26 13:25:53",
+    "interactiveCount": "1w+",
+    "addInteractiveount": "7068",
+    "collectedCount": "3200",
+    "addCollectedCunt": "1059",
+    "useLikeCount": "1w+",
+    "addLikeCount": "5931",
+    "useCommentCount": "128",
+    "addCommentCount": "78",
+    "useShareCount": "626",
+    "addShareCount": "344"
+  },
+  {
+    "index": 7,
+    "userName": "嘉菲猫（养成版）",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rv3oq012g005oet6krocope9jdgka0?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/61dd3537000000002102632e",
+    "fans": "29w+",
+    "title": "没有不会化妆的义务❗️不懂就问是宋雨琦吗",
+    "desc": "#vlog#vlog日常#colorwalk#交换春天#minivlog#日常记录",
+    "coverUrl": "https://sns-i8.rednotecdn.com/1040g00831vav4drjii1g5oet6krocope0pqt848?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69eb34360000000020003800",
+    "publicTime": "2026-04-26 12:01:44",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "6348",
+    "collectedCount": "1w+",
+    "addCollectedCunt": "2031",
+    "useLikeCount": "1w+",
+    "addLikeCount": "4295",
+    "useCommentCount": "105",
+    "addCommentCount": "22",
+    "useShareCount": "383",
+    "addShareCount": "78"
+  },
+  {
+    "index": 8,
+    "userName": "摸娱懒大王",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31giuk8mf3i6g5o5n9q6g9bkdli2pcf8?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/60b74e8d000000000100ae8d",
+    "fans": "18w+",
+    "title": "",
+    "desc": "守住法治底线，严查严惩知法犯法、滥用职权的恶劣行径!#扫黑除恶#法治#知法犯法#未成年人保护#社会百态(内容来源：@新京报）",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g2sg31ve2ga26iar05o5n9q6g9bkd23fm3p0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69edf6410000000020038fd6",
+    "publicTime": "2026-04-26 19:25:53",
+    "interactiveCount": "7w+",
+    "addInteractiveount": "6113",
+    "collectedCount": "2916",
+    "addCollectedCunt": "213",
+    "useLikeCount": "6w+",
+    "addLikeCount": "5847",
+    "useCommentCount": "1583",
+    "addCommentCount": "53",
+    "useShareCount": "6887",
+    "addShareCount": "731"
+  },
+  {
+    "index": 9,
+    "userName": "fu（方圆脸妆教",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31sedsigf5s005pa1ompgho23j3n55d8?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/6541c5b3000000000200e043",
+    "fans": "1580",
+    "title": "15w人看过的方圆脸开智化妆教程",
+    "desc": "#没事儿也化妆#方圆脸#新手妆教#方圆脸妆容#新手化妆技巧#妆教#原相机化妆#妆容教程#新手修容教程#跟着美妆博主学化妆",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g00831ve5toam2a0g5pa1ompgho23d7b4jjg?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ee1272000000003601954a",
+    "publicTime": "2026-04-26 21:26:10",
+    "interactiveCount": "6183",
+    "addInteractiveount": "5885",
+    "collectedCount": "2006",
+    "addCollectedCunt": "1900",
+    "useLikeCount": "4150",
+    "addLikeCount": "3961",
+    "useCommentCount": "27",
+    "addCommentCount": "24",
+    "useShareCount": "76",
+    "addShareCount": "73"
+  },
+  {
+    "index": 10,
+    "userName": "方一一",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/65014a5120a2f2accbf7d7b0.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/6151981b00000000020227f0",
+    "fans": "28w+",
+    "title": "黄黑皮集合❕夏天穿什么最显白‼️",
+    "desc": "#女生必看#显白显气色#显白#黄黑皮#橄榄皮#冷白皮#肤色测试#变美#变美小技巧#逆袭",
+    "coverUrl": "https://sns-i11.rednotecdn.com/1040g00831vdc2mcsiq005oahj0dgk9vgnh4qs3o?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ed3f04000000003703456e",
+    "publicTime": "2026-04-26 12:03:01",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "5563",
+    "collectedCount": "1w+",
+    "addCollectedCunt": "3136",
+    "useLikeCount": "9633",
+    "addLikeCount": "2420",
+    "useCommentCount": "52",
+    "addCommentCount": "7",
+    "useShareCount": "143",
+    "addShareCount": "45"
+  },
+  {
+    "index": 11,
+    "userName": "脸脸",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/5dc03c4c3864fc0001deeadb.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/58b275d76a6a69656f15cef9",
+    "fans": "14w+",
+    "title": "当我不小心涂出睫毛膏",
+    "desc": "",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g00831ve4n7sehm004977c9qtfjnpso789q8?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ee08d1000000003502b73d",
+    "publicTime": "2026-04-26 20:45:05",
+    "interactiveCount": "2w+",
+    "addInteractiveount": "5147",
+    "collectedCount": "702",
+    "addCollectedCunt": "173",
+    "useLikeCount": "2w+",
+    "addLikeCount": "4946",
+    "useCommentCount": "183",
+    "addCommentCount": "28",
+    "useShareCount": "329",
+    "addShareCount": "70"
+  },
+  {
+    "index": 12,
+    "userName": "亿点儿",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31ousartbho6g5pd0tpr8h9s8vdhrpio?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/65a0ee76000000002200a788",
+    "fans": "2w+",
+    "title": "普通人化妆最有效的一步。。。",
+    "desc": "#没事儿也化妆#修容教程#鼻影#修容#新手修容教程#高光#鼻子修容#让鼻子变得好看#鼻影教程#新手化妆教程",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g00831ve8mks4ia705pd0tpr8h9s85ec1gf0?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ee297b000000003700e8e5",
+    "publicTime": "2026-04-26 23:04:27",
+    "interactiveCount": "8559",
+    "addInteractiveount": "4388",
+    "collectedCount": "3627",
+    "addCollectedCunt": "1911",
+    "useLikeCount": "4878",
+    "addLikeCount": "2457",
+    "useCommentCount": "54",
+    "addCommentCount": "20",
+    "useShareCount": "249",
+    "addShareCount": "139"
+  },
+  {
+    "index": 13,
+    "userName": "拾光好物分享",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31tjsdt4g7q005pdd139jk18kqlo5no0?imageView2/2/w/120/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/65ad08d3000000000e020514",
+    "fans": "700",
+    "title": "",
+    "desc": "用过这个方法自制面膜，家里的片状面膜不香了#护肤分享#芦荟胶#维生素E护肤#补水#一起来护肤",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g2sg31vduh35q2i005pdd139jk18kna5c2j0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69edd5c5000000003701c180",
+    "publicTime": "2026-04-26 17:07:17",
+    "interactiveCount": "6022",
+    "addInteractiveount": "4160",
+    "collectedCount": "3848",
+    "addCollectedCunt": "2571",
+    "useLikeCount": "2140",
+    "addLikeCount": "1564",
+    "useCommentCount": "34",
+    "addCommentCount": "25",
+    "useShareCount": "329",
+    "addShareCount": "193"
+  },
+  {
+    "index": 14,
+    "userName": "小羊营销号",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo317latiab46005plsb2bjcof70lu3q9o?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/66bc5897000000000d0261e7",
+    "fans": "9w+",
+    "title": "雪豹塑你崛起吧",
+    "desc": "#oc#雪豹",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/spectrum/1040g34o31ve60oc94c105plsb2bjcof78f53ik0?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ee12d4000000001b021d85",
+    "publicTime": "2026-04-26 21:27:48",
+    "interactiveCount": "6070",
+    "addInteractiveount": "4011",
+    "collectedCount": "731",
+    "addCollectedCunt": "472",
+    "useLikeCount": "5180",
+    "addLikeCount": "3400",
+    "useCommentCount": "159",
+    "addCommentCount": "139",
+    "useShareCount": "163",
+    "addShareCount": "124"
+  },
+  {
+    "index": 15,
+    "userName": "辣条猫",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v4t10jf2a005qeucitsnsl5da9rdlo?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/69de64bb000000003203f2a5",
+    "fans": "945",
+    "title": "谁说单眼皮不好看！！",
+    "desc": "#eyepony月亮潮汐#变妆看我的#单眼皮#生活美学#今天长什么样#韩系妆容分享",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g2sg31vdjf4aviqe05qeucitsnsl51fr8n70?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ed7ace0000000038034dd0",
+    "publicTime": "2026-04-26 10:39:10",
+    "interactiveCount": "5285",
+    "addInteractiveount": "3799",
+    "collectedCount": "1172",
+    "addCollectedCunt": "857",
+    "useLikeCount": "4025",
+    "addLikeCount": "2870",
+    "useCommentCount": "88",
+    "addCommentCount": "72",
+    "useShareCount": "154",
+    "addShareCount": "131"
+  },
+  {
+    "index": 16,
+    "userName": "花卷不太卷",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31v2l8qp52a00401rpvu3ib69ndg4q7g?imageView2/2/w/540/format/webp",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/54f3fc39b4c4d60fe3ea2cc9",
+    "fans": "312",
+    "title": "",
+    "desc": "#80后#40岁#娃娃脸#看上去几岁#年龄不设限#最近长这样#黑长直#幼态脸",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/notes_pre_post/1040g3k831ve754k6ig7g401rpvu3ib69d54ih1g?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ee1d84000000003601f479",
+    "publicTime": "2026-04-26 22:13:24",
+    "interactiveCount": "9756",
+    "addInteractiveount": "3583",
+    "collectedCount": "93",
+    "addCollectedCunt": "37",
+    "useLikeCount": "5133",
+    "addLikeCount": "2269",
+    "useCommentCount": "4530",
+    "addCommentCount": "1277",
+    "useShareCount": "1165",
+    "addShareCount": "401"
+  },
+  {
+    "index": 17,
+    "userName": "小兔宝盖",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/5fe1bc00bb10988bdbafc2c4.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5db337a7000000000100739b",
+    "fans": "22w+",
+    "title": "化妆开窍刷！14支不挑手法的神奇刷子",
+    "desc": "",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g00831vdua9akhm005ndj6ujg8ssra5l4u20?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69edd56e000000003503120d",
+    "publicTime": "2026-04-26 17:05:50",
+    "interactiveCount": "1w+",
+    "addInteractiveount": "3557",
+    "collectedCount": "8950",
+    "addCollectedCunt": "1690",
+    "useLikeCount": "9332",
+    "addLikeCount": "1856",
+    "useCommentCount": "111",
+    "addCommentCount": "11",
+    "useShareCount": "344",
+    "addShareCount": "57"
+  },
+  {
+    "index": 18,
+    "userName": "是言七呀！",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31rmjleh4j20049ulbl9t0tp6beva320?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/59e753d0e8ac2b0aad487726",
+    "fans": "12w+",
+    "title": "这位凤姑娘啊，年纪虽小，行事却比世人都大",
+    "desc": "#薇诺娜特护面膜#晒后修复面膜#面膜推荐#敏感肌面膜#修复面膜#急救面膜#晒后急救面膜#修护面膜#红楼梦#仿妆不仿人#王熙凤#变装#反差感",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g2sg31vds01c8jq7049ulbl9t0tp6ctf3uv0?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69edc0ba000000001f0076ba",
+    "publicTime": "2026-04-26 17:06:01",
+    "interactiveCount": "6614",
+    "addInteractiveount": "3487",
+    "collectedCount": "428",
+    "addCollectedCunt": "183",
+    "useLikeCount": "6138",
+    "addLikeCount": "3279",
+    "useCommentCount": "48",
+    "addCommentCount": "25",
+    "useShareCount": "24",
+    "addShareCount": "10"
+  },
+  {
+    "index": 19,
+    "userName": "明星化妆师朴东民",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/1040g2jo31jductaj36005nf0uiag98fpgtcdoco?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5de0f495000000000100a1f9",
+    "fans": "100w+",
+    "title": "千万别再这样化妆了！！",
+    "desc": "#普通人的变美思路#变美#韩女的秘密#没事儿也化妆#新手化妆技巧#鼻影#塌鼻梁",
+    "coverUrl": "https://sns-i10.rednotecdn.com/1040g2sg31vdmpqr748e05nf0uiag98fpr6vo92g?imageView2/2/w/576/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ed96ad000000003501d24f",
+    "publicTime": "2026-04-26 12:38:05",
+    "interactiveCount": "1w+",
+    "addInteractiveount": "3445",
+    "collectedCount": "5237",
+    "addCollectedCunt": "1764",
+    "useLikeCount": "4877",
+    "addLikeCount": "1667",
+    "useCommentCount": "32",
+    "addCommentCount": "14",
+    "useShareCount": "212",
+    "addShareCount": "77"
+  },
+  {
+    "index": 20,
+    "userName": "今晚吃香菜",
+    "userHeadUrl": "https://sns-avatar-qc.xhscdn.com/avatar/6350f5652d832ed1efb3aa02.jpg?imageView2/2/w/120/format/jpg",
+    "userJumpUrl": "https://www.xiaohongshu.com/user/profile/5bd56fb1465ee30001d9bcf9",
+    "fans": "36w+",
+    "title": "这个妆无需多言画就完事了顶美",
+    "desc": "#没事儿也化妆#妆个新人设#变妆看我的#所有人感受#韩系清透妆#拍摄教程打光#我的人生妆容出现了",
+    "coverUrl": "https://sns-img-hw.xhscdn.net/1040g2sg31ve8a6nn1ms04bl8ninr3f7phksqqlo?imageView2/2/w/1080/format/webp",
+    "photoJumpUrl": "https://www.xiaohongshu.com/explore/69ee25fa0000000035033713",
+    "publicTime": "2026-04-26 22:49:30",
+    "interactiveCount": "1w+",
+    "addInteractiveount": "3435",
+    "collectedCount": "3714",
+    "addCollectedCunt": "1237",
+    "useLikeCount": "7079",
+    "addLikeCount": "2176",
+    "useCommentCount": "85",
+    "addCommentCount": "22",
+    "useShareCount": "305",
+    "addShareCount": "79"
+  }
+];
+
+    var totalCount = RAW.length;
+    var maxInteractive = 0, sumInteractive = 0;
+
+    function parseInteractive(val) {
+        if (typeof val === 'string') {
+            if (val.indexOf('w') !== -1 || val.indexOf('W') !== -1) {
+                return parseFloat(val) * 10000;
+            } else if (val.indexOf('亿') !== -1) {
+                return parseFloat(val) * 100000000;
+            }
+            return parseFloat(val) || 0;
+        }
+        return val || 0;
+    }
+
+    function fmtNum(val) {
+        if (typeof val === 'string') {
+            if (val.indexOf('w') !== -1 || val.indexOf('W') !== -1 || val.indexOf('亿') !== -1) {
+                return val;
+            }
+        }
+        var n = parseInt(val) || 0;
+        if (n >= 10000) {
+            return (n / 10000).toFixed(1) + 'w';
+        }
+        return n.toString();
+    }
+
+    for (var i = 0; i < RAW.length; i++) {
+        var interactive = parseInteractive(RAW[i].interactiveCount);
+        if (interactive > maxInteractive) maxInteractive = interactive;
+        sumInteractive += interactive;
+    }
+    var avgInteractive = totalCount > 0 ? sumInteractive / totalCount : 0;
+
+    document.getElementById('totalCount').textContent = totalCount;
+    document.getElementById('maxInteractive').textContent = fmtNum(maxInteractive);
+    document.getElementById('avgInteractive').textContent = fmtNum(Math.round(avgInteractive));
+
+    var html = '';
+    for (var i = 0; i < RAW.length && i < 20; i++) {
+        var d = RAW[i];
+        var rank = i + 1;
+        var cardCls = 'note-card';
+
+        if (rank === 1) cardCls += ' top1';
+        else if (rank === 2) cardCls += ' top2';
+        else if (rank === 3) cardCls += ' top3';
+
+        var noteUrl = (d.photoJumpUrl || '#').replace(/ /g, '%20');
+        var avatar = d.userHeadUrl || '';
+        var userName = (d.userName || '--').replace(/ /g, '');
+        var userUrl = (d.userJumpUrl || '#').replace(/ /g, '%20');
+        var fans = (d.fans || '').replace(/ /g, '');
+        var title = (d.title || '--').replace(/ /g, '');
+
+        var interactive = (d.interactiveCount || '0').replace(/ /g, '');
+        var addInteractive = (d.addInteractiveount || '0').replace(/ /g, '');
+        var likeCount = (d.useLikeCount || '0').replace(/ /g, '');
+        var addLikeCount = (d.addLikeCount || '0').replace(/ /g, '');
+        var commentCount = (d.useCommentCount || '0').replace(/ /g, '');
+        var addCommentCount = (d.addCommentCount || '0').replace(/ /g, '');
+        var collected = (d.collectedCount || '0').replace(/ /g, '');
+        var addCollected = (d.addCollectedCunt || '0').replace(/ /g, '');
+        var shareCount = (d.useShareCount || '0').replace(/ /g, '');
+        var addShareCount = (d.addShareCount || '0').replace(/ /g, '');
+
+        var rankHtml = '';
+        if (rank === 1) {
+            rankHtml = '<div class="rank-num">🥇</div>';
+        } else if (rank === 2) {
+            rankHtml = '<div class="rank-num">🥈</div>';
+        } else if (rank === 3) {
+            rankHtml = '<div class="rank-num">🥉</div>';
+        } else {
+            rankHtml = '<div class="rank-num">' + rank + '</div>';
+        }
+
+        html += '<div class="' + cardCls + '" data-href="' + noteUrl + '">'
+            + '<div class="note-row1">'
+            + rankHtml
+            + '<div class="note-info">'
+            + '<div class="note-title"><a href="' + noteUrl + '" target="_blank" onclick="event.stopPropagation()">' + title + '</a></div>'
+            + '<div class="author-info">'
+            + (avatar ? '<img class="author-avatar" src="' + avatar + '" onerror="this.style.display=\'none\'">' : '')
+            + '<span class="author-name">' + (userUrl && userUrl !== '#' ? '<a href="' + userUrl + '" target="_blank" onclick="event.stopPropagation()">' + userName + '</a>' : userName) + '</span>'
+            + (fans ? '<span class="fans-count">·' + fans + '粉丝</span>' : '')
+            + '</div>'
+            + '</div>'
+            + '</div>'
+            + '<div class="note-row2">'
+            + '<div class="data-item"><span class="data-label">互动</span><span class="data-value">' + fmtNum(interactive) + '</span><span class="data-add">↑' + fmtNum(addInteractive) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">点赞</span><span class="data-value">' + fmtNum(likeCount) + '</span><span class="data-add">↑' + fmtNum(addLikeCount) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">评论</span><span class="data-value">' + fmtNum(commentCount) + '</span><span class="data-add">↑' + fmtNum(addCommentCount) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">收藏</span><span class="data-value">' + fmtNum(collected) + '</span><span class="data-add">↑' + fmtNum(addCollected) + '</span></div>'
+            + '<div class="data-item"><span class="data-label">分享</span><span class="data-value">' + fmtNum(shareCount) + '</span><span class="data-add">↑' + fmtNum(addShareCount) + '</span></div>'
+            + '</div>'
+            + '</div>';
+    }
+
+    document.getElementById('noteList').innerHTML = html;
+})();
+
+function exportImage() {
+    var btn = document.querySelector('.btn-export-img');
+    btn.textContent = '生成中...';
+    btn.style.pointerEvents = 'none';
+
+    var target = document.getElementById('pdfContent');
+
+    html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#f5f5f5',
+        logging: false,
+        windowWidth: target.scrollWidth,
+        windowHeight: target.scrollHeight
+    }).then(function(canvas) {
+        var link = document.createElement('a');
+        link.download = 'xhs_weekly_' + new Date().toISOString().slice(0,10) + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        btn.textContent = '导出图片';
+        btn.style.pointerEvents = '';
+    }).catch(function(err) {
+        alert('图片生成失败：' + err.message);
+        btn.textContent = '导出图片';
+        btn.style.pointerEvents = '';
+    });
+}
+
+function exportPdf() {
+    var btn = document.querySelector('.btn-export-pdf');
+    btn.textContent = '生成中...';
+    btn.style.pointerEvents = 'none';
+
+    var target = document.getElementById('pdfContent');
+
+    html2canvas(target, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#f5f5f5',
+        logging: false,
+        windowWidth: target.scrollWidth,
+        windowHeight: target.scrollHeight
+    }).then(function(canvas) {
+        var imgData = canvas.toDataURL('image/png', 1.0);
+
+        // 使用横向 A4 纸
+        var pdf = new jspdf.jsPDF('l', 'mm', 'a4');
+        var pdfW = pdf.internal.pageSize.getWidth();
+        var pdfH = pdf.internal.pageSize.getHeight();
+        var margin = 8;
+        var contentW = pdfW - margin * 2;
+        var contentH = pdfH - margin * 2;
+
+        // 计算图片尺寸以适应横向 A4
+        var imgW = contentW;
+        var imgH = (canvas.height * imgW) / canvas.width;
+
+        // 如果高度仍然超过页面高度，按高度缩放
+        if (imgH > contentH) {
+            imgH = contentH;
+            imgW = (canvas.width * imgH) / canvas.height;
+        }
+
+        // 居中显示
+        var imgX = (pdfW - imgW) / 2;
+        var imgY = (pdfH - imgH) / 2;
+
+        // 所有内容在一页中
+        pdf.addImage(imgData, 'PNG', imgX, imgY, imgW, imgH);
+
+        var now = new Date();
+        var dateStr = now.getFullYear() +
+            String(now.getMonth()+1).padStart(2,'0') +
+            String(now.getDate()).padStart(2,'0') +
+            '_' +
+            String(now.getHours()).padStart(2,'0') +
+            String(now.getMinutes()).padStart(2,'0');
+
+        pdf.save('xhs_weekly_' + dateStr + '.pdf');
+
+        btn.textContent = '导出 PDF';
+        btn.style.pointerEvents = '';
+    }).catch(function(err) {
+        alert('PDF 生成失败：' + err.message);
+        btn.textContent = '导出 PDF';
+        btn.style.pointerEvents = '';
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "_note": "配图判定「政策」的唯一真相源 —— content_quality.py 读它；别的脚本不许另抄一份清单。这里只放人定的政策（什么算自有域、什么算占位图），『这张图到底能不能打开』属于事实，必须靠探测（复用 link_check 的判定与缓存），不许在这里写死结论。",
+  "own_hosts": [
+    "humancehr.com",
+    "www.humancehr.com",
+    "admin.humancehr.com",
+    "anchorwe.com",
+    "www.anchorwe.com"
+  ],
+  "placeholder_patterns": [
+    "placeholder",
+    "example.com",
+    "example.org",
+    "your-image",
+    "your_image",
+    "yourimage",
+    "dummyimage",
+    "placehold.co",
+    "placehold.it",
+    "via.placeholder",
+    "lorempixel",
+    "loremflickr",
+    "fakeimg",
+    "test-image",
+    "images/placeholder"
+  ],
+  "alt_reject_patterns": [
+    "^image\\d*$",
+    "^img\\d*$",
+    "^图片$",
+    "^图像$",
+    "^照片$",
+    "^screenshot$",
+    "^untitled$",
+    "^\\d+$",
+    "\\.(png|jpe?g|gif|webp|svg|avif)$"
+  ],
+  "alt_min_len": 2,
+  "alt_max_len": 60,
+  "_render_policy": {
+    "max_font_px": 24,
+    "min_font_px": 12,
+    "card_height_tol_px": 40,
+    "upscale_ratio": 1.15,
+    "_why": "max_font_px 定 24：正文 14px、二级标题 18px、章节标题 22px —— 正文内的普通文本若超过 24px，说明层级倒置（2026-09-23 实测 .stat-value=26.4px，比章节标题还大）。"
+  }
+}

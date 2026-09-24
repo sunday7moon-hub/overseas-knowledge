@@ -1,10 +1,21 @@
 ---
 name: one-page-insight-poster
 agent_created: true
-description: 把一段业务分析/洞察结论快速变成一张可在客户沟通中使用的「一页纸说明海报」。适用于 HR/出海/政策解释类结论的可视化一页纸输出。
+description: 把一段业务分析/洞察结论快速变成一张可在客户沟通中使用的「一页纸说明海报」。适用于 HR/出海/政策解释类结论的可视化一页纸输出。 输入是 **humancehr.com 文章 URL 或选题**（要出 HTML + 截图 + 分享文案）请用 `country-knowledge-poster`；本技能输入是**已得的分析结论**。
 ---
 
 # One Page Insight Poster
+
+## 定位与边界
+
+| 输入是什么 | 该用哪个技能 |
+|---|---|
+| **一段已得的分析结论**（根因 / 数据 / 建议） | **本技能** ← |
+| humancehr.com **文章 URL 或选题**（输出 HTML + 截图 + 分享文案） | `country-knowledge-poster` |
+| 榜单 / 趋势**数据**（输出 PNG 卡片） | `xhs-trending-cards` |
+
+---
+
 
 ## 何时使用
 

@@ -1,10 +1,24 @@
 ---
 name: feishu-bitable-news-daily
-description: 通过 lark-cli 创建飞书多维表格（Base），设计表结构（字段），写入资讯/新闻数据。适用于搭建出海资讯日报、行业日报、知识库等场景，配合 Coze 或自动化推送使用。
+description: 通过 lark-cli 创建飞书多维表格（Base），设计表结构（字段），写入资讯/新闻数据。适用于搭建出海资讯日报、行业日报、知识库等场景，配合 Coze 或自动化推送使用。 ⚠️ 通用 Lark 操作（消息/文档/表格/多维表查询/日历/审批）请用 `lark-unified`；本技能只在「从零建资讯日报 Base 并写中文内容」这一场景用（独有：建表后授权、中文写入坑）。
 agent_created: true
 ---
 
 # Feishu Bitable News Daily
+
+## 定位与边界（与 lark-unified 的分工）
+
+| 你要做的事 | 该用哪个技能 |
+|---|---|
+| **从零建「资讯日报」Base + 写中文数据** | **本技能** ← |
+| 通用 Lark 操作（消息/文档/表格/多维表查询/日历/邮件/审批） | `lark-unified`（200+ 命令，默认入口） |
+| 多维表格 → 归档库同步 | `feishu-doc-archive` |
+| lark-cli 报错 | `lark-cli-troubleshooting` |
+
+本技能的两个独有价值：**建表后立即授予管理员权限**、**中文内容写入的转义处理**。
+
+---
+
 
 通过 lark-cli CLI 快速搭建飞书多维表格，用于每日资讯/新闻的存储、筛选和推送。
 

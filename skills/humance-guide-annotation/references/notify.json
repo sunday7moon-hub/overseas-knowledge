@@ -1,0 +1,31 @@
+{
+ "name": "慧思国别指南更新 · 发布确认通知通道",
+ "note": "通知通道与收件人的唯一真相源。notify_channels.py 读它；脚本里不要再写死 open_id / webhook。",
+ "recipient": {
+  "name": "Yoyo（邱月）",
+  "feishu_open_id": "ou_YOUR_OPENID"
+ },
+ "channels": {
+  "feishu": {
+   "enabled": true,
+   "kind": "lark-cli 机器人私聊（as bot）",
+   "note": "已验证可用（2026-09-23）。走 ~/.workbuddy/binaries/node/cli-connector-packages/bin/lark-cli"
+  },
+  "wecom_bot": {
+   "enabled": false,
+   "kind": "企业微信群机器人 webhook",
+   "webhook": "",
+   "msgtype": "markdown",
+   "note": "⚠️ 待 Yoyo 提供：企业微信 → 群 → 添加群机器人 → 复制 Webhook 地址。填上并 enabled=true 后，通知会同时进企业微信（手机端可见，可转到微信）。"
+  },
+  "serverchan": {
+   "enabled": false,
+   "kind": "Server酱（微信服务号推送）",
+   "sendkey": "",
+   "note": "⚠️ 待 Yoyo 提供 SendKey（sct.ftqq.com）。这是直接进微信的通道；填上并 enabled=true 后启用。"
+  }
+ },
+ "primary": "feishu",
+ "release_ttl_days": 7,
+ "lark_bin_dir": "~/.workbuddy/binaries/node/cli-connector-packages/bin"
+}

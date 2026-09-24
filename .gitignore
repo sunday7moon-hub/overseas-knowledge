@@ -7,3 +7,21 @@ __pycache__/
 
 # Chrome 下载临时残留（随机 8 位文件名，曾多次混入 releases/）
 releases/zi??????
+
+# Python/Node 运行环境（技能内夹带的依赖目录，不入仓）
+venv/
+.venv/
+node_modules/
+site-packages/
+*.egg-info/
+
+# 运行时目录（含内部自动化 ID）
+.rule-ref/
+.workbuddy/
+_backup*/
+
+# 备份文件
+*.bak
+*.bak2
+*.orig
+*~

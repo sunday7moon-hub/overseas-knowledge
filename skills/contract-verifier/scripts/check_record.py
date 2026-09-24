@@ -216,6 +216,26 @@ def check_source(record):
         "b2bpoland.com",                          # 波兰 HR/出海资讯平台
         "opennemas.com",                          # SEPE 官方劳动合同模型镜像托管（thenomadtoday.opennemas.com）
         "lawforall.co.za", "legallegends.co.za",  # 南非平价法律组织/律所公开发布模板（Tier 6）
+        # 新采集10国权威来源（2026-09-15 扩表）：均为6层内权威源，模板真实可下载
+        "mhlw.go.jp",                              # 日本厚生劳动省（Tier 1 政府）雇佣/就业规则模型
+        "moj.go.jp",                               # 日本法务省（Tier 1 政府）官方雇用条件通知书模型
+        "moel.go.kr",                             # 韩国雇佣劳动部（Tier 1 政府）标准勤劳契约书
+        "chamber.org.il",                         # 以色列商会（Tier 5/6）雇佣协议范本
+        "goldsmithsllp.com",                     # 尼日利亚 Goldsmiths LLP 律所（Tier 5）雇佣法模板
+        "uandes.cl",                              # 智利 Universidad de los Andes（Tier 5）NDA 范本
+        "macedovitorino.com",                    # 葡萄牙 Macedo Vitorino 律所（Tier 5）劳动法合同范本
+        "gob.pe",                                # 秘鲁政府（Tier 1 政府 .gob.pe 域，含 trabajoapurimac.gob.pe 子域）
+        "indianhrm.com",                         # 印度 HR 平台（Tier 6）NDA/雇佣协议范本
+        "komon-lawyer.jp",                       # 日本法律事务所公开发布秘密保持契約書/競業避止誓約書范本（Tier 5）
+        "tasmc.org.il",                          # 以色列 Tel Aviv Sourasky 医疗中心（Tasmc）官方 NDA 范本（Tier 5）
+        "startupindia.gov.in",                   # 印度政府 Startup India 官方创始人协议范本（Tier 1 政府 .gov.in）
+        "dayform.co.kr",                         # 韩国本土 HR 平台 Dayform 公开发布的 MOEL 标准劳动合同可填写 PDF（Tier 6）
+        "enterslice.com",                        # 印度企业合规服务机构 Enterslice 公开发布的雇佣和解/离职结算协议范本（Tier 6）
+        "etekt.gr",                              # 希腊影视技术工作者工会 ETEKT 公开发布的固定期限劳动合同 PDF 模板（Tier 6 行业工会）
+        # 新采集5国权威来源（2026-09-16 扩表）：均为 Tier-1 政府官方可下载模板
+        "workplacerelations.ie",                 # 爱尔兰工作场所关系委员会 WRC（Tier 1 政府）官方 Sample Terms of Employment
+        "education.govt.nz", "web-assets.education.govt.nz",  # 新西兰教育部（Tier 1 政府）个人雇佣协议 IEA 模板
+        "oric.gov.au",                           # 澳大利亚政府原住民企业注册办公室 ORIC（Tier 1 政府）雇佣合同模板
     ]
     for td in trusted_domains:
         if td in domain:
@@ -276,6 +296,19 @@ def check_link(record):
                 return "⚠️", f"HTTP {e.code}"
             except Exception:
                 return "⚠️", f"HTTP {e.code} 疑似防护页"
+        if e.code in (301, 302, 307, 308):
+            # 3xx 重定向（如 IHK Volterra CDN 对 HEAD 硬返回 301，GET+浏览器UA 复测应得 200 真实文件）→ CDN 误报，不判失败
+            try:
+                req2 = urllib.request.Request(link,
+                    headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+                             "Accept": "application/pdf,text/html,*/*",
+                             "Referer": "https://www.google.com/"})
+                resp2 = urllib.request.urlopen(req2, timeout=15, context=ctx)
+                if resp2.status == 200:
+                    return "✅", f"HTTP 200（{e.code} 重定向 GET 复测通过）"
+                return "⚠️", f"HTTP {e.code} 重定向后 {resp2.status}"
+            except Exception:
+                return "⚠️", f"HTTP {e.code} 重定向，GET 复测异常"
         return "❌", f"HTTP {e.code}"
     except Exception as e:
         return "⚠️", f"连接异常: {str(e)[:50]}"

@@ -175,7 +175,10 @@ lark-cli api POST "/open-apis/bitable/v1/apps/$T/tables/$TBL/records/batch_updat
 - 72 封独立 HTML：`outputs/emails/NN_{分类}_{user}.html` + `index.html` 索引 + 同目录 `邮件-联系慧思.jpg`。
 - 纯文本全集：`outputs/YYYY-MM-DD 核心用户触达邮件(优化版).md`
 - 推送逻辑文档：`outputs/YYYY-MM-DD 邮件推送去重与排程逻辑.md`
-- 排程器：`outputs/push_scheduler.py`（与 `scripts/push_scheduler.py` 保持同步）
+- 排程器：**`scripts/push_scheduler.py`（唯一真相源）**。
+  ⚠️ 2026-09-15 撤销 `outputs/push_scheduler.py`：该副本与技能版已分叉 189 行，
+  而本文档第 178 行曾声明「两份保持同步」——声明无人执行即等于没有声明。
+  **不要再在 outputs 下复制一份**；要用就直接跑技能内路径。
 - 发件回执抓取：`scripts/pull_sent_mail.py` → `/tmp/sent_mails.json`（字段 `mailid/to/subject/totime/tstr/delivery`）
 - 回执回灌：`scripts/backfill_mail_status.py`（默认 dry-run，`--write` 才写表；幂等）
 - 回灌对账清单：`outputs/YYYY-MM-DD 邮件触达回灌对账清单.md`（已推送明细 + 未发原因 + 来源口径）

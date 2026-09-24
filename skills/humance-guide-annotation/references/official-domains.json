@@ -1,0 +1,61 @@
+{
+  "_note": "链接域名判定规则 —— 唯一真相源（single source of truth）。渲染层（guide_patch_lib）与上线前 QC 门禁（qc_gate.py）都读本文件，不要在代码或文档里另抄一份清单。改规则只改这里。",
+  "_policy": "标注块链接两分法（Yoyo 2026-09-22 修订）：① **站外只放官方一手源**（政府/立法/部委门户/政府间组织）；② **站内链接**（解读/知识库/法规库/报告/工具入口）必须指向品牌自有域名（humancehr.com / anchorwe.com 及其子域），一律不跳站外三方。三方解读（四大·律所/行业平台/媒体）禁止出现在标注块。",
+  "_updated": "2026-09-22",
+  "_evidence": "阿联酋 6/6 溯源实测：mohre.gov.ae / u.ae / uaelegislation.gov.ae / gpssa.gov.ae 判为官方；morganlewis.com / teamed.global / kayrouzandassociates.com / app.com.pk 判为三方。humancehr.com / anchorwe.com 判为站内（internal）。",
+
+  "official_host_labels": ["gov", "gob", "gouv", "govt", "government", "e-gov", "egov"],
+
+  "official_tld_suffixes": [
+    ".go.id", ".go.th", ".go.jp", ".go.kr", ".go.ke", ".go.tz", ".go.ug",
+    ".gob.mx", ".gob.es", ".gob.ar", ".gob.pe", ".gob.cl", ".gob.ec", ".gob.do",
+    ".govt.nz", ".gouv.fr", ".gouv.nc", ".govt.ws",
+    ".gv.at", ".gub.uy"
+  ],
+
+  "official_domains": [
+    "u.ae", "wam.ae",
+    "europa.eu", "eurofound.europa.eu", "eur-lex.europa.eu",
+    "ilo.org", "oecd.org", "un.org", "worldbank.org", "imf.org", "who.int",
+    "canada.ca", "gc.ca", "bund.de", "bundesregierung.de", "overheid.nl",
+    "workplacerelations.ie", "revenue.ie", "gov.ie",
+    "mohre.gov.ae", "gpssa.gov.ae", "uaelegislation.gov.ae", "mohap.gov.ae",
+    "mom.gov.sg", "cpf.gov.sg", "tal.gov.sg", "mti.gov.sg",
+    "kwsp.gov.my", "perkeso.gov.my", "mohr.gov.my",
+    "doj.gov.ph", "dole.gov.ph", "sss.gov.ph", "philhealth.gov.ph",
+    "labour.go.th", "sso.go.th",
+    "kemnaker.go.id", "bpjs-kesehatan.go.id", "bpjsketenagakerjaan.go.id"
+  ],
+
+  "internal_domains": [
+    "humancehr.com", "anchorwe.com",
+    "dev-gpt.anchorwe.com"
+  ],
+
+  "third_party_domains": [
+    "morganlewis.com", "kayrouzandassociates.com", "al-tamimi.com", "bsa.law",
+    "clydeco.com", "dentons.com", "bakermckenzie.com", "dlapiper.com",
+    "herbertsmithfreehills.com", "hsfkramer.com", "linklaters.com", "freshfields.com",
+    "allenandgledhill.com", "khaitanco.com", "trowers.com", "shlegal.com",
+    "pwc.com", "kpmg.com", "deloitte.com", "ey.com",
+    "grantthornton.com", "bakertilly.com", "rsm.global", "mazars.com",
+    "teamed.global", "papayaglobal.com", "remote.com", "deel.com",
+    "velocityglobal.com", "globalization-partners.com", "oysglobal.com",
+    "playroll.com", "multiplier.com", "shieldgeo.com", "employmenthero.com",
+    "seamlesshr.com", "unite-hr.com", "bipo.com", "remofirst.com",
+    "safeguardglobal.com", "atlas-hq.com", "rippling.com", "gusto.com",
+    "gloat.com", "shrm.org", "hrmasia.com",
+    "app.com.pk", "gulfnews.com", "khaleejtimes.com", "thenationalnews.com",
+    "arabianbusiness.com", "zawya.com", "reuters.com", "bloomberg.com",
+    "forbes.com", "businessinsider.com", "economictimes.com", "aljazeera.com",
+    "bbc.com", "cnn.com", "nytimes.com", "ft.com", "wsj.com",
+    "wikipedia.org", "zhihu.com", "sohu.com", "sina.com.cn", "baidu.com"
+  ],
+
+  "verdicts": {
+    "official": "✅ 官方一手源（站外）—— 允许作为「官方原文 ↗」链接",
+    "internal": "🏠 站内域名（humancehr.com / anchorwe.com）—— 允许作为「解读」/ 知识库 / 法规 / 报告 / 工具入口链接",
+    "third_party": "❌ 三方源 —— 禁止出现在标注块（必须回溯到官方原文，或改用站内解读替代）",
+    "unknown": "⚠️ 不在白名单 —— 默认阻断；人工确认确为官方/站内后，把域名加入 official_domains / internal_domains 再放行"
+  }
+}

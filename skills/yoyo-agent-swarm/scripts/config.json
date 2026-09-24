@@ -1,0 +1,36 @@
+{
+  "base_token": "VZkDbIJfgaPhA6sTYuVcPjdJn7g",
+  "base_name": "AI Agent 工作日志",
+  "base_url": "https://dcnrh7mpyim9.feishu.cn/base/VZkDbIJfgaPhA6sTYuVcPjdJn7g",
+  "owner_openid": "ou_YOUR_OPENID",
+  "created_at": "2026-09-04",
+  "tables": {
+    "run": {
+      "name": "运行总览",
+      "table_id": "tbl2nQMcFXvSnFau",
+      "primary_field": "任务ID"
+    },
+    "issue": {
+      "name": "QC 问题台账",
+      "table_id": "tblMs9ooccJPOKMj",
+      "primary_field": "ID"
+    },
+    "proofread": {
+      "name": "内容校对台账",
+      "table_id": "tblTx5aW6vdJTqV4",
+      "primary_field": "校对ID"
+    },
+    "inbound": {
+      "name": "客户交付台账",
+      "table_id": "tblkEnNFs1aSdNbq",
+      "primary_field": "ID"
+    }
+  },
+  "lark_cli": "/Users/yoyo/.workbuddy/binaries/node/cli-connector-packages/bin/lark-cli",
+  "python": "/Users/yoyo/.workbuddy/binaries/python/envs/default/bin/python",
+  "holiday2027": {
+    "name": "2027假勤日历",
+    "table_id": "tblzoibI51vhTj4A",
+    "primary_field": "国家"
+  }
+}

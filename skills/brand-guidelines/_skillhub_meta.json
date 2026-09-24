@@ -1,0 +1,19 @@
+{
+  "name": "品牌设计规范",
+  "installedAt": 1782461009006,
+  "source": "marketplace",
+  "version": "1.0.6",
+  "skillId": "skill_2053081407153020928",
+  "examples_zh": [
+    "按照Anthropic品牌规范设计这个页面",
+    "用品牌色生成一张Banner图",
+    "检查这个设计是否符合品牌配色规范"
+  ],
+  "examples_en": [
+    "Design this page following Anthropic brand guidelines",
+    "Generate a banner with brand colors",
+    "Check if this design follows brand color standards"
+  ],
+  "iconSource": "letter:auto",
+  "skillName": "brand-guidelines"
+}

@@ -1,0 +1,11 @@
+{
+  "title": "在这里填入笔记标题（建议20字以内）",
+  "content": "第一段内容\n\n第二段内容\n\n第三段内容\n\n（用 \\n\\n 分隔段落）",
+  "images": [
+    "/path/to/cover_image.png",
+    "/path/to/image1.png",
+    "/path/to/image2.png",
+    "/path/to/image3.png"
+  ],
+  "topics": ["话题1", "话题2", "话题3"]
+}
