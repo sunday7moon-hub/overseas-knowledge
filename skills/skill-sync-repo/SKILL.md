@@ -650,3 +650,27 @@ bash    $S/gh_push.sh <repo-dir>          # 推任意仓（含编排层私有仓
     reference），关掉后差集 = 0/0。
     > 与注意事项 19（假漂移）同源：**比对前先把两边的表示形式统一，再比内容**。
 
+25. 🔴 **`gh_push.sh` 报「failed」但推送其实成功了——这是「假失败」，别信退出码，信 `ls-remote`**（2026-09-24 一轮内两仓各中一次）：
+    现象：脚本自己打印了 `✅ 已同步`（它的 ls-remote 校验已通过），但**整条命令退出码非 0**、
+    任务状态显示 failed，stderr 是：
+    ```
+    [sandbox] 命令被沙箱拦截，以下操作被拒绝：
+      - .git/refs/remotes/origin/main (file-write-unlink)
+      - .git/refs/remotes/origin/main.lock (file-write-unlink)
+    ```
+    根因：`git push` 在**数据传输成功后**还要回写本地 remote-tracking 引用，沙箱禁止 unlink `.git/` 内文件
+    → git 这一步失败、返回非 0，于是**远端已更新、本地却报失败**（与注意事项 8 的 `index.lock` 同源，只是换了个文件）。
+    判别（**先核对，再决定**）：
+    ```bash
+    git ls-remote origin -h refs/heads/main   # 与本地 git rev-parse HEAD 比
+    ```
+    相等 ⇒ 推成功了，只是本地引用没跟上。修复（清锁 + 强制同步本地引用）：
+    ```bash
+    rm -f .git/refs/remotes/origin/main.lock
+    git update-ref refs/remotes/origin/main "$(git rev-parse HEAD)"
+    git branch -vv      # 应显示 [origin/main]，不再有 ahead 标记、不再有残留锁
+    ```
+    🔴 **两条纪律**：① **绝不凭退出码重推或 `reset`**——重推无害（本就是 up-to-date），
+    但"以为是失败"去 `reset --hard` 会真丢东西；② 修完顺手 `find .git -name '*.lock'` 清一遍残留，
+    否则下次 `git add/commit` 会撞上那个 `.lock`。
+
