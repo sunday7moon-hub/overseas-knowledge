@@ -57,9 +57,16 @@ BRAND_BIG = 'SAMPLE'
 BRAND_EN = 'Sample Client Co., Ltd.'
 JOB = '区域销售经理'
 JOB_EN = 'RSM'
+# ★ 岗位经验档（= 客户岗位准入范围）：决定定价口径与正文表述，**严禁写窄**。
+#   客户要 8-15 年就写「8-15 年」；写成 10-15 年属口径不符（2026-09-14 控维事故）。
+#   带宽与准入范围对齐后，用「下限=门槛端 / 上限=资深端 / 中位=供给密集段」三句解释读法。
+EXP_BAND = '8-15 年'
 DATE = '2026年9月14日'
 RDATE = '2026.09.14'
-WORK = os.path.expanduser('~/WorkBuddy')
+# 输出目录：默认落在**本脚本所在目录**（即你复制骨架到的工作区），
+# 可用环境变量 SALARY_REPORT_OUT 覆盖。切勿写成 ~/WorkBuddy 等家目录路径——
+# 会把测试产物倒进用户家目录（2026-09-14 回归测试踩到）。
+WORK = os.environ.get('SALARY_REPORT_OUT') or os.path.dirname(os.path.abspath(__file__))
 
 set_rates({}, basis='2026-09-01 中国外汇交易中心（CFETS）中间价')
 
@@ -289,7 +296,7 @@ def build_story(cfg):
         cfg['cb_line'],
         [['报告日期', DATE],
          ['数据口径', meta['basis']],
-         ['岗位', f'{JOB} {JOB_EN}（{cfg["short"]}驻地比价场景）'],
+         ['岗位', f'{JOB} {JOB_EN}（经验要求 {EXP_BAND} · {cfg["short"]}驻地比价场景）'],
          ['成本基准', cfg['cb_note']],
          ['数据有效期', '基准日以落款为准 · 建议 3-6 个月内复用，超期需按最新市场数据复核'],
          ['输出', '用友薪福社 · 中企出海人力资源服务']],
@@ -299,7 +306,9 @@ def build_story(cfg):
     story.append(h1t('一、执行摘要'))
     story.append(Paragraph(inline_safe(
         f'本报告覆盖 {CLIENT} {JOB}（{JOB_EN}）在{cfg["title"]}的驻地选择与薪资带宽对标，'
-        f'以 {cfg["anchor"]} 为成本基准，逐国给出带宽区间与驻地建议。'), bd))
+        f'以 {cfg["anchor"]} 为成本基准，逐国给出带宽区间与驻地建议。'
+        f'岗位经验要求 <b>{EXP_BAND}</b>，口径统一为「{EXP_BAND}主力经验档」月度总包；'
+        f'带宽下限对应经验门槛端，上限对应资深端，中位对应市场供给最密集段。'), bd))
     story.append(Spacer(1, 2))
     story.append(card_grid(SUMMARY_CARDS[cfg['key']], cols=2))
 
@@ -346,7 +355,7 @@ def build_story(cfg):
                      ['雇主成本', meta.get('emp_src', '各国社保机构与劳动主管部门现行费率口径'),
                       ],
                      ['汇率', meta['fx_src']],
-                     ['方法', '区间以市场 P50（中位）–P75（中上）为主，资深/稀缺岗位取 P75–P90；含目标行业溢价'],
+                     ['方法', f'岗位经验要求 {EXP_BAND}。区间以市场 P50（中位）–P75（中上）为主，资深/稀缺岗位取 P75–P90；含目标行业溢价'],
                      ['免责', '所有区间为 GROSS 税前月度口径。实际薪资受候选人资历、业务阶段、'
                               '汇率波动与当地法规影响，本报告为参考基准，非最终合同依据']],
                     cw=[UW * 0.10, UW * 0.90]))
@@ -357,6 +366,7 @@ def build_client(cfg):
     story = build_story(cfg)
     header = f'{CLIENT} · {JOB}（{JOB_EN}）| {cfg["short"]} · {RDATE}'
     pdf_title = f'{CLIENT}{JOB}{cfg["file"]}薪酬带宽报告'
+    preflight_glyphs(story)          # 生成前字形门禁：未包 Helvetica 的 ② 类 / ③ 类硬禁用字符
     out = build_and_deliver(story, out_path(cfg), header, f'用友薪福社 {RDATE}', pdf_title)
     print(f'[OK] {out}')
     return out

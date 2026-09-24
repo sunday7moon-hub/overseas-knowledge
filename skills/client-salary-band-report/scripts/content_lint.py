@@ -86,15 +86,26 @@ def sentences(text, min_len=14, drop_noise=False):
 
 
 def country_sections(text):
-    """按第二章的 2.x 小节切出各国段落（用于逐国覆盖检查）。
-    必须锚定行首——纯 (?=2\\.\\d\\s) 会把正文金额「¥2.5 万」误判成小节起点，
-    导致切出的「国家名」变成「万、万、万」。"""
-    parts = re.split(r'(?m)(?=^2\.\d\s)', text)
+    """切出「国别块」段落（用于逐国覆盖检查）。
+
+    判据：小节首行含全角竖线「｜」——国别块标题的固定形态是
+    「N.M　国家（城市）｜定位｜成本指数 X」，而普通小节标题
+    （如「2.1 薪资带宽与成本指数」「2.3 管理岗相对渠道岗的溢价」）不含竖线。
+    这样可兼容 2.x / 3.x 两种章号（不同报告把国别块放在不同章），
+    也不会把总览类小节误当国家。
+
+    历史坑：曾用 `(?=2\\.\\d\\s)` 切分，正文金额「¥2.5 万」会被误判成小节起点，
+    导致切出的「国家名」变成「万、万、万」——故必须锚定行首。
+    """
+    parts = re.split(r'(?m)(?=^\d+\.\d+[\s　])', text)
     out = []
     for p in parts[1:]:
-        body = re.sub(r'^2\.\d\s*', '', p)                       # 先去自身编号，避免 lookahead 在段首命中
-        body = re.split(r'(?m)(?=^2\.\d\s)|(?=^三、)|(?=^地区小结)', body)[0]
+        body = re.sub(r'^\d+\.\d+[\s　]*', '', p)                # 先去自身编号
+        body = re.split(r'(?m)(?=^\d+\.\d+[\s　])|(?=^三、)|(?=^四、)|(?=^地区小结)',
+                        body)[0]
         first = body.split('\n')[0].strip()
+        if '｜' not in first:          # 非国别块（总览/说明类小节）
+            continue
         name = first.split('｜')[0].strip()[:16]
         out.append((name or '（未识别）', body))
     return out
@@ -162,10 +173,73 @@ def analyze(path, watch):
     return r
 
 
+def parse_facts(path):
+    """解析客户事实表里的 ```facts 代码块，返回断言列表。
+
+    每行格式：`关键词 | 文件子串(逗号分隔，* = 全部文件)`
+    关键词前缀 `!` 表示**禁止出现**（反向断言）。
+
+    用途：把「客户已确认的事实」变成机器可验的断言，防止口径在转述/重构中漂移。
+    2026-09-14 控维事故：客户要 8-15 年，重构后报告写成 10-15 年，两周内无人发现
+    —— 因为没有一条门禁盯着「客户原话」。
+    """
+    if not path or not os.path.exists(path):
+        return []
+    text = open(path, encoding='utf-8').read()
+    m = re.search(r'```facts\s*\n(.*?)```', text, re.S)
+    if not m:
+        return []
+    out = []
+    for raw in m.group(1).splitlines():
+        line = raw.strip()
+        if not line or line.startswith('#'):
+            continue
+        kw, _, flt = line.partition('|')
+        kw = kw.strip()
+        if not kw:
+            continue
+        neg = kw.startswith('!')
+        if neg:
+            kw = kw[1:].strip()
+        files = [f.strip() for f in flt.split(',') if f.strip()] or ['*']
+        out.append({'kw': kw, 'neg': neg, 'files': files})
+    return out
+
+
+def _compact(s):
+    """去掉所有空白后比对。
+
+    PDF 文本提取会在**换行处**断开（如「8-15」与「年主力经验档」分属两行），
+    直接子串匹配必然漏判。事实断言关心内容而非排版，故一律去空白后比对。
+    """
+    return re.sub(r'\s+', '', s)
+
+
+def check_facts(results, facts):
+    """对每份报告跑事实断言，返回 [(文件, 断言, 说明), ...] 形式的违规列表。"""
+    bad = []
+    if not facts:
+        return bad
+    for r in results:
+        text = _compact(load_pdf(r['file'])[0])
+        for f in facts:
+            applies = ('*' in f['files']
+                       or any(sub in os.path.basename(r['file']) for sub in f['files']))
+            if not applies:
+                continue
+            hit = _compact(f['kw']) in text
+            if f['neg'] and hit:
+                bad.append((r['file'], f['kw'], '禁止出现但命中'))
+            elif not f['neg'] and not hit:
+                bad.append((r['file'], f['kw'], '必需出现但缺失'))
+    return bad
+
+
 def main():
     ap = argparse.ArgumentParser(description='客户版带宽报告内容维度自检')
     ap.add_argument('files', nargs='+')
     ap.add_argument('--watch', default='', help='追加高频套话词，逗号分隔')
+    ap.add_argument('--facts', default='', help='客户事实表路径（含 facts 代码块），逐条断言')
     ap.add_argument('--json', action='store_true')
     ap.add_argument('--strict', action='store_true', help='有红旗时返回退出码 1')
     args = ap.parse_args()
@@ -173,6 +247,9 @@ def main():
     watch = DEFAULT_WATCH + [w.strip() for w in args.watch.split(',') if w.strip()]
     results = [analyze(f, watch) for f in args.files if os.path.exists(f)]
     missing = [f for f in args.files if not os.path.exists(f)]
+
+    facts = parse_facts(args.facts)
+    fact_bad = check_facts(results, facts)
 
     # 跨版本逐字相同长句
     sets = {r['file']: collections.Counter(sentences(load_pdf(r['file'])[0], drop_noise=True))
@@ -185,7 +262,7 @@ def main():
             common &= set(sets[f])
         cross = sorted(common, key=len, reverse=True)
 
-    red_flags = 0
+    red_flags = len(fact_bad)
     if args.json:
         print(json.dumps({'files': results, 'cross_version': cross, 'missing': missing},
                          ensure_ascii=False, indent=2))
@@ -231,6 +308,14 @@ def main():
                 print(f'   [章级篇幅] {seg}')
                 if thin:
                     print(f'      thin: {"、".join(thin)}（占比 <8%，可考虑合并或补内容）')
+
+        if facts:
+            print(f'\n## 客户事实断言（{len(facts)} 条'
+                  f'{" · 违规 " + str(len(fact_bad)) if fact_bad else " · 全部通过"}）')
+            for fn, kw, why in fact_bad:
+                print(f'   ✗ {os.path.basename(fn)}  「{kw}」{why}')
+            if not fact_bad:
+                print('   ✅ 客户已确认口径与报告一致（防止转述丢失）')
 
         if cross:
             print(f'\n## 跨版本逐字相同长句（{len(cross)} 条）')

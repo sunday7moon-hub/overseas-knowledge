@@ -3,7 +3,8 @@
 
 定位
     只放「与客户无关」的工具函数与排版范式。客户数据一律留在各自的 report 脚本里。
-    被 make_single_report.py / make_region_report.py 引用，也可独立 import。
+    被 make_single_report.py / make_region_report.py / make_dual_job_report.py 引用，
+    也可独立 import。
 
 为什么存在
     此前工具函数散落在工作区的客户专用脚本里（cowave_v2_build.py 等），
@@ -11,7 +12,8 @@
 
 沉淀来源
     控维通信 RSM（单国 + 中东七国/东南亚五国分地区）、二六三新加坡、拓米洛韩国，
-    2026-09-14 定稿（S2 品牌蓝 / KV 表头分级 / 汇率精度 / 水印元数据回写）。
+    2026-09-14 定稿（S2 品牌蓝 / KV 表头分级 / 汇率精度 / 水印元数据回写）；
+    2026-09-20 增科脉双岗位（单区域 × 双岗位）+ 字形能力表 + preflight_glyphs() 生成前门禁。
 
 硬约束（与 SKILL.md 门禁一致）
     · 主色 PRIMARY = #1f4f8f（S2 中等深度品牌蓝）：表头 + 章标题 + KV 标签字统一一档。
@@ -23,6 +25,7 @@ from __future__ import annotations
 
 import glob
 import os
+import re
 
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER
@@ -202,28 +205,127 @@ def Ux(amt, cur):
 
 
 # =============================================================================
-# 4. 字形兼容层
-#    SimHei 缺字形 → 包 Helvetica 可救的：¥ £ ¢ € $ – — ·
-#    两边都没有的（小币种符号 ₩₺₽₹฿、emoji）→ 一律写 ISO 代码，不要包
-#    ⚠️ → ★ ① 在 Helvetica 里没有字形，不要包裹
+# 4. 字形兼容层（2026-09-20 按 fitz 实测重建 —— 勿凭印象加字符）
+#    判据 = 「字体有没有这个字形」，由 fitz.Font(...).has_glyph() 实测，
+#    完整实测表见 pdf-report-layout/SKILL.md「字形能力实测表」。
+#
+#    ① SimHei 原生可用 → **不要包裹**：汉字 / 中文标点 / ASCII / 全角
+#         ·  –  —  …  ‘’“”  °  ±  ×  ÷  ≤  ≥  ≈  →  ★  ① ② ③  €  ─  ～
+#       ⚠️ 其中 ★ 在 Helvetica 里没有字形（0）——「把所有符号无脑包进 Helvetica」
+#          会把 ★ 打成空框。这是本条规则的由来。
+#    ② SimHei 无、Helvetica 有 → **必须包 Helvetica**：见 _HELV_WRAP。
+#       含**拉丁-1 变音字母**：# 地名/人名里的 ã（São Paulo）、ü（Zürich）、
+#       Ç（Çanakkale）都属此类，SimHei 大写 À-Þ 一颗都没有。
+#    ③ 两边都没有 → 硬禁用（包了也是空框）：emoji、非拉丁小币种符号
+#       （₫ ₱ ₩ ₹ ₺ ₽ ฿ ₦ ₸ ₼）、勾选框（☐ ☑ ✓ ✔ ✗）、拉丁扩展（Ş ş ł ż č）
+#       → 一律写 ISO 代码（VND / KRW / TRY / PHP）或中文币名。
 # =============================================================================
-_HELV_WRAP = ['¥', '€', '£', '¢', '$', '–', '—', '·']
+
+# ② 货币与通用符号（实测 SimHei=0 且 Helvetica≠0）
+_HELV_SYM = ['¥', '€', '£', '¢', '$', '−', '•', '†', '‡', '™', '©', '®', '¼', '½', '¾']
+# ② 拉丁-1 变音字母：SimHei 仅覆盖 à á è é ê ì í ò ó ù ú ü × ÷，其余全缺
+_HELV_LATIN = list('ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßâãäåæçëîïðñôõöøûýþÿ')
+_HELV_WRAP = _HELV_SYM + _HELV_LATIN
+# SimHei 与 Helvetica **双方皆无**字形 → 永不可用（渲染成空框，文本层变 U+0000）
+_FORBIDDEN = '₫₱₩₹₺₽฿₦₸₼₾₿☐☑✓✔✗✘⛔✅⚠⭐❶'
 
 
 def fix_currency(text):
     """表格单元格/独立段落用：把 SimHei 缺字形的符号路由到 Helvetica。"""
-    text = str(text)
+    text = str(text).replace('\u00a0', ' ')          # NBSP：SimHei 无字形，降级为普通空格
     for sym in _HELV_WRAP:
         text = text.replace(sym, f'<font face="Helvetica">{sym}</font>')
     return text
 
 
 def inline_safe(text):
-    """行内段落用（正文含 ¥/$/—/· 时）。• 降级为 ·（Helvetica 无 •）。"""
-    text = str(text).replace('•', '·')
+    """行内段落用（正文含 ¥/$/—/· 时）。• 降级为 ·（SimHei 原生有 ·）。"""
+    text = str(text).replace('\u00a0', ' ').replace('•', '·')
     for sym in _HELV_WRAP:
         text = text.replace(sym, f'<font face="Helvetica">{sym}</font>')
     return text
+
+
+# -----------------------------------------------------------------------------
+# 4.1 生成前门禁 preflight_glyphs()（2026-09-20 增）
+#     qc_client_pdf.py 是**生成后**扫渲染结果（扫到 U+0000 才报错），
+#     本函数是**生成前**扫 story 里将被渲染的字符串，把返工提前到打印之前。
+#     两个都保留：前者兜底「渲染真的坏了没」，后者定位「哪个字段写错了」。
+# -----------------------------------------------------------------------------
+_TAG_RE = re.compile(r'<font face="Helvetica">.*?</font>|<[^<>]{0,40}?>', re.S)
+
+
+def preflight_glyphs(story, strict=True, verbose=True):
+    """按字形能力预检 story 中所有会被渲染的文本。
+
+    - ③ 类（SimHei 与 Helvetica 皆无字形）→ 报错：包了也是空框，必须改写
+    - ② 类（SimHei 无、Helvetica 有）而**没包 Helvetica** → 报错：SimHei 下必出空框
+    返回 (errors, warnings)；strict=True 且有 error 时 SystemExit。
+    """
+    try:
+        import fitz
+    except ImportError:
+        if verbose:
+            print('  ⚠ 未装 PyMuPDF，跳过字形预检')
+        return [], []
+
+    try:
+        from reportlab.platypus import KeepTogether, Paragraph, Table
+    except ImportError:
+        return [], []
+
+    sm = fitz.Font(fontfile=resolve_font_path())
+    helv = fitz.Font(fontname='helv')
+
+    def walk(items):
+        for it in items:
+            if isinstance(it, Paragraph):
+                yield it.text
+            elif isinstance(it, Table):
+                for row in it._cellvalues:
+                    for cell in row:
+                        if isinstance(cell, Paragraph):
+                            yield cell.text
+                        elif isinstance(cell, str):
+                            yield cell
+                        elif isinstance(cell, (list, tuple)):
+                            for sub in cell:
+                                if isinstance(sub, Paragraph):
+                                    yield sub.text
+            elif isinstance(it, KeepTogether):
+                yield from walk(it._content)
+
+    errors, warnings = [], []
+    for text in walk(story):
+        plain = _TAG_RE.sub('', str(text))        # 去掉已包的 Helvetica 段与版式标签
+        for ch in dict.fromkeys(plain):
+            cp = ord(ch)
+            if cp == 0x20 or ch in '\n\t':
+                continue
+            if sm.has_glyph(cp):
+                continue                           # ① SimHei 原生
+            if ch in _HELV_WRAP or helv.has_glyph(cp):
+                errors.append(f'「{ch}」(U+{cp:04X}) 未包 Helvetica —— SimHei 无字形，会出空框')
+            else:
+                if ch in _FORBIDDEN:
+                    errors.append(f'「{ch}」(U+{cp:04X}) 属硬禁用字符 —— 两边都没有字形，请改写 ISO 代码/中文')
+                else:
+                    warnings.append(f'「{ch}」(U+{cp:04X}) 未在上表——已按「两边皆无」处理，请人工确认')
+
+    errors = list(dict.fromkeys(errors))
+    warnings = list(dict.fromkeys(warnings))
+    if verbose:
+        if errors or warnings:
+            print(f'  ▸ 字形预检：{len(errors)} 错 / {len(warnings)} 待确认')
+            for e in errors:
+                print(f'      ❌ {e}')
+            for w in warnings:
+                print(f'      ⚠️  {w}')
+        else:
+            print('  ▸ 字形预检：通过')
+    if strict and errors:
+        raise SystemExit('字形预检未通过 —— 修好上面列出的字符再生成（详见 pdf-report-layout/SKILL.md 字形能力表）')
+    return errors, warnings
 
 
 # =============================================================================
@@ -651,7 +753,7 @@ def build_and_deliver(story, out_path, header_text, wm_text, pdf_title,
     """
     out_dir = os.path.dirname(os.path.abspath(out_path))
     if out_dir and not os.path.isdir(out_dir):
-        raise FileNotFoundError(f'输出目录不存在：{out_dir}（请先创建或改 WORK 常量）')
+        os.makedirs(out_dir, exist_ok=True)   # 骨架换 WORK 常量后可直接跑，不必先手工建目录
 
     tmp_path = tmp_path or ('/tmp/_salary_base_%d.pdf' % os.getpid())
     doc = new_doc(tmp_path)

@@ -61,7 +61,9 @@ CURRENCY = 'THB'                         # 本币代码（务必与 RATES 中一
 
 DATE = '2026年9月14日'
 RDATE = '2026.09.14'
-WORK = os.path.expanduser('~/WorkBuddy')  # 输出目录（改成实际工作区绝对路径）
+# 输出目录：默认落在**本脚本所在目录**（即你复制骨架到的工作区），
+# 可用环境变量 SALARY_REPORT_OUT 覆盖。切勿写成 ~/WorkBuddy 等家目录路径。
+WORK = os.environ.get('SALARY_REPORT_OUT') or os.path.dirname(os.path.abspath(__file__))
 
 # 汇率：锁定当日口径（示例沿用 kit 基线；实际使用务必以当日 CFETS 中间价更新）
 set_rates({}, basis='2026-09-01 中国外汇交易中心（CFETS）中间价')
@@ -234,6 +236,7 @@ def build_client():
     story = build_story()
     header = f'{CLIENT} · {JOB}（{COUNTRY}）| {RDATE}'
     pdf_title = f'{CLIENT}{JOB}{COUNTRY}薪酬带宽报告'
+    preflight_glyphs(story)          # 生成前字形门禁：未包 Helvetica 的 ② 类 / ③ 类硬禁用字符
     out = build_and_deliver(story, out_path(), header, f'用友薪福社 {RDATE}', pdf_title)
     print(f'[OK] {out}')
     return out

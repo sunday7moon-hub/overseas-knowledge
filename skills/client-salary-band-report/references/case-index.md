@@ -3,7 +3,7 @@
 用途：新任务接单时先查这里——**同客户/同结构直接沿用既有链路，不要从零重写**。
 
 > 工作区路径：`/Users/yoyo/WorkBuddy/2026-07-29-13-50-49/`（脚本与交付件都在这里）
-> 归档日期：2026-09-14
+> 归档日期：2026-09-21（新增科脉马来单国预算受限版）
 
 ---
 
@@ -18,6 +18,8 @@
 | 二六三 | 大客户销售经理 KAM | 新加坡（辐射东南亚） | 单国单岗 | `kam263_sg_build.py` | 二六三_大客户销售经理新加坡薪酬带宽报告_客户版.pdf |
 | 拓米洛 | 半导体大客户经理 KAM | 韩国 | 单国单岗 | `tuomiluo_kr_build.py` | 拓米洛_半导体大客户经理韩国薪酬带宽报告_客户版.pdf |
 | 拓米洛 | 韩国销售总监 | 韩国 | 单国单岗 | `tuomiluo_kr_build.py` | 拓米洛_韩国销售总监薪酬带宽报告_客户版.pdf |
+| 科脉股份 | 海外渠道经理 + 海外销售管理 | 东南亚六国 | **单区域双岗位** | `kemai_sea_dual.py` | 科脉股份_海外渠道经理与海外销售管理_东南亚六国薪酬带宽报告_客户版.pdf |
+| 科脉股份 | 海外渠道经理 + 海外销售管理 | 马来西亚（单国·预算受限 6–7K base） | 单区域双岗位 + 薪酬结构/招聘设计 | `kemai_my_only.py` | 2026.09.21_科脉股份_海外渠道经理与海外销售管理_马来西亚薪酬带宽报告_客户版.pdf |
 
 **依赖关系**（改工具函数只需动源头）：
 
@@ -28,10 +30,12 @@ cowave_v2_build.py   ← 工具层源头 + 控维数据层（混在一起，是�
    ├── cowave_v5_region.py       控维 现行：中东七国 / 东南亚五国
    └── tuomiluo_kr_build.py      拓米洛 韩国两份
 kam263_sg_build.py   ← 独立副本（自带同名 T/KV/make_watermark，未 import v2）
+kemai_sea_dual.py    ← 已剥离工具层的干净实现（单区域双岗位，import salary_report_kit）
+kemai_my_only.py     ← 科脉马来单国版（6–7K 预算受限 + 第三章薪酬结构 / 第四章招聘设计）
 ```
 
 ⚠️ 这三个"客户脚本"的**数据与工具是混着的**——这正是新建报告容易走偏的地方。
-新任务请直接用本 skill 的模板（`make_single_report.py` / `make_region_report.py`），
+新任务请直接用本 skill 的模板（`make_single_report.py` / `make_region_report.py` / `make_dual_job_report.py`），
 它们已把工具层剥离干净，只留配置区与数据区需要填。
 
 ---
@@ -64,6 +68,8 @@ kam263_sg_build.py   ← 独立副本（自带同名 T/KV/make_watermark，未 i
 ```
 接到薪酬报告需求
 ├─ 只有一个驻地？ ────────→ make_single_report.py（单国单岗）
+├─ 同一片市场要出**两个岗位**、合并成一份对比？
+│  └────────────────────→ make_dual_job_report.py（单区域双岗位）
 └─ 多个候选驻地？
    ├─ 需按地区拆成多份 ──→ make_region_report.py（多国分地区）
    └─ 只出一份横向比价 ──→ make_region_report.py，把 REGIONS 只留一个 key
