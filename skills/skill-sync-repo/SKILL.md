@@ -64,7 +64,8 @@ agent_created: true
 ```
 agent-employees/
 ├── orchestration/   【底层编排复用逻辑】workflow/ registry/ qc/ scripts/ docs/
-└── agents/          【业务层】job-descriptions.md（岗位说明书）+ skill-bindings.md（技能绑定契约）
+├── agents/          【业务层】job-descriptions.md（岗位说明书）+ skill-bindings.md（技能绑定契约）
+└── experts/         【专家层】9 个对话式自定义专家包 + README.md（一览 / 协作链 / 三处登记）
 ```
 
 **同步映射表**（本地技能 → 编排层仓，运行时真相仍是本地路径）：
@@ -75,10 +76,49 @@ agent-employees/
 | `yoyo-agent-swarm/references/routing-rules.md` | `orchestration/workflow/routing-rules.md` |
 | `yoyo-agent-swarm/references/agent-registry.md` | `orchestration/registry/agent-registry.md` |
 | `yoyo-agent-swarm/references/job-descriptions.md` | `agents/job-descriptions.md` |
+| `yoyo-agent-swarm/references/job-description-template.md` | `orchestration/registry/job-description-template.md` |
 | `yoyo-qc-auditor/SKILL.md` | `orchestration/qc/qc-auditor.md` |
 | `yoyo-qc-auditor/references/*.md` | `orchestration/qc/` |
 | `yoyo-agent-swarm/scripts/` + `yoyo-qc-auditor/scripts/` + 本技能 `scripts/` | `orchestration/scripts/` |
 | `yoyo-agent-swarm/references/*benchmark*.md`、`*borrowing*.md` | `orchestration/docs/` |
+| `~/.workbuddy/plugins/marketplaces/my-experts/plugins/<name>/` | `experts/<name>/` |
+
+### 专家包同步（2026-09-24 新增的第三个仓面向量）
+
+专家包**不进公开仓**（含内部业务打法、客户线索、交付判据），只镜像到 private 的 `experts/`：
+
+```bash
+EXP="$HOME/.workbuddy/plugins/marketplaces/my-experts/plugins"
+NEW="$HOME/WorkBuddy/2026-07-30-09-39-41/agent-employees"
+for d in "$EXP"/*/; do
+  n=$(basename "$d")
+  rsync -a --delete --exclude='.DS_Store' --exclude='__pycache__/' \
+        --exclude='*.pyc' --exclude='venv/' --exclude='*.bak*' \
+        "$d" "$NEW/experts/$n/"
+done
+```
+
+🔴 **新增专家包必须同时补登三处**，漏一处就漂移：
+
+| # | 文件 | 作用 |
+|:-:|------|------|
+| 1 | `yoyo-agent-swarm/references/agent-registry.md` **§1.5** | 真相源（清单 + 与内部 Agent 的分工边界） |
+| 2 | `~/.workbuddy/experts/custom/<install-id>/experts.json` | 专家中心「我的专家」加载清单 |
+| 3 | `~/.workbuddy/plugins/marketplaces/my-experts/.codebuddy-plugin/marketplace.json` | marketplace 插件清单 |
+
+自检（四源必须一致，实盘目录 / marketplace / experts.json / §1.5）：
+```bash
+M="$HOME/.workbuddy/plugins/marketplaces/my-experts"
+ls "$M/plugins" | sort > /tmp/a
+python3 -c "import json;print('\n'.join(sorted(p['name'] for p in json.load(open('$M/.codebuddy-plugin/marketplace.json'))['plugins'])))" | sort > /tmp/b
+python3 -c "import json;print('\n'.join(sorted(json.load(open('$HOME/.workbuddy/experts/custom/2d6a71e1-76da-4580-ad90-8761fcf7788e/experts.json')))))" | sort > /tmp/c
+comm -3 /tmp/a /tmp/b; comm -3 /tmp/a /tmp/c     # 均应无输出
+```
+
+> 专家包目录结构：`.codebuddy-plugin/plugin.json` + `README.md` + `agents/<n>.md`
+> + `skills/<包内私有技能>/` + `avatars/expert.png`。
+> `salary-band-report-expert` 是**唯一无包内技能**的包——它引用外部技能
+> `client-salary-band-report`（单一真相源，技能更新自动跟随）。
 
 > ⚠️ **两条硬约束**：
 > ① 仓内文件里的脚本调用路径**保持本地绝对路径**（运行时真相），不要改成仓内相对路径，否则本地跑不通；
@@ -161,11 +201,20 @@ rsync -av --delete "${EX[@]}" ~/.workbuddy/skills/$SKILL/ "$REPO/skills/$SKILL/"
 - `--delete` 确保仓库里的技能文件与本地完全一致（删除已移除的文件）
 - 保持扁平结构：`skills/<skill-name>/SKILL.md`，不要 `skills/<skill-name>/<skill-name>/SKILL.md`
 - 🔴 **rsync 标准排除集（每次都带上，别只用 `.DS_Store`）**：
-  `.DS_Store`、`__pycache__/`、`*.pyc`、**`.workbuddy/`**、`_backup*`、`*.zip`
+  `.DS_Store`、`__pycache__/`、`*.pyc`、**`.workbuddy/`**、**`.rule-ref/`**、
+  `_backup*`、`*.zip`、**`venv/` `.venv/` `node_modules/` `site-packages/` `*.egg-info/`**、
+  **`*.bak*` `*.orig` `*~`**
   —— **`.workbuddy/` 必须排除**：技能目录里可能夹带运行时内存
   （实测 `feishu-doc-archive/` 里有 `.workbuddy/automations/<id>/memory.md` 与
   `.workbuddy/memory/automations/<id>/memory.md`），里面是自动化的内部记忆与运行状态，
   **推上公开仓库 = 泄露内部状态**。2026-09-15 实测发现并拦下。
+  —— **`.rule-ref/` 必须排除**：含内部自动化 ID（实测 `overseas-news-daily/.rule-ref/`）。
+  —— 🔴 **运行环境目录必须排除（2026-09-24 血泪）**：`pdfkit-py/scripts/venv/` 是一个
+  **完整 Python venv（194 MB / 3179 文件）**，一入仓就把仓库撑到 209 MB。
+  `--delete` **不会**删掉被 `--exclude` 保护的目标侧残留 —— 所以要「先排除 + 再确认目标侧没有」，
+  或干脆用仓内 `.gitignore` 兜底（见注意事项 15）。
+  —— **`*.bak*` 必须排除**：`humance-guide-annotation/references/` 下曾同步进 `ledger.json.bak2`、
+  `batches/uae-v3.json.bak`。
 
 ### Step 3: 打包 .zip 到 releases/（与 skills/ 严格一一对应）
 
@@ -174,16 +223,27 @@ REPO="/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/overseas-knowledge"
 SKILL="<skill-name>"
 
 cd "$REPO/skills"
-zip -r "$REPO/releases/$SKILL.zip" "$SKILL/" -x '*.DS_Store' -x '*__pycache__*' -x '*.pyc'
+zip -r "$REPO/releases/$SKILL.zip" "$SKILL/" \
+    -x '*.DS_Store' -x '*__pycache__*' -x '*.pyc' -x '*/venv/*' -x '*/.venv/*' \
+    -x '*/node_modules/*' -x '*site-packages*' -x '*.bak*' -x '*/.rule-ref/*'
 ```
 
 **一致性铁律**：`releases/*.zip` 数量 == `skills/` 目录数量（外加扩展包这类独立产物）。
 只给「本次新增」的技能打包、老技能的包却停留在旧版本 —— 是历史踩过的坑。
-**批量同步时统一重建全部包**，并清掉不在 `skills/` 里的多余 zip：
+**批量同步时统一重建全部包**：
 
 ```bash
-python3 ~/.workbuddy/skills/skill-sync-repo/scripts/rebuild_zips.py     # 遍历 skills/ 全量重打包 + 清理多余包 + 打印清单
+python3 ~/.workbuddy/skills/skill-sync-repo/scripts/rebuild_zips.py
 ```
+
+> `rebuild_zips.py` 2026-09-24 重写，三个关键变化：
+> 1. **用 `zipfile` 覆盖写，不再 `os.remove` 旧包** —— 旧版先删后建会触发沙箱的
+>    批量删除门禁（同一轮里只要有被拒的删除目标，后续删除命令会被连带拦下）。
+> 2. **内置排除集**（venv / node_modules / site-packages / `.bak*` / `.rule-ref` / `__pycache__`）
+>    —— 与 rsync 排除集对齐，避免 194 MB venv 再次被打进包。
+> 3. **`strict_timestamps=False`** —— 技能内偶有 `mtime < 1980` 的资源文件，
+>    严格模式会抛 `ValueError: ZIP does not support timestamps before 1980` 直接中断全量打包。
+> 4. 多余 zip **不再自动清理**，改为列出待人工确认（删除类动作一律不自动化）。
 
 ### Step 4: 更新 README 索引（每次同步必做，硬性前置）
 
@@ -233,29 +293,56 @@ Gitee 已配置自动镜像，GitHub push 成功后 Gitee 会自动同步。
 
 ---
 
-## 批量同步
+## 批量同步 / 全量同步
 
-用户说"同步所有技能"时：
+用户说"同步所有技能"时，**先确认范围**（见注意事项 17：是刷新漂移技能？补齐新技能？还是连编排层/个人技能一起公开？），
+再按下面这套跑：
 
 ```bash
 REPO="/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/overseas-knowledge"
+LIVE="$HOME/.workbuddy/skills"
+EX=(--exclude='.DS_Store' --exclude='__pycache__/' --exclude='*.pyc'
+    --exclude='.workbuddy/' --exclude='.rule-ref/' --exclude='_backup*'
+    --exclude='*.zip' --exclude='venv/' --exclude='.venv/'
+    --exclude='node_modules/' --exclude='site-packages/' --exclude='*.bak*' --exclude='*.orig')
 
-for skill_dir in ~/.workbuddy/skills/*/; do
-  SKILL=$(basename "$skill_dir")
-  # 跳过没有 SKILL.md 的目录
-  [ -f "$skill_dir/SKILL.md" ] || continue
-  
-  mkdir -p "$REPO/skills/$SKILL"
-  rsync -av --delete --exclude='.DS_Store' --exclude='__pycache__/' --exclude='*.pyc' --exclude='.workbuddy/' \
-        "$skill_dir" "$REPO/skills/$SKILL/"
-  cd "$REPO/skills" && zip -rq "$REPO/releases/$SKILL.zip" "$SKILL/" -x '*.DS_Store' -x '*__pycache__*' -x '*.workbuddy/*'
+added=0; updated=0
+for d in "$LIVE"/*/; do
+  S=$(basename "$d")
+  [ -f "$d/SKILL.md" ] || continue
+  if [ -d "$REPO/skills/$S" ]; then updated=$((updated+1)); else added=$((added+1)); fi
+  mkdir -p "$REPO/skills/$S"
+  rsync -a --delete "${EX[@]}" "$d" "$REPO/skills/$S/"
+done
+echo "刷新 $updated / 新增 $added"
+
+# 一致性：索引行数 == 目录数 == 包数(减扩展包)
+grep -cE '^\| *[0-9]+ *\| *`' "$REPO/README.md"
+ls -d "$REPO"/skills/*/ | wc -l
+
+# 脱敏 + 打包（脚本自带排除集，别手写 zip）
+python3 "$LIVE/skill-sync-repo/scripts/sanitize_repo.py"      # 复扫必须全清
+python3 "$LIVE/skill-sync-repo/scripts/rebuild_zips.py"
+
+# 抽查包内无运行环境残留/凭据
+for z in "$REPO"/releases/*.zip; do
+  unzip -l "$z" | grep -qE 'venv|site-packages|\.bak|__pycache__|\.rule-ref' && echo "⚠️ $z"
 done
 
-cd "$REPO"
-git add -A
-git commit -m "sync: batch update all skills"
-git push origin main
+cd "$REPO" && git add -A && git status -s | head
 ```
+
+**提交前四件必查**（缺一件就是事故）：
+
+| # | 检查 | 通过标准 |
+|:-:|------|---------|
+| 1 | 索引一致性 | README 索引行数 == `skills/` 目录数 == `releases/*.zip` 数（减扩展包） |
+| 2 | 脱敏 | `sanitize_repo.py` 输出「✅ 复扫全清」 |
+| 3 | 无运行环境入仓 | 仓内无 `venv/` `node_modules/`（`git status --untracked-files=all \| grep -iE 'venv\|site-packages'` 为空） |
+| 4 | 包内无残留 | 每个 zip 内无 `venv` / `site-packages` / `.bak` / `__pycache__` |
+
+**两个仓都变了就两个都要推**（技能 → 公开仓；编排层/专家层 → 私有仓），
+推送用后台任务 + `gh_push.sh`（见注意事项 14）。
 
 ---
 
@@ -374,3 +461,24 @@ bash    $S/gh_push.sh <repo-dir>          # 推任意仓（含编排层私有仓
 
     > 复现要点：`ls-remote` 单跑 3s 就返回（设了 `GIT_HTTP_LOW_SPEED_LIMIT=1000 / TIME=20` 更好），
     > 说明网络没断；前台被杀纯粹是「单条命令超过前台超时 + 无低速阈值」的组合。
+
+15. 🔴 **批量删除会被沙箱「删除门禁」拦下，且会污染整轮**（2026-09-24 实测）：
+    清理 `pdfkit-py/scripts/venv/`（3179 文件）时 `rm -rf` 被拒（`SAFE_DELETE_BULK_REJECTED`，
+    阈值 50）。**一旦某一轮里有被拒的删除目标，该轮后续任何删除命令都会被连带拦下**
+    （连 `rm -f` 两个小 `.bak` 文件都报同一个 venv 目标），
+    于是 `rebuild_zips.py` 里的 `os.remove` 也跑不动。
+    **正解 —— 别用删除，用卸载**：
+    ① **仓内 `.gitignore` 兜底**（`venv/` `.venv/` `node_modules/` `site-packages/` `.rule-ref/`
+    `.workbuddy/` `_backup*/` `*.bak*` `*.orig`）→ `git add -A` 自动跳过，物理文件留本地不碍事；
+    ② 打包脚本改**覆盖写**（`zipfile` "w" 模式）而不是「先删后建」；
+    ③ 真要物理删，单独一轮、只删这一个目标，别和别的操作混在同一条命令里。
+
+16. ⚠️ **`zip` CLI 与 `zipfile` 都不会自动排除 venv**：`zip -r out n` 会把技能目录里的
+    `scripts/venv/` 整个打进去。批量打包**必须用带排除集的 `rebuild_zips.py`**，
+    并在提交前抽查：`unzip -l <包>.zip | grep -cE 'venv|site-packages|\.bak|__pycache__'` 应为 0。
+
+17. 🔴 **「全量同步」要先问清范围再动手**（2026-09-24 教训）：一次「一起同步」可能同时意味着
+    ① 刷新几个漂移技能 ② 把 48 个新技能搬进公开仓 ③ 顺带把**编排层**（`yoyo-*`）也公开。
+    第 ③ 项与公开仓 README「编排层不进本仓」的既有声明**直接冲突**，
+    且会把个人向（理财）、第三方（skillhub）技能一并公开 —— 动手前必须显式确认范围，
+    并在提交信息/汇报里把「照做了什么、与哪条既有声明冲突」写清楚，便于撤回。
