@@ -527,3 +527,9 @@ bash    $S/gh_push.sh <repo-dir>          # 推任意仓（含编排层私有仓
     与本仓独有资产（`scripts/audit_automations.py`、`docs/automation-map.md`）。
     判据：**「我要改这个值，需要动几个文件？」答案 >1 就是设计错了。**
 
+20. 🔴 **同一个文件不要在同一条消息里发多个 Edit**（2026-09-24 实测丢改动）：
+    对 `experts/README.md` 一次并发发 3 个 Edit，工具都回 `Successfully edited`，
+    但只有 1 个真正落盘，另 2 个被覆盖丢失 —— 而且**不报错**，靠事后 grep 才发现。
+    正解：同一文件的多处修改，**合并成 1 个 Edit（用 `replace_all`）**，
+    或改用一个 Python 脚本按「逐条断言 count」的方式批量替换（改完 grep 复核）。
+
