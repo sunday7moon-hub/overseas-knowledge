@@ -487,8 +487,21 @@ bash    $S/gh_push.sh <repo-dir>          # 推任意仓（含编排层私有仓
 10. ⚠️ **`github.com:443` 是"代理抖动"而非恒定被拒（2026-09-14 复测，先重试再换通道）**：
     现象：`git push/ls-remote` 报 `CONNECT tunnel failed, response 502`；`curl https://github.com/` 直连得
     `000`、走代理间歇得 `200`；`info/refs` 三次探测 `200 / 000 / 200`。
-    根因：本机出网**必须走代理**（`HTTP_PROXY=http://127.0.0.1:56772`），代理对 `github.com` 只是**不稳定**，
+    根因：本机出网**必须走代理**，代理对 `github.com` 只是**不稳定**，
     不是黑名单；`api.github.com`、`codeload` 则稳定可达。
+    🔴 **代理端口会变，别硬编码**（2026-09-24 实测：旧记的 `56772` 已关闭，直连
+    `github.com:443` 100% 超时）。**每次先探端口再推**：
+    ```bash
+    lsof -nP -iTCP -sTCP:LISTEN | grep 127.0.0.1        # 找本地代理进程
+    nc -z -G 1 127.0.0.1 <port>                          # 逐个验
+    curl -sS -o /dev/null -w '%{http_code}\n' -x http://127.0.0.1:<port> --max-time 12 https://github.com/
+    curl -sS -o /dev/null -w '%{http_code}\n' -x socks5h://127.0.0.1:<port> --max-time 12 https://github.com/
+    ```
+    2026-09-24 实测可用：**`Veee` 进程的 `15236`（HTTP 代理）/ `15235`（SOCKS5，需 `socks5h://`）**，
+    两者对 `github.com` 均返回 200。**注意同一个端口可能只支持一种协议**（15236 走 socks5 会
+    `connection to proxy closed`，15235 走 http 会 `Proxy CONNECT aborted`）→ **两种协议都要试**。
+    用法：推送前 `export https_proxy=http://127.0.0.1:15236 http_proxy=http://127.0.0.1:15236`，
+    再跑 `gh_push.sh`（实测 7 秒完成，首次即成功）。
     判别口诀：**先看 `git ls-remote` 通不通** + **连测 3 次**。三次里有 200 → 是抖动，用重试循环（见注意事项 9）解决。
     处置（按优先级）：
     1. **重试循环**（6 次 + `sleep 4`）—— 实测 1–2 次内成功，最省事；
