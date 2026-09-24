@@ -129,6 +129,8 @@ def main():
         ccfg["batch"] = batch
         ccfg["page_date"] = cc["page_date"]
         ccfg["review_date"] = cfg.get("review_date", "2026-09-07")
+        # slug 是「申报式正文修复」的匹配键（references/body-fixes.json 按 slug 精确匹配）
+        ccfg["slug"] = slug
         try:
             after, pafter, report, inserted = L.build(before, pbefore, ccfg)
         except AssertionError as e:

@@ -324,6 +324,34 @@ Gitee 已配置自动镜像，GitHub push 成功后 Gitee 会自动同步。
 用户说"同步所有技能"时，**先确认范围**（见注意事项 17：是刷新漂移技能？补齐新技能？还是连编排层/个人技能一起公开？），
 再按下面这套跑：
 
+### Step 1 · 漂移体检：先剔「脱敏假差异」，再看真漂移
+
+🔴 **`diff -rq live 仓` 的差异不等于"仓内落后"** —— 已脱敏的技能**每次都会报差异**，
+因为仓内是占位符、live 是真实值。**实测（2026-09-24）5 个技能被误报为"落后"，
+其中 4 个是纯脱敏造成、只有 1 个（`baidu-ziyuan-collect`）另有 live 独有备份目录。**
+
+判据：**差异行里只出现占位符 ↔ 真值的对应关系 ⇒ 假漂移，无需同步**（差异行数通常极小，如 1–6 行）。
+
+```bash
+LIVE="$HOME/.workbuddy/skills"; REPO="$HOME/WorkBuddy/…/overseas-knowledge"
+SED='s/ou_[A-Za-z0-9]\{20,\}/ou_YOUR_OPENID/g; s/oc_[A-Za-z0-9]\{20,\}/oc_YOUR_CHAT_ID/g'
+cd "$REPO"
+# 只查「含占位符的文件」——只有它们才可能有假漂移，不必全仓 diff
+grep -rl 'YOUR_OPENID\|YOUR_CHAT_ID' skills/ | while read -r f; do
+  S=$(echo "$f" | cut -d/ -f2); rel=${f#skills/$S/}
+  [ -f "$LIVE/$S/$rel" ] || { echo "  ℹ️ 仓内独有（非漂移）: $S/$rel"; continue; }
+  n=$(diff <(sed "$SED" "$LIVE/$S/$rel") <(sed "$SED" "$f") 2>/dev/null | grep -c '^[<>]')
+  [ "$n" = 0 ] && echo "  🟡 仅脱敏差异: $S/$rel" \
+                || echo "  🔴 除脱敏外还有 $n 行真差异（要查）: $S/$rel"
+done
+```
+
+**汇报纪律**：向用户汇报漂移时，必须把「仅脱敏差异」与「真漂移」分开写。
+**把脱敏造成的差异说成"仓内落后于线上"是错报**（2026-09-24 实际发生过，用户据此以为要重同步）。
+
+**汇报纪律**：向用户汇报漂移时，必须把「仅脱敏差异」与「真漂移」分开写。
+**把脱敏造成的差异说成"仓内落后于线上"是错报**（2026-09-24 实际发生过，用户据此以为要重同步）。
+
 ```bash
 REPO="/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/overseas-knowledge"
 NEW="/Users/yoyo/WorkBuddy/2026-07-30-09-39-41/agent-employees"
@@ -532,4 +560,16 @@ bash    $S/gh_push.sh <repo-dir>          # 推任意仓（含编排层私有仓
     但只有 1 个真正落盘，另 2 个被覆盖丢失 —— 而且**不报错**，靠事后 grep 才发现。
     正解：同一文件的多处修改，**合并成 1 个 Edit（用 `replace_all`）**，
     或改用一个 Python 脚本按「逐条断言 count」的方式批量替换（改完 grep 复核）。
+
+21. 🔴 **「清理」前必须逐项判性质：运行环境 ≠ 垃圾，备份 ≠ 垃圾**（2026-09-24 用户问「这些是垃圾吗」时的判据）：
+
+    | 类型 | 例子 | 删了会怎样 | 判据 |
+    |---|---|---|---|
+    | **运行环境** | `pdfkit-py/scripts/venv`（225M） | 技能**立刻不可用**，须重跑 `setup.sh`（需联网） | 读 SKILL.md：**它自己要求用这个路径跑**（如 `{venv}/bin/python3 xxx.py`） ⇒ 不能删 |
+    | **版本备份** | `baidu-ziyuan-collect/scripts/_backup_20260911/` | **丢旧版源码**（实测 `background.js.bak` 是孤本，当前目录已无同名文件） | 与当前版本**内容不同** 且**当前无对应文件** ⇒ 有历史价值，别删 |
+    | **脚本自动产物** | `*.json.bak` / `*.json.bak2` | 无影响，脚本下次运行会重新生成 | 在脚本源码里搜得到生成它的代码（如 `link_check.py` 的 `bak = cfg_path + ".bak"`）⇒ 可删 |
+    | **rsync 搬进仓的副本** | 仓内 `skills/pdfkit-py/scripts/venv` | 无影响（live 已有正本） | 仓内 + 已被 `.gitignore` 隔离 + `git ls-files` 计数为 0 ⇒ 纯冗余，可删 |
+
+    两条纪律：① **报"可清理"之前先回答"删了哪个功能会坏"**，答不上来就别报；
+    ② 删除是破坏性动作，**给判断 + 求授权，不要顺手删**（用户可能就是要留着）。
 

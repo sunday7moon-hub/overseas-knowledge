@@ -261,6 +261,20 @@ def main():
         lambda s: s.replace('data-cg-state="pending" data-cg-tone="in_force"',
                             'data-cg-state="pending" data-cg-tone="verify"', 1),
         ["F5"]))
+    # N17 / N18 申报式正文修复（2026-09-23 建）★ 这一组守的是「申报通道不是后门」：
+    #   「正文零改动」精确化为「零**未申报**改动」之后，必须证明它**没有被放宽成随便改**。
+    #   N17 动的是**申报之外**的正文 → T1 必须拦（原来那条硬约束还在）；
+    #   N18 是"申报了却没落地"（产物里被改回坏域名）→ T1 + BF1 双拦。
+    #   两条一起才说明：豁免是**定向**的，不是把门打开。
+    results.append(case_product(
+        work, cfg, "N17 申报之外的正文被改动（章节标题加料）→ T1 拦（豁免未放宽成随便改）",
+        lambda s: s.replace(">劳动法规<", ">劳动法规定（未申报改动）<", 1),
+        ["T1"]))
+    results.append(case_product(
+        work, cfg, "N18 申报修复未落地（产物域名被改回坏域名）→ T1 + BF1 拦",
+        lambda s: s.replace("https://s.coze.cn/t/JLW5demn30c/",
+                            "https://s.cocecdn.net/t/JLW5demn30c/", 1),
+        ["T1", "BF1"]))
 
     print("\nB. 配置注入型（改配置 → 重新构建 → 跑 QC）")
     ctmp = os.path.join(tmp, "cfgcase")
@@ -513,6 +527,52 @@ def main():
                if (_got_red or _got_blk != _npv) else ""))
     else:
         _cq("F12c 真实产物：无红色档，且标注块数 = 页面条目数", False, f"缺 {_pav}")
+
+    # ── G. 申报式正文修复 · 注册表与比对口径（纯函数夹具型，2026-09-23 建）──────
+    #   为什么走纯函数夹具：注册表是**数据**，"条目过期""字段没填全"这两种输入
+    #   没法在真实产物上按需复现（真实注册表是干净的）。只能自己造输入喂进去。
+    print("\nG. 申报式正文修复（注册表 / 比对口径 · 纯函数夹具）")
+    _gfx = [dict(id="BF-900", slug="s1", find="AAA", replace="BBB",
+                 why="w", evidence="e", owner="o", found_at="2026-09-23")]
+    # G1 基准侧套修复、产物侧不套 —— 这是防"假通过"的核心性质：
+    #    申报了却没落地时两侧必须**不等**（否则"说要做"就等于"做了"）。
+    _cq("G1 申报已落地：baseline_body(基线) == candidate_body(产物)", (lambda: (
+        L.baseline_body("x AAA y", "s1", _gfx) == L.candidate_body("x BBB y")))(),
+        "两侧相等（改动恰好是申报的那处）")
+    _cq("G1b 申报**未**落地：两侧必须不等（否则 = 假通过）", (lambda: (
+        L.baseline_body("x AAA y", "s1", _gfx) != L.candidate_body("x AAA y")))(),
+        "两侧不等 —— 拦住「申报了却没做」")
+    # G2 未申报改动照样拦：产物多动了一处，两侧不等
+    _cq("G2 产物多改一处（未申报）→ 两侧不等 ⇒ T1 会拦", (lambda: (
+        L.baseline_body("x AAA y", "s1", _gfx) != L.candidate_body("x BBB z")))(),
+        "多改的那处暴露了")
+    # G3 过期申报能被识别（基线里 find 已不存在）
+    _cq("G3 过期申报可识别（find 不在基线里 ⇒ orphan 非空）",
+        (lambda: (L.orphan_body_fixes("s1", "x BBB y", _gfx) == ["BF-900"]
+                  and L.orphan_body_fixes("s1", "x AAA y", _gfx) == []))(),
+        "命中→不报；不命中→报 BF-900")
+    # G4 字段不全能被拦（注册表条目必须自证依据）
+    _cq("G4 注册表条目字段不全 → body_fixes_missing_fields 报出",
+        L.body_fixes_missing_fields([dict(id="BF-901", slug="s1", find="A", replace="B")])
+        == [("BF-901", ["why", "evidence", "owner", "found_at"])],
+        "缺 why/evidence/owner/found_at")
+    # G5 slug 精确匹配：一条修复不许"摊到全站"
+    _cq("G5 slug 精确匹配（别的国家不受影响，空 slug 不套任何修复）",
+        (L.apply_body_fixes("x AAA y", "s2", _gfx)[1] == []
+         and L.apply_body_fixes("x AAA y", None, _gfx)[1] == []
+         and L.apply_body_fixes("x AAA y", "s1", _gfx)[1] == ["BF-900"]),
+        "s1 生效 / s2 与 None 均不动")
+    # G6 撤回可还原（residual_check 依赖这条）
+    _cq("G6 undo_body_fixes 可还原（residual_check 靠它把修复撤回去）",
+        L.undo_body_fixes("x BBB y", "s1", _gfx) == "x AAA y", "还原为原串")
+    # G7 真实注册表自检：阿联酋那条必须有据可查、且在基线里仍命中
+    _real = L.load_body_fixes()
+    _ru = [f for f in _real if f["slug"] == slug]
+    _cq("G7 真实注册表：阿联酋申报条目字段齐全且命中基线",
+        bool(_ru) and not L.body_fixes_missing_fields(_real)
+        and not L.orphan_body_fixes(slug, open(
+            os.path.join(a.workdir, slug, "content_ORIGINAL.html"), encoding="utf-8").read()),
+        f"共 {len(_real)} 条申报，阿联酋 {len(_ru)} 条")
 
     passed = all(results)
     print("-" * 74)

@@ -31,9 +31,10 @@
   S6  标注块内链接全部 official / internal（无站外三方）
   S7  div 配平、h2.section-title 数量不变
   S8  live：线上 == 本地产物（剥 <style> 后等价）｜staging：线上 == 本轮基线（未被改动）
-  S9  正文零改动（摘除注入物后 == content_ORIGINAL 基线）
+  S9  正文零**未申报**改动（摘除注入物 + 基准侧套申报修复后 == content_ORIGINAL 基线）
   S10 生效状态 / **配色档**判定一致（data-cg-eff 与 data-cg-tone 都按生效日重算 + 文案已写明）
   S11 目录气泡 / 章节徽标数量自洽（@scope 存在、规则数 = 有标注章节数 × 章节份数）
+  S18 申报的正文修复均已生效（find 无残留 + replace 已出现）· S18b 无过期申报
   S12 客户向文案（版本条「正文版本」月粒度且 = 最新校验月 · 无内部过程时间 · 状态文案客户端向）
   S13 页面无内部过程字段（标注写入 / 校对ID / 页面位置）—— 只记台账（Yoyo 2026-09-23）
   S14 **官方外链可打开**（从**产物**的 href 抽链接再探测，防线上被人改过；死链阻断）
@@ -157,15 +158,17 @@ def check_doc(slug, cc, workdir, source="live", batch=None, link_mode="live",
 
     # S8 两种模式语义不同（见 docstring）
     if source == "staging":
-        # 「本轮基线」判据 = **线上正文（摘除我方注入物后）仍等于我们的干净基线**。
-        # 这样对「首次落线」与「改版重发」两种情形同时成立，且不需要额外快照文件：
+        # 「本轮基线」判据 = **线上正文（摘除我方注入物、套用申报修复后）仍等于我们的干净基线**。
+        # 这样对「首次落线」「改版重发」「含申报修复」三种情形同时成立，且不需要额外快照文件：
         #   · 首次落线：线上还是干净正文 ⇒ 天然相等
         #   · 改版重发：线上 = 干净正文 + 我们上一版注入物 ⇒ 摘除后仍相等
+        #   · 含申报修复：线上 = 基线（缺陷原样）；两侧都套一遍申报修复 ⇒ 仍相等
         # 若不等 ⇒ 有人在我们拉基线之后动过**正文** ⇒ 必须重取基线，禁止覆盖。
         same_base = (bool(base)
-                     and L.canonical(L.strip_injections(live))
-                     == L.canonical(L.strip_injections(base)))
-        add("S8", "线上正文 == 本轮基线（摘除我方注入物后等价，未被他人改动）", same_base,
+                     and L.baseline_body(live, slug)
+                     == L.baseline_body(base, slug))
+        add("S8", "线上正文 == 本轮基线（摘除我方注入物、套用申报修复后等价，未被他人改动）",
+            same_base,
             "基线未漂移，可安全落线" if same_base
             else f"线上正文已被改动：线上 {len(L.strip_injections(live))} vs 基线 "
                  f"{len(L.strip_injections(base))} 字符 —— 需 --refresh 重取基線后重跑")
@@ -175,13 +178,27 @@ def check_doc(slug, cc, workdir, source="live", batch=None, link_mode="live",
             "等价（差异仅平台作用域前缀/空白折叠）" if eq
             else f"不等价：线上 {len(L.strip_style(live))} vs 本地 {len(L.strip_style(local))} 字符")
 
-    # S9 正文零改动
+    # S9 正文零**未申报**改动（口径 = 产物侧只摘注入物 / 基准侧再套申报修复；见 lib 说明）
     if base:
-        same = L.canonical(L.strip_injections(cand)) == L.canonical(L.strip_injections(base))
-        add("S9", "正文零改动（摘除注入物后 == 基线）", same,
-            "逐行等价" if same else "正文被改动过 —— 只允许纯追加")
+        same = L.candidate_body(cand) == L.baseline_body(base, slug)
+        add("S9", "正文零**未申报**改动（摘除注入物 + 套用申报修复后 == 基线）", same,
+            "逐行等价" if same else
+            "正文被改动过 —— 只允许纯追加，或先在 references/body-fixes.json 申报")
     else:
-        add("S9", "正文零改动（摘除注入物后 == 基线）", False, f"缺基线 {bp}")
+        add("S9", "正文零**未申报**改动（摘除注入物 + 套用申报修复后 == 基线）", False, f"缺基线 {bp}")
+
+    # S18 申报式正文修复：逐条核对"说过的改了没有"（与一次校验 BF1/BF2 同一套判据）
+    _bfa = L.body_fixes_for(slug)
+    if _bfa:
+        _bad = [r for r in L.audit_body_fixes(cand, slug) if not r["ok"]]
+        _orph = L.orphan_body_fixes(slug, base)
+        add("S18", "申报的正文修复均已生效（find 无残留 + replace 已出现）", not _bad,
+            "；".join(f"{r['id']} {r['msg']}" for r in _bad) if _bad
+            else "、".join(f"{f['id']} ✅" for f in _bfa))
+        add("S18b", "无过期申报（申报条目在基线中仍命中）", not _orph,
+            "全部命中" if not _orph else f"未命中 {_orph} —— 须复核并移除注册表条目")
+    else:
+        add("S18", "申报的正文修复均已生效", True, "本批无申报修复（注册表中无该国条目）")
 
     # S10 生效状态一致
     eff_bad = []
@@ -321,15 +338,29 @@ def check_doc(slug, cc, workdir, source="live", batch=None, link_mode="live",
         # 可达性结论复用 QC 落下的 _img_check.json（不在全文校验里重复打图床）
         icache = os.path.join(workdir, "_img_check.json")
         prev, _s = LNK.load_cache(icache)
+        miss = []
         if prev:
             by = {g["url"]: g for g in prev}
             for i in cq_imgs:
                 g = by.get(i["src"])
-                if g and LNK.verdict(g) == "block":
+                if g is None:
+                    # ★ 缓存未命中 ≠ 通过（2026-09-23 修）：改了图 / 换了 URL 之后，
+                    #   新 URL 不在旧缓存里 —— 早先这里直接 continue，等于"没查过就当好的"，
+                    #   属于**假放行**（比漏拦更糟：它把未知说成已知）。
+                    #   现在记为告警（不阻断），至少让"这张图没人验过"出现在报告里。
+                    miss.append(i)
+                elif LNK.verdict(g) == "block":
                     cq_finds.append(CQ.finding(
                         "CI7", "配图", "block", i["section"],
                         f"图片打不开：{LNK.LABEL.get(g['cls'], g['cls'])} `{i['src'][:90]}`",
                         "换图或修 URL"))
+        else:
+            miss = list(cq_imgs)   # 连缓存都没有 ⇒ 全部未探测
+        for i in miss:
+            cq_finds.append(CQ.finding(
+                "CI8", "配图", "warn", i["section"],
+                f"缺可达性结论（不在 _img_check.json 里）`{i['src'][:90]}` —— 跑 "
+                f"`qc_gate.py --cq-probe-images` 补探测后可消除本条", "补探测"))
         bad = [f for f in cq_finds if f["level"] == "block"]
         warn = [f for f in cq_finds if f["level"] == "warn"]
         bits = [f"{len(cq_imgs)} 张图（自有域 {sum(1 for i in cq_imgs if i['kind'] == 'own')}"

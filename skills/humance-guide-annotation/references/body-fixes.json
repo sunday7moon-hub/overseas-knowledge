@@ -1,0 +1,41 @@
+{
+  "_why": [
+    "申报式正文修复注册表 —— 「正文零改动」的唯一豁免入口，也是它唯一的**申报入口**。",
+    "",
+    "硬约束「正文零改动」的真实目标是**不偷偷改内容**，而不是「正文里天塌了也不许碰」。",
+    "当正文本身带结构性缺陷（配图域名写错、链接指向失效域名…）时，落标一并修掉是对的；",
+    "但必须**申报**：逐条登记 find / replace / 依据 / 证据，由门禁逐条核对",
+    "「说过的改了没有、没说过的动了没有」。⇒ 门禁口径 = 零**未申报**改动。",
+    "",
+    "字段怎么填：",
+    "  id        流水号 BF-00x（台账与报告里按它点名）",
+    "  slug      只对**这一个**国家生效（精确匹配，不写通配 —— 防“一条修复摊到全站”）",
+    "  find      基线里**逐字**存在、且在**目标位置唯一**的串（含引号等特殊字符也照抄）",
+    "  replace   改成的串",
+    "  why       一句话说清“为什么必须改”（客户视角看得见的问题）",
+    "  evidence  怎么验证的：命令 + 真实回显（HTTP 码 / content-type / 尺寸 / 肉眼确认）",
+    "             ⚠️ 只写“已确认”不算证据；必须是**可复现的原话**",
+    "  owner     谁担的（改错了找谁）",
+    "  found_at  发现日期 YYYY-MM-DD",
+    "",
+    "纪律：",
+    "  1. 修复**不是新的写入路径** —— 产物链仍是「基线 → 申报修复 → 注入物」，只此一条。",
+    "  2. 比对时**只对基准侧套修复**，产物侧不套（否则“申报了却没落地”会被判相等 = 假通过）。",
+    "  3. 条目**过期要删**：基线更新后缺陷若已被别人修掉，find 不再命中 ⇒ 门禁按“过期申报”告警。",
+    "  4. 每条都必须能**独立复核**：看到 why + evidence 就能自己判断改得对不对。"
+  ],
+  "version": 1,
+  "required_fields": ["id", "slug", "find", "replace", "why", "evidence", "owner", "found_at"],
+  "fixes": [
+    {
+      "id": "BF-001",
+      "slug": "united-arab-emirates-country-guide",
+      "find": "https://s.cocecdn.net/t/JLW5demn30c/",
+      "replace": "https://s.coze.cn/t/JLW5demn30c/",
+      "why": "「劳动法规」章首图 URL 的**域名被写错**：s.cocecdn.net 这个域名不存在（DNS NXDOMAIN），客户打开页面看到的是裂图。同一个短链 id 在正确域名 s.coze.cn 下是完好的 —— 同页另外 11 张图用的也都是 s.coze.cn，只有这一张写坏。",
+      "evidence": "① 坏域名：`curl -sS -o /dev/null -w '%{http_code}' https://s.cocecdn.net/t/JLW5demn30c/` → 无响应（getaddrinfo 失败，NXDOMAIN）。② 正确域名：`curl -sS -L -o /tmp/uae_labor_banner.png https://s.coze.cn/t/JLW5demn30c/` → HTTP 200 · Content-Type: image/png · 768×432 · 707 KB；已下载并**肉眼确认**图片内容正确（写字楼仰拍，与「劳动法规」章首横幅样式一致，非乱码/非 AI 生成中文乱码）。③ 同页 `<img>` 域名分布：s.coze.cn ×11 / s.cocecdn.net ×1。",
+      "owner": "巴蒂",
+      "found_at": "2026-09-23"
+    }
+  ]
+}

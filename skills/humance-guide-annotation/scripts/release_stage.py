@@ -10,7 +10,7 @@ Yoyo 定的发布纪律（2026-09-23）：
 
 所以本脚本**只做三件事 + 一件事**，绝不碰 Strapi：
   1. 本地构建（调 batch_guide_patch.py，**不加 --apply**）→ 产物落 content_AFTER.html
-  2. **一次校验**：上线前 QC 门禁（qc_gate.py，24 项，含**官方外链可打开** L5/L9）
+  2. **一次校验**：上线前 QC 门禁（qc_gate.py，31 项，含**官方外链可打开** L5/L9 + **申报式正文修复** BF1–BF3）
   3. **二次校验**：全文校验 · 暂存稿（verify_secondary.py --source staging，S1–S14）
   4. 写暂存清单 `_release/pending_release.json` + 发「待上线确认」通知
 
@@ -194,7 +194,7 @@ def main():
 
     # ── 2) 一次校验：上线前 QC 门禁（24 项；含官方外链可达 L5/L9）─────────────
     qc_json = os.path.join(workdir, "_qc_report.json")
-    rc_qc = run("② 一次校验 · 上线前 QC 门禁（qc_gate.py · 24 项 · 含官方外链可达）",
+    rc_qc = run("② 一次校验 · 上线前 QC 门禁（qc_gate.py · 31 项 · 含官方外链可达 + 申报修复）",
                 [os.path.join(HERE, "qc_gate.py"),
                  "--config", a.config, "--workdir", workdir,
                  "--json-out", qc_json, "--md-out", os.path.join(workdir, "_qc_report.md")])
@@ -202,7 +202,7 @@ def main():
     # ── 3) 二次校验：全文校验（落线前 · 暂存稿）────────────────────────────
     # --link-mode cache：复用 ② 刚落下的 _link_check.json（不重复探测官方站）
     sec_json = os.path.join(d, "_secondary_verify_staging.json")
-    rc_sec = run("③ 二次校验 · 全文校验（暂存稿 · S1–S14）",
+    rc_sec = run("③ 二次校验 · 全文校验（暂存稿 · S1–S18b）",
                  [os.path.join(HERE, "verify_secondary.py"),
                   "--config", a.config, "--workdir", workdir,
                   "--source", "staging", "--link-mode", "cache",

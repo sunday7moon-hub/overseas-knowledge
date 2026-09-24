@@ -503,6 +503,101 @@ def strip_injections(html):
     return out
 
 
+# ── 申报式正文修复（唯一实现）──────────────────────────────────────────────────
+# 「正文零改动」的真实目标是**不偷偷改内容**，而不是"正文里天塌了也不许碰"。
+# 当正文本身带结构性缺陷（配图域名写错、链接指向失效域名…），落标时一并修掉是对的；
+# 但必须**申报**：逐条登记 find / replace / 依据 / 证据，由门禁逐条核对
+# 「说过的改了没有、没说过的动了没有」。⇒ 门禁口径精确为「零**未申报**改动」。
+#
+# ⚠️ 三条纪律（踩过坑的）：
+#   ① **修复不单独成信道** —— 它不是新的写入路径，只是 build 里比注入更早的一步；
+#      产物仍是"基线 → 申报修复 → 注入物"这一条链，没有第二条路能改正文。
+#   ② **比对基准侧套修复、产物侧不套**（见 baseline_body / candidate_body）——
+#      若两侧都套，就会出现"申报了修复但产物里没生效"被判相等的**假通过**。
+#   ③ 注册表是**唯一真相源**：改修复只改 references/body-fixes.json，脚本里不许写死。
+_BODY_FIXES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "..", "references", "body-fixes.json")
+BODY_FIX_FIELDS = ["id", "slug", "find", "replace", "why", "evidence", "owner", "found_at"]
+
+
+def load_body_fixes():
+    """读注册表 → list[dict]。文件不存在 ⇒ []（等价于"本批无申报修复"）。"""
+    if not os.path.exists(_BODY_FIXES_PATH):
+        return []
+    d = json.load(open(_BODY_FIXES_PATH, encoding="utf-8")) or {}
+    return d.get("fixes") or []
+
+
+def body_fixes_missing_fields(fixes=None):
+    """注册表自检 → [(id, [缺的字段…])]。字段不齐的条目一律要被门禁拦下。"""
+    out = []
+    for f in (fixes if fixes is not None else load_body_fixes()):
+        miss = [k for k in BODY_FIX_FIELDS if not str(f.get(k) or "").strip()]
+        if miss:
+            out.append((f.get("id") or "(无 id)", miss))
+    return out
+
+
+def body_fixes_for(slug, fixes=None):
+    """取某国适用的申报修复。**按 slug 精确匹配**（不写通配 —— 防"一条修复摊到全站"）。"""
+    if not slug:
+        return []
+    return [f for f in (fixes if fixes is not None else load_body_fixes())
+            if f.get("slug") == slug]
+
+
+def apply_body_fixes(html, slug=None, fixes=None):
+    """套用申报修复 → (html, [生效的 id…])。slug 为空 ⇒ 原样返回（宁可漏修，不可误修）。"""
+    applied = []
+    for f in body_fixes_for(slug, fixes):
+        if f["find"] in html:
+            html = html.replace(f["find"], f["replace"])
+            applied.append(f["id"])
+    return html, applied
+
+
+def undo_body_fixes(html, slug=None, fixes=None):
+    """把申报修复**反向**撤回（find/replace 互换）—— residual_check 要用。"""
+    rev = [dict(f, find=f["replace"], replace=f["find"]) for f in body_fixes_for(slug, fixes)]
+    return apply_body_fixes(html, slug, rev)[0]
+
+
+def audit_body_fixes(html, slug=None, fixes=None):
+    """逐条核对申报是否真生效 → [dict(id, ok, msg)]。
+    判据两条同时成立才算生效：① 产物里 find 已无残留 ② replace 已出现。"""
+    rows = []
+    for f in body_fixes_for(slug, fixes):
+        left, has = html.count(f["find"]), (f["replace"] in html)
+        ok = (left == 0 and has)
+        rows.append(dict(id=f["id"], ok=ok,
+                         msg="已生效" if ok else
+                         f"未生效（find 残留 {left} 处；replace {'已出现' if has else '未出现'}）"))
+    return rows
+
+
+def orphan_body_fixes(slug, before, fixes=None):
+    """申报了但**在基线里根本没命中**的条目 → [id…]。
+    典型成因：基线更新过（缺陷已被别人修掉）/ find 串写错。门禁按"过期申报"告警。"""
+    return [f["id"] for f in body_fixes_for(slug, fixes) if f["find"] not in (before or "")]
+
+
+def baseline_body(before, slug=None, fixes=None):
+    """**比对基准**正文 = 基线摘除注入物 + 套用申报修复。
+
+    与 candidate_body 成对使用：两者相等 ⇒ 产物相对基线的**全部**改动恰好就是申报的那些。
+    """
+    return canonical(apply_body_fixes(strip_injections(before), slug, fixes)[0])
+
+
+def candidate_body(after):
+    """**产物**正文 = 摘除注入物（**刻意不套**申报修复）。
+
+    为什么不套：若申报了修复、产物里却没落进去，两侧就仍不等 ⇒ 拦住"申报了却没做"。
+    反过来若两侧都套，这种情形会被判成相等 —— 那是**假通过**，比漏拦更糟。
+    """
+    return canonical(strip_injections(after))
+
+
 # ── 链接域名判定（唯一实现）────────────────────────────────────────────────────
 # 规则真相源 = ../references/official-domains.json（Yoyo 2026-09-22 修订：标注块链接两分法 ——
 # 站外只放官方原文，站内解读/知识库/报告/工具入口必须指向品牌自有域名）。改名单只改那个 JSON。
@@ -929,6 +1024,18 @@ def build(content, preview, cfg):
     out, report, inserted = content, [], []
     pout = preview or ""
 
+    # ★ 第 0 步：申报式正文修复（比注入还早一步）—— 见「申报式正文修复」小节。
+    #   报告里**逐条点名**：评审的人必须一眼看到"这次除了标注还动了正文哪里"，
+    #   不能以"顺手修了个图"的名义静默通过。
+    _slug = cfg.get("slug")
+    out, _fx = apply_body_fixes(out, _slug)
+    for _f in body_fixes_for(_slug):
+        if _f["id"] in _fx:
+            report.append(f"✓ 申报修复 {_f['id']}：{_f['why'].split('。')[0][:70]}")
+        else:
+            report.append(f"⚠️ 申报修复 {_f['id']} **未命中基线**"
+                          f"（find 串在正文里不存在 —— 可能基线已更新，须复核注册表）")
+
     assert out.count(NZ) == 1, "nrz 锚点不唯一"
     assert out.count(MC) == 1, "main-container 锚点不唯一"
 
@@ -1054,8 +1161,8 @@ def build(content, preview, cfg):
 
 
 # ---------------------------------------------------------------- 校验
-def residual_check(before, after, inserted):
-    """把插入串逐一移除后应还原 before —— 证明「只增不改」。
+def residual_check(before, after, inserted, slug=None):
+    """把插入串逐一移除、再撤回申报修复后，应还原 before —— 证明「只增不改 + 只申报改」。
 
     实现要点：**不能按 inserted 列表顺序逐个 replace** —— 插入串之间可能存在包含关系
     （如"每个章节的版本条"与"含徽标样式的复合块"，后者尾部正是前者），
@@ -1073,7 +1180,7 @@ def residual_check(before, after, inserted):
         extra = Counter(got) - Counter(inserted)
         return (f"插入串在 AFTER 中的数量不符（缺 {sum(miss.values())} / 多 {sum(extra.values())}）"
                 f"：{str(list(miss.items())[:1] or list(extra.items())[:1])[:120]}")
-    probe = rx.sub("", after)
+    probe = undo_body_fixes(rx.sub("", after), slug)   # 申报修复要反向撤掉才算"还原"
     if probe != before:
         i = next((k for k in range(min(len(probe), len(before))) if probe[k] != before[k]),
                  min(len(probe), len(before)))
@@ -1359,9 +1466,20 @@ def validate(before, after, cfg, inserted=None):
                 errs.append(f"原值疑似被删 {tok}（{before.count(tok)}→{after.count(tok)}）")
 
     if inserted is not None:
-        r = residual_check(before, after, inserted)
+        r = residual_check(before, after, inserted, cfg.get("slug"))
         if r:
             errs.append(r)
+
+    # 申报式正文修复：**逐条核对真的生效**（find 无残留 + replace 已出现）。
+    # residual_check 证明"还原得回去"，这一步证明"确实改对了" —— 两者互补，缺一不可：
+    # 只做前者的话，一条 find 写错（基线里根本不存在）照样能通过。
+    for row in audit_body_fixes(after, cfg.get("slug")):
+        if not row["ok"]:
+            errs.append(f"申报修复 {row['id']} {row['msg']}")
+    for fid in orphan_body_fixes(cfg.get("slug"), before):
+        errs.append(f"申报修复 {fid} 在基线中未命中 —— 过期申报，须复核/移除注册表条目")
+    for fid, miss in body_fixes_missing_fields():
+        errs.append(f"申报修复 {fid} 字段不全（缺 {'/'.join(miss)}）—— 注册表条目必须自证依据")
     return errs
 
 

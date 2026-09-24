@@ -322,11 +322,37 @@ def main():
 
         # ── B 组：文本 ──────────────────────────────────────────────────
         if before:
-            same = canonical(strip_injections(after)) == canonical(strip_injections(before))
-            add("T1", "文本", f"[{slug}] 正文零改动（摘除注入物后与基线等价）", same,
-                "逐行等价" if same else "正文被改动过 —— 只允许纯追加")
+            # 口径 = 「零**未申报**改动」（2026-09-23 立）：
+            #   基准侧 = 摘除注入物 + **套用申报修复**；产物侧 = 只摘除注入物（不套）。
+            #   两侧相等 ⇒ 产物相对基线的全部改动恰好就是申报的那些。
+            #   ⚠️ 刻意只对基准侧套：两侧都套的话，"申报了却没落地"会被判相等（假通过）。
+            same = L.candidate_body(after) == L.baseline_body(before, slug)
+            add("T1", "文本", f"[{slug}] 正文零**未申报**改动（摘除注入物 + 套用申报修复后与基线等价）",
+                same, "逐行等价" if same else
+                "正文被改动过 —— 只允许纯追加，或先在 references/body-fixes.json 申报")
         else:
             add("T1", "文本", f"[{slug}] 有基线可比对", False, f"缺 {f_before}", blocking=True)
+
+        # ── BF 组：申报式正文修复（2026-09-23 建）───────────────────────
+        # 这是"豁免"而非"放宽"：豁免必须**定向、留痕、可独立复核**（同质量豁免单的纪律）。
+        _bf_applicable = L.body_fixes_for(slug)
+        if _bf_applicable:
+            _bad = [r for r in L.audit_body_fixes(after, slug) if not r["ok"]]
+            add("BF1", "文本", f"[{slug}] 申报的正文修复均已生效（find 无残留 + replace 已出现）",
+                not _bad,
+                "；".join(f"{r['id']} {r['msg']}" for r in _bad) if _bad else
+                "、".join(f"{f['id']} ✅" for f in _bf_applicable))
+            _orphan = L.orphan_body_fixes(slug, before)
+            add("BF2", "文本", f"[{slug}] 无过期申报（申报条目在基线中仍命中）",
+                not _orphan,
+                "全部命中" if not _orphan else
+                f"未命中 {_orphan} —— 基线可能已被他人修好，须复核并移除注册表条目",
+                blocking=False)
+        _missf = L.body_fixes_missing_fields()
+        add("BF3", "文本", "申报修复注册表条目字段完整（id/slug/find/replace/why/evidence/owner/found_at）",
+            not _missf,
+            f"共 {len(L.load_body_fixes())} 条，字段齐全" if not _missf else
+            "；".join(f"{i} 缺 {'/'.join(m)}" for i, m in _missf))
 
         add("T2", "文本", f"[{slug}] 标注块数 = 配置条数",
             len(blocks) == len(notes), f"{len(blocks)}/{len(notes)}")
